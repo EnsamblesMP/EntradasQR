@@ -18,21 +18,48 @@ export default function AltaDeEntrada() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const id = uuidv4() // esto va en el QR
 
-    const { error } = await supabase.from('entradas').insert({
-      id,
-      nombre_comprador: nombreComprador,
-      email_comprador: emailComprador,
-      id_alumno: idAlumno,
-      cantidad,
-    })
+    if (!isFormValid) {
+      setMensaje('Fallo inesperado de validacion')
+      return
+    }
 
-    if (error) {
-      setMensaje('Error al guardar: ' + error.message)
-    } else {
-      setMensaje('Entrada registrada. QR generado con ID: ' + id)
-      // Acá podrías usar el ID para generar un QR y mostrarlo
+    try {
+      setMensaje('Guardando entrada...')
+      
+      // Generar un nuevo UUID para la entrada
+      const id = uuidv4()
+      
+      // Insertar en la tabla 'entradas' de Supabase
+      const { data, error } = await supabase
+        .from('entradas')
+        .insert([
+          {
+            id,
+            nombre_comprador: nombreComprador.trim(),
+            email_comprador: emailComprador.trim().toLowerCase(),
+            cantidad: cantidad,
+            id_alumno: idAlumno,
+          }
+        ])
+        .select()
+
+      if (error) throw error
+      
+      // Limpiar el formulario después de un envío exitoso
+      setNombreComprador('')
+      setEmailComprador('')
+      setIdAlumno(null)
+      setCantidad(1)
+      
+      setMensaje(`✅ Entrada registrada exitosamente con ID: ${id}`)
+      
+      // Aquí podrías usar el ID para generar un código QR
+      // generarYMostrarQR(id)
+      
+    } catch (error) {
+      console.error('Error al guardar la entrada:', error)
+      setMensaje(`❌ Error al guardar: ${error.message}`)
     }
   }
 
