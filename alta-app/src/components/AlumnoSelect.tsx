@@ -46,17 +46,17 @@ const AlumnoSelect = ({ value, onChange, required = false }: AlumnoSelectProps) 
   }, []);
   
   return (
-    <div>
+    <div className="w-full">
       {loading ? (
-        <p>Cargando alumnos...</p>
+        <p className="text-gray-600">Cargando alumnos...</p>
       ) : error ? (
-        <p className="error">{error}</p>
+        <p className="text-red-500">{error}</p>
       ) : (
         <select
           value={value || ''}
           onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
           required={required}
-          className="form-select"
+          className="w-full p-3 border border-gray-300 rounded-md text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         >
           <option value="">Seleccionar alumno</option>
           {alumnos.map((alumno) => (
