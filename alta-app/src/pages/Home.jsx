@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { Button } from '../components/ui/Button'
 
 export default function Home() {
   const { currentUser } = useAuth()
@@ -11,25 +11,17 @@ export default function Home() {
         Sistema de gestión de entradas con códigos QR
       </p>
       
-      {!currentUser ? (
-        <div className="space-x-4">
-          <Link
-            to="/login"
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
+      <div className="space-x-4">
+        {!currentUser ? (
+          <Button to="/login" variant="primary">
             Iniciar Sesión
-          </Link>
-        </div>
-      ) : (
-        <div className="space-x-4">
-          <Link
-            to="/alta"
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
+          </Button>
+        ) : (
+          <Button to="/alta" variant="primary">
             Ir al Panel
-          </Link>
-        </div>
-      )}
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

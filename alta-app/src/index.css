@@ -1,23 +1,33 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* Simple base styles */
-body {
-  @apply bg-gray-50 text-gray-900;
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #1f2937; /* Default text color */
+  background-color: #f9fafb; /* Light gray background */
+  font-synthesis: none;
 }
 
-/* Basic form controls */
+/* Ensure inputs and textareas use dark text on light background */
 input,
 select,
 textarea,
 button {
-  @apply border border-gray-300 rounded px-3 py-2 bg-white;
+  color: #1f2937;
+  background-color: #ffffff;
 }
 
 /* Links */
 a {
-  @apply text-blue-500 hover:text-blue-600 transition-colors;
+  font-weight: 500;
+  color: #3b82f6; /* Blue-500 */
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+a:hover {
+  color: #2563eb; /* Blue-600 */
 }
 
 /* Base layout */

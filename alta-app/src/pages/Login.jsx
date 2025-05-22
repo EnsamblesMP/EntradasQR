@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../components/ui/Button';
 
 export default function Login() {
   const { currentUser, signInWithOAuth } = useAuth()
@@ -12,9 +13,17 @@ export default function Login() {
     }
   }, [currentUser, navigate])
 
-  const handleLogin = async (provider) => {
+  const handleGoogleSignIn = async () => {
     try {
-      await signInWithOAuth(provider)
+      await signInWithOAuth('google')
+    } catch (error) {
+      console.error('Error logging in:', error)
+    }
+  }
+
+  const handleGitHubSignIn = async () => {
+    try {
+      await signInWithOAuth('github')
     } catch (error) {
       console.error('Error logging in:', error)
     }
@@ -32,21 +41,22 @@ export default function Login() {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <div className="space-y-6">
             <div>
-              <button
-                onClick={() => handleLogin('google')}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              <Button
+                onClick={handleGoogleSignIn}
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
               >
-                Continuar con Google
-              </button>
+                <span>Continuar con Google</span>
+              </Button>
             </div>
 
             <div>
-              <button
-                onClick={() => handleLogin('github')}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+              <Button
+                onClick={handleGitHubSignIn}
+                className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 focus:ring-gray-600"
               >
-                Continuar con GitHub
-              </button>
+                <span>Continuar con GitHub</span>
+              </Button>
             </div>
           </div>
         </div>
