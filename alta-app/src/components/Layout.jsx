@@ -1,10 +1,10 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { Button } from './ui/Button'
 
 export default function Layout({ children }) {
   const { currentUser, signOut } = useAuth()
   const navigate = useNavigate()
-
   const handleLogout = async () => {
     try {
       await signOut()
@@ -21,38 +21,25 @@ export default function Layout({ children }) {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <Link to="/" className="text-xl font-bold text-gray-800">
-                  EntradasQR
-                </Link>
+                <Button variant="menu" to="/" className="text-xl font-bold text-gray-800 p-0 hover:bg-transparent">
+                  Entradas QR Alta App
+                </Button>
               </div>
               {currentUser && (
-                <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                  <Link
-                    to="/alta"
-                    className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                  >
+                <div className="hidden sm:ml-6 sm:flex">
+                  <Button variant="menu" to="/alta">
                     Alta de Entrada
-                  </Link>
+                  </Button>
                 </div>
               )}
             </div>
-            <div className="hidden sm:ml-6 sm:flex sm:items-center">
-              {currentUser ? (
-                <button
-                  onClick={handleLogout}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
+            {currentUser && (
+              <div className="flex items-center">
+                <Button onClick={handleLogout} variant="outline" size="md">
                   Cerrar Sesión
-                </button>
-              ) : (
-                <Link
-                  to="/login"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  Iniciar Sesión
-                </Link>
-              )}
-            </div>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </nav>

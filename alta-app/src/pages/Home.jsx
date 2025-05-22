@@ -6,10 +6,8 @@ export default function Home() {
 
   return (
     <div className="text-center">
-      <h1 className="text-4xl font-bold text-gray-900 mb-6">Bienvenido a la Alta de EntradasQR</h1>
-      <p className="text-xl text-gray-600 mb-8">
-        Sistema de gestión de entradas con códigos QR
-      </p>
+      <h1 className="text-4xl font-bold text-gray-900 mb-6">Entradas QR Alta App</h1>
+      <h2 className="text-xl font-semibold text-gray-600 mb-6">Ensambles MP</h2>
       
       <div className="space-x-4">
         {!currentUser ? (
@@ -18,7 +16,7 @@ export default function Home() {
           </Button>
         ) : (
           <Button to="/alta" variant="primary">
-            Ir al Panel
+            Alta de Entrada
           </Button>
         )}
       </div>
