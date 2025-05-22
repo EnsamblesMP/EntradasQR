@@ -18,8 +18,8 @@ const sizeStyles = {
 };
 
 export function Button({
-  to,
   children,
+  to = '',
   variant = 'outline',
   size = 'sm',
   className = '',

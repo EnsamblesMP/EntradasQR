@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { supabase } from '../supabaseClient'
 import { v4 as uuidv4 } from 'uuid'
 import AlumnoSelect from './AlumnoSelect'
+import { Button } from './ui/Button'
 
 export default function AltaDeEntrada() {
   const [nombreComprador, setNombreComprador] = useState('')
@@ -9,6 +10,7 @@ export default function AltaDeEntrada() {
   const [idAlumno, setIdAlumno] = useState<number | null>(null)
   const [cantidad, setCantidad] = useState(1)
   const [mensaje, setMensaje] = useState('')
+  const [idEntradaGenerada, setIdEntradaGenerada] = useState<string | null>(null)
 
   // Validar si los campos obligatorios están completos
   const isFormValid = Boolean(
@@ -46,21 +48,75 @@ export default function AltaDeEntrada() {
 
       if (error) throw error
       
-      // Limpiar el formulario después de un envío exitoso
-      setNombreComprador('')
-      setEmailComprador('')
-      setIdAlumno(null)
-      setCantidad(1)
-      
+      setIdEntradaGenerada(id)
       setMensaje(`✅ Entrada registrada exitosamente con ID: ${id}`)
-      
-      // Aquí podrías usar el ID para generar un código QR
-      // generarYMostrarQR(id)
       
     } catch (error) {
       console.error('Error al guardar la entrada:', error)
       setMensaje(`❌ Error al guardar: ${error.message}`)
     }
+  }
+
+  if (idEntradaGenerada) {
+    const qrGenerado = `https://freeqr.com/api/v1/?data=${idEntradaGenerada}&size=300x300&color=000&bgcolor=3cc`
+
+    let subject = encodeURIComponent("Entrada para muestra de Ensables MP")
+    let body = encodeURIComponent("Hola " + nombreComprador + "<br>" +
+      "Presentar el QR de esta entrada en la entrada del ensable<br>" +
+      "(cantidad de entradas adquiridas: " + cantidad + ")<br>" +
+      "<br>" +
+      "<img src=\"" + qrGenerado + "\" alt=\"QR\" />")
+    let mailToHref = "mailto:" + emailComprador + "?"
+            + "subject=" + subject + "&"
+            + "body=" + body;
+
+    const handleEnviarEmail = async (e: React.FormEvent) => {
+      e.preventDefault()
+      let wndMail = window.open(mailToHref, "_blank", "scrollbars=yes,resizable=yes,width=10,height=10");
+      if(wndMail)
+      {
+          wndMail.close();
+      }
+    }
+
+    const handleCloseQr = () => {
+      setIdEntradaGenerada(null)
+      setMensaje('')
+      // Limpiar el formulario
+      setNombreComprador('')
+      setEmailComprador('')
+      setIdAlumno(null)
+      setCantidad(1)
+    }
+
+    return (
+      <>
+        <p className={`mt-4 p-3 rounded-md text-center bg-green-100 text-green-700`}>
+          {mensaje}
+        </p>
+        <div className="mt-6">
+          <p className="text-sm text-gray-600">QR Generado:</p>
+          <img src={qrGenerado} alt="QR" />
+        </div>
+        <div className="mt-6">
+          <Button onClick={handleEnviarEmail} variant="primary" fullWidth={true}>
+            Enviar email
+          </Button>
+          (via boton no funciona por ahora)
+        </div>
+        <div className="mt-6">
+          <a href={mailToHref} className="w-full text-gray-100 mt-2 block hover:underline inline-flex items-center justify-center font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500 border border-transparent shadow-sm">
+            Enviar email
+          </a>
+          (via &lt;a&gt; abre un email en el email client definido en Windows, pero solo con texto sin formato, o sea que tampoco funciona todavia)
+        </div>
+        <div className="mt-6">
+          <Button onClick={handleCloseQr} variant="secondary" fullWidth={true}>
+            Cerrar QR (generar otra entrada)
+          </Button>
+        </div>
+      </>
+    )
   }
 
   return (
