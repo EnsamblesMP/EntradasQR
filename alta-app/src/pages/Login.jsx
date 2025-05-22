@@ -13,14 +13,6 @@ export default function Login() {
     }
   }, [currentUser, navigate])
 
-  const handleGoogleSignIn = async () => {
-    try {
-      await signInWithOAuth('google')
-    } catch (error) {
-      console.error('Error logging in:', error)
-    }
-  }
-
   const handleGitHubSignIn = async () => {
     try {
       await signInWithOAuth('github')
@@ -42,21 +34,11 @@ export default function Login() {
           <div className="space-y-6">
             <div>
               <Button
-                onClick={handleGoogleSignIn}
-                variant="outline"
-                fullWidth={true}
-              >
-                <span>Continuar con Google</span>
-              </Button>
-            </div>
-
-            <div>
-              <Button
                 onClick={handleGitHubSignIn}
                 fullWidth={true}
                 variant="outline"
               >
-                <span>Continuar con GitHub</span>
+                <span>Iniciar sesión con GitHub</span>
               </Button>
             </div>
           </div>
