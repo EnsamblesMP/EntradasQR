@@ -44,7 +44,7 @@ export default function Login() {
               <Button
                 onClick={handleGoogleSignIn}
                 variant="outline"
-                className="w-full flex items-center justify-center gap-2"
+                fullWidth={true}
               >
                 <span>Continuar con Google</span>
               </Button>
@@ -53,7 +53,8 @@ export default function Login() {
             <div>
               <Button
                 onClick={handleGitHubSignIn}
-                className="w-full flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-700 focus:ring-gray-600"
+                fullWidth={true}
+                variant="outline"
               >
                 <span>Continuar con GitHub</span>
               </Button>
