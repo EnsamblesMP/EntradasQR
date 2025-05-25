@@ -29,6 +29,8 @@ jobs:
         with:
           node-version: lts/*
           cache: 'npm'
+          working-directory: alta-app
+          cache-dependency-path: alta-app/package-lock.json
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
         with:
