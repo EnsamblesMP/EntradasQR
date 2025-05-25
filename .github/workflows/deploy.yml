@@ -39,10 +39,11 @@ jobs:
         run: npm run build
         working-directory: alta-app
       - name: Upload production-ready build files
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: alta-app-build
+          name: alta-app-deploy
           path: ./alta-app/dist
+          retention-days: 1
 
   deploy:
     name: Deploy Alta-App
@@ -50,15 +51,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Download Alta-App build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: alta-app-build
-          path: ./alta-app-artifact
-      - name: List Alta-App build artifact
-        run: du -ac ./alta-app-artifact
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        id: deployment
+        uses: actions/deploy-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./alta-app-artifact
+          publish_dir: ./alta-app/dist
+          artifact_name: alta-app-deploy
