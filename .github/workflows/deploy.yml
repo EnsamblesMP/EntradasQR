@@ -58,5 +58,4 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         with:
-          publish_dir: ./alta-app/dist
           artifact_name: alta-app-deploy
