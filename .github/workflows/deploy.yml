@@ -1,7 +1,6 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Ejecutar en push a la rama main
   push:
     branches: [ "main" ]
   
@@ -20,41 +19,42 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Job para construir el proyecto
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: lts/*
           cache: 'npm'
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      
       - name: Install dependencies
-        run: npm ci
-      
-      - name: Build project
-        run: npm run build
-      
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: bahmutov/npm-install@v1
         with:
-          path: ./dist
+          working-directory: alta-app
+      - name: Build
+        run: npm run build
+        working-directory: alta-app
+      - name: Upload production-ready build files
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-files
+          path: ./alta-app/dist
 
-  # Job para hacer el deployment
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    name: Deploy
     needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: production-files
+          path: ./alta-app/dist
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./alta-app/dist
