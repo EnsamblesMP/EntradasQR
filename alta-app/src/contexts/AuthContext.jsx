@@ -1,6 +1,19 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../supabaseClient'
 
+// Determine the correct redirect URL based on environment
+const getRedirectUrl = () => {
+  if (typeof window !== 'undefined') {
+    // In production (GitHub Pages)
+    if (window.location.hostname === 'ensamblesmp.github.io') {
+      return 'https://ensamblesmp.github.io/EntradasQR/'
+    }
+    // In development
+    return window.location.href
+  }
+  return 'http://localhost:5173/EntradasQR/'
+}
+
 const AuthContext = createContext()
 
 export function useAuth() {
@@ -33,7 +46,7 @@ export function AuthProvider({ children }) {
       const { error } = await supabase.auth.signInWithOAuth({ 
         provider,
         options: {
-          redirectTo: window.location.origin
+          redirectTo: getRedirectUrl()
         }
       })
       if (error) throw error
