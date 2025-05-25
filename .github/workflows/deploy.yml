@@ -20,6 +20,7 @@ concurrency:
 
 jobs:
   build:
+    name: Build Alta-App
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -40,24 +41,24 @@ jobs:
       - name: Upload production-ready build files
         uses: actions/upload-artifact@v4
         with:
-          name: production-files
+          name: alta-app-build
           path: ./alta-app/dist
 
   deploy:
-    name: Deploy
+    name: Deploy Alta-App
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - name: Download artifact
+      - name: Download Alta-App build artifact
         uses: actions/download-artifact@v4
         with:
-          name: production-files
-          path: ./alta-app-artifacts
-      - name: List Artifacts
-        run: ls ./alta-app-artifacts
+          name: alta-app-build
+          path: ./alta-app-artifact
+      - name: List Alta-App build artifact
+        run: du -ac ./alta-app-artifact
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./alta-app-artifacts
+          publish_dir: ./alta-app-artifact
