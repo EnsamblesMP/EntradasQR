@@ -1,10 +1,11 @@
+import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from './contexts/AuthContext'
-import Layout from './components/Layout'
-import Home from './pages/Home'
-import Login from './pages/Login'
-import AltaDeEntrada from './components/AltaDeEntrada'
-import ProtectedRoute from './components/ProtectedRoute'
+import { AuthProvider } from '../supabase/AuthContext'
+import Layout from '../components/Layout'
+import Home from '../pages/Home'
+import Login from '../pages/Login'
+import AltaDeEntrada from '../components/AltaDeEntrada'
+import ProtectedRoute from './ProtectedRoute'
 
 function App() {
   return (

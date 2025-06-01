@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+import { 
+  Select,
+  Skeleton,
+  Field,
+  createListCollection,
+  ListCollection,
+} from '@chakra-ui/react';
+import { supabase } from '../supabase/supabaseClient';
 
 interface Alumno {
   alumno_id: number;
@@ -17,7 +24,7 @@ const getCurrentYear = () => {
 };
 
 const AlumnoSelect = ({ value, onChange, required = false }: AlumnoSelectProps) => {
-  const [alumnos, setAlumnos] = useState<Alumno[]>([]);
+  const [alumnos, setAlumnos] = useState<ListCollection<Alumno>>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -33,7 +40,12 @@ const AlumnoSelect = ({ value, onChange, required = false }: AlumnoSelectProps) 
         
         if (error) throw error;
         
-        setAlumnos(data || []);
+        const alumnosCollection = createListCollection({
+          items: data,
+          itemToString: (item) => item.alumno_nombre,
+          itemToValue: (item) => item.alumno_id,
+        });
+        setAlumnos(alumnosCollection);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error cargando alumnos');
         console.error('Error cargando alumnos:', err);
@@ -45,28 +57,54 @@ const AlumnoSelect = ({ value, onChange, required = false }: AlumnoSelectProps) 
     obtenAlumnos();
   }, []);
   
+  if (loading) {
+    return (
+      <Field.Root required={required}>
+        <Field.Label>Alumno</Field.Label>
+        <Skeleton height="40px" borderRadius="md" />
+      </Field.Root>
+    );
+  }
+
+  if (error) {
+    return (
+      <Field.Root invalid>
+        <Field.Label>Alumno</Field.Label>
+        <Field.ErrorText>{error}</Field.ErrorText>
+      </Field.Root>
+    );
+  }
+
   return (
-    <div className="w-full">
-      {loading ? (
-        <p className="text-gray-600">Cargando alumnos...</p>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
-      ) : (
-        <select
-          value={value || ''}
-          onChange={(e) => onChange(e.target.value ? Number(e.target.value) : null)}
-          required={required}
-          className="w-full p-3 border border-gray-300 rounded-md text-base focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+    <Field.Root required={required} invalid={!!error}>
+      <Field.Label>Alumno</Field.Label>
+      {alumnos && (
+        <Select.Root
+          collection={alumnos}
+          value={value !== null ? [value.toString()] : []}
+          onValueChange={({ value: selectedValue }) => 
+            onChange(selectedValue.length > 0 ? Number(selectedValue[0]) : null)
+          }
+          size="lg"
         >
-          <option value="">Seleccionar alumno</option>
-          {alumnos.map((alumno) => (
-            <option key={alumno.alumno_id} value={alumno.alumno_id}>
-              {alumno.alumno_nombre}
-            </option>
-          ))}
-        </select>
+          <Select.Control>
+            <Select.Trigger>
+              <Select.ValueText placeholder="Seleccionar alumno" />
+            </Select.Trigger>
+          </Select.Control>
+          <Select.Positioner>
+            <Select.Content>
+              {alumnos?.items.map((alumno) => (
+                <Select.Item key={alumno.alumno_id} item={alumno}>
+                  {alumno.alumno_nombre}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select.Positioner>
+        </Select.Root>
       )}
-    </div>
+      {error && <Field.ErrorText>{error}</Field.ErrorText>}
+    </Field.Root>
   );
 };
 
