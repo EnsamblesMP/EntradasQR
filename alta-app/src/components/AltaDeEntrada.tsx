@@ -14,12 +14,14 @@ import {
 import { toaster } from '../chakra/toaster';
 import { supabase } from '../supabase/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
+import GrupoSelect from './GrupoSelect';
 import AlumnoSelect from './AlumnoSelect';
 
 const AltaDeEntrada: React.FC = () => {
   // State for form fields
   const [nombreComprador, setNombreComprador] = useState('');
-  const [emailComprador, setEmailComprador] = useState('');
+  const [emailComprador, setEmailComprador] = useState(''); 
+  const [idGrupo, setIdGrupo] = useState<string | null>(null);
   const [idAlumno, setIdAlumno] = useState<number | null>(null);
   const [cantidad, setCantidad] = useState(0);
   const [mensaje, setMensaje] = useState('');
@@ -28,6 +30,8 @@ const AltaDeEntrada: React.FC = () => {
 
   // Validar si los campos obligatorios están completos
   const isFormValid = Boolean(
+    nombreComprador !== '' &&
+    idGrupo !== null &&
     idAlumno !== null && 
     cantidad >= 1
   );
@@ -99,6 +103,7 @@ const AltaDeEntrada: React.FC = () => {
       // Limpiar el formulario
       setNombreComprador('');
       setEmailComprador('');
+      setIdGrupo(null);
       setIdAlumno(null);
       setCantidad(1);
     };
@@ -163,7 +168,8 @@ const AltaDeEntrada: React.FC = () => {
           />
         </Field.Root>
         
-        <AlumnoSelect value={idAlumno} onChange={setIdAlumno} required/>
+        <GrupoSelect value={idGrupo} onChange={setIdGrupo} required/>
+        <AlumnoSelect value={idAlumno} onChange={setIdAlumno} idGrupo={idGrupo} required/>
         
         <Field.Root required>
           <Field.Label>Cantidad de entradas</Field.Label>
