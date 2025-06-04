@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { 
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import {
+  Button,
+  Field,
+  HStack,
   Select,
   Skeleton,
-  Field,
-  ListCollection,
+  SelectValueChangeDetails,
   createListCollection,
 } from '@chakra-ui/react';
 import { supabase } from '../supabase/supabaseClient';
@@ -25,58 +27,70 @@ const getCurrentYear = () => {
 };
 
 const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) => {
-  const [grupos, setGrupos] = useState<ListCollection<Grupo>>();
+  const [grupos, setGrupos] = useState<Grupo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  useEffect(() => {
-    const obtenGrupos = async () => {
+  const obtenGrupos = useCallback(async () => {
       try {
-        onChange(null);
         setLoading(true);
+        onChange(null);
+
         const { data, error } = await supabase
           .from('grupos')
           .select('id, nombre_corto, year')
           .eq('year', getCurrentYear())
           .order('id', { ascending: true });
-        
+
         if (error) throw error;
-        
-        const gruposCollection = createListCollection({
-          items: data,
-          itemToString: (item) => item.id,
-          itemToValue: (item) => item.id,
-        });
-        setGrupos(gruposCollection);
+
+        setGrupos(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error cargando grupos');
         console.error('Error cargando grupos:', err);
       } finally {
         setLoading(false);
       }
-    };
+    }, [onChange]);
     
+  useEffect(() => {
     obtenGrupos();
-  }, []);
-  
+  }, [obtenGrupos]);
+
+  const collection = useMemo(() => createListCollection({
+    items: grupos,
+    itemToString: (item) => item.id,
+    itemToValue: (item) => item.id,
+  }), [grupos]);
+
+  const handleRetry = () => {
+    setError(null);
+    obtenGrupos();
+  };
+
+  const handleValueChange = (details: SelectValueChangeDetails<Grupo>) => {
+    onChange(details.value.length > 0 ? details.value[0] : null);
+  }
+
+  const values = value !== null ? [value] : [];
+
   return (
     <Field.Root required={required} invalid={!!error}>
       <Field.Label>Grupo</Field.Label>
-      <Skeleton loading={loading || error !== null || grupos === undefined} w="full">
-        <Select.Root
-          collection={grupos}
-          value={value !== null ? [value] : []}
-          onValueChange={o => onChange(o.value.length > 0 ? o.value[0] : null)}
-          size="lg"
-        >
+      <Skeleton loading={loading || error !== null} w="full">
+        <Select.Root collection={collection} onValueChange={handleValueChange} value={values} size="lg">
           <Select.Control>
             <Select.Trigger>
-              <Select.ValueText placeholder="Seleccionar Grupo" />
+              <Select.ValueText placeholder={
+                collection.size === 0
+                  ? "No hay grupos disponibles en el año."
+                  : "Seleccionar Grupo"
+              } />
             </Select.Trigger>
           </Select.Control>
           <Select.Positioner>
             <Select.Content>
-              {grupos?.items.map((grupo) => (
+              {collection?.items.map((grupo) => (
                 <Select.Item key={grupo.id} item={grupo}>
                   {grupo.id}
                 </Select.Item>
@@ -85,7 +99,14 @@ const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) =>
           </Select.Positioner>
         </Select.Root>
       </Skeleton>
-      {error && <Field.ErrorText>{error}</Field.ErrorText>}
+      {error && (
+        <HStack>
+          <Field.ErrorText>{error}</Field.ErrorText>
+          <Button size="sm" onClick={handleRetry} variant="ghost">
+            Reintentar
+          </Button>
+        </HStack>
+      )}
     </Field.Root>
   );
 };
