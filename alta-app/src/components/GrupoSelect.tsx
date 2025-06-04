@@ -76,7 +76,7 @@ const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) =>
 
   return (
     <Field.Root required={required} invalid={!!error}>
-      <Field.Label>Grupo</Field.Label>
+      <Field.Label>Grupo <Field.RequiredIndicator /></Field.Label>
       <Skeleton loading={loading || error !== null} w="full">
         <Select.Root collection={collection} onValueChange={handleValueChange} value={values} size="lg">
           <Select.Control>

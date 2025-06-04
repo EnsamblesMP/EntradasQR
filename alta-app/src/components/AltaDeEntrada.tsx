@@ -148,7 +148,7 @@ const AltaDeEntrada: React.FC = () => {
       
       <VStack gap="6">
         <Field.Root required>
-          <Field.Label>Nombre del comprador</Field.Label>
+          <Field.Label>Nombre del comprador <Field.RequiredIndicator /></Field.Label>
           <Input
             placeholder="Nombre completo"
             value={nombreComprador}
@@ -172,7 +172,7 @@ const AltaDeEntrada: React.FC = () => {
         <AlumnoSelect value={idAlumno} onChange={setIdAlumno} idGrupo={idGrupo} required/>
         
         <Field.Root required>
-          <Field.Label>Cantidad de entradas</Field.Label>
+          <Field.Label>Cantidad de entradas <Field.RequiredIndicator /></Field.Label>
           <NumberInput.Root
             min={1}
             value={cantidad.toString()}

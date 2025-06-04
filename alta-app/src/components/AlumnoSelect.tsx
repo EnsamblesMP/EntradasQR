@@ -61,7 +61,7 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
 
   return (
     <Field.Root required={required} invalid={!!error}>
-      <Field.Label>Alumno</Field.Label>
+      <Field.Label>Alumno <Field.RequiredIndicator /></Field.Label>
       <Skeleton loading={loading || idGrupo === null || error !== null || alumnos === undefined} w="full">
         <Select.Root
           collection={alumnos}
