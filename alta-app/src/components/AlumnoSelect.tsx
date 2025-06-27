@@ -21,48 +21,52 @@ interface AlumnoSelectProps {
 }
 
 const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSelectProps) => {
-  const [alumnos, setAlumnos] = useState<ListCollection<Alumno>>();
+  const [alumnos, setAlumnos] = useState<ListCollection<Alumno>>(createListCollection({
+    items: [],
+    itemToString: (item: Alumno) => item.nombre,
+    itemToValue: (item: Alumno) => String(item.id),
+  }));
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  const obtenAlumnos = async () => {
+    try {
+      onChange(null);
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('alumnos')
+        .select('id, nombre')
+        .eq('grupo', idGrupo)
+        .order('nombre', { ascending: true });
+      
+      if (error) throw error;
+      
+      const alumnosCollection = createListCollection({
+        items: data,
+        itemToString: (item) => item.nombre,
+        itemToValue: (item) => String(item.id),
+      });
+      setAlumnos(alumnosCollection);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error cargando alumnos');
+      console.error('Error cargando alumnos:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (idGrupo === null) {
       onChange(null);
       return;
     }
-    const obtenAlumnos = async () => {
-      try {
-        onChange(null);
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('alumnos')
-          .select('id, nombre')
-          .eq('grupo', idGrupo)
-          .order('nombre', { ascending: true });
-        
-        if (error) throw error;
-        
-        const alumnosCollection = createListCollection({
-          items: data,
-          itemToString: (item) => item.nombre,
-          itemToValue: (item) => String(item.id),
-        });
-        setAlumnos(alumnosCollection);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error cargando alumnos');
-        console.error('Error cargando alumnos:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     obtenAlumnos();
   }, [idGrupo]);
 
   return (
     <Field.Root required={required} invalid={!!error}>
       <Field.Label>Alumno <Field.RequiredIndicator /></Field.Label>
-      <Skeleton loading={loading || idGrupo === null || error !== null || alumnos === undefined} w="full">
+      <Skeleton loading={loading || idGrupo === null || error !== null} w="full">
         <Select.Root
           collection={alumnos}
           value={value !== null ? [String(value)] : []}
@@ -71,12 +75,16 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
         >
           <Select.Control>
             <Select.Trigger>
-              <Select.ValueText placeholder="Seleccionar Alumno" />
+              <Select.ValueText placeholder={
+                alumnos.size === 0
+                  ? "No hay alumnos para este grupo."
+                  : "Seleccionar Alumno"
+              } />
             </Select.Trigger>
           </Select.Control>
           <Select.Positioner>
             <Select.Content>
-              {alumnos?.items.map((alumno) => (
+              {alumnos.items.map((alumno) => (
                 <Select.Item key={alumno.id} item={alumno}>
                   {alumno.nombre}
                 </Select.Item>
