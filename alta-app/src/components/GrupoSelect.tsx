@@ -14,6 +14,7 @@ interface Grupo {
   id: string;
   nombre_corto: string;
   year: number;
+  orden: number;
 }
 
 interface GrupoSelectProps {
@@ -40,11 +41,11 @@ const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) =>
           .from('grupos')
           .select('id, nombre_corto, year')
           .eq('year', getCurrentYear())
-          .order('id', { ascending: true });
+          .order('orden', { ascending: true });
 
         if (error) throw error;
 
-        setGrupos(data);
+        setGrupos(data as Grupo[]);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error cargando grupos');
         console.error('Error cargando grupos:', err);
@@ -90,9 +91,9 @@ const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) =>
           </Select.Control>
           <Select.Positioner>
             <Select.Content>
-              {collection?.items.map((grupo) => (
+              {collection.items.map((grupo) => (
                 <Select.Item key={grupo.id} item={grupo}>
-                  {grupo.id}
+                  {grupo.nombre_corto}
                 </Select.Item>
               ))}
             </Select.Content>
