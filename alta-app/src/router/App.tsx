@@ -1,6 +1,6 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from '../supabase/AuthContext'
+import { AuthProvider } from '../supabase/AuthProvider'
 import Layout from '../components/Layout'
 import Home from '../pages/Home'
 import Login from '../pages/Login'

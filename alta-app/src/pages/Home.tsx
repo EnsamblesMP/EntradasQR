@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../supabase/AuthContext';
+import { useAuth } from '../supabase/authUtils';
 import { Button, VStack, Heading, Text, Box } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 

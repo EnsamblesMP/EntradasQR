@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Box,
   Button,
   Text,
   Heading,
@@ -51,7 +50,7 @@ const AltaDeEntrada: React.FC = () => {
       const id = uuidv4();
       
       // Insertar en la tabla 'entradas' de Supabase
-      const { data, error } = await supabase
+      const { data: _data, error } = await supabase
         .from('entradas')
         .insert([{
           id,

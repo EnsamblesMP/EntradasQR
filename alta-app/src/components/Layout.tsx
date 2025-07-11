@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react'
 import { useNavigate, Link as RouterLink } from 'react-router-dom'
 import {
   Button,
@@ -6,10 +6,15 @@ import {
   VStack,
   Box,
 } from '@chakra-ui/react';
-import { useColorModeValue, ColorModeButton } from '../chakra/color-mode';
-import { useAuth } from '../supabase/AuthContext'
+import { ColorModeButton } from '../chakra/color-mode';
+import { useColorModeValue } from '../chakra/use-color-mode';
+import { useAuth } from '../supabase/authUtils'
 
-export default function Layout({ children }) {
+interface LayoutProps {
+  children: ReactNode
+}
+
+export default function Layout({ children }: LayoutProps) {
   const { currentUser, signOut } = useAuth()
   const navigate = useNavigate()
   const handleLogout = async () => {

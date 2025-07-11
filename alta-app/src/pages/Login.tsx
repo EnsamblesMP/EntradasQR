@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaGithub } from 'react-icons/fa';
 import {
@@ -8,8 +8,8 @@ import {
   Box,
   Container,
 } from '@chakra-ui/react';
-import { useColorModeValue } from '../chakra/color-mode';
-import { useAuth } from '../supabase/AuthContext';
+import { useColorModeValue } from '../chakra/use-color-mode';
+import { useAuth } from '../supabase/authUtils';
 
 export default function Login() {
   const { currentUser, signInWithOAuth } = useAuth();

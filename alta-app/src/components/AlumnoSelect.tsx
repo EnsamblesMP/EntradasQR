@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Select,
   Skeleton,
@@ -29,7 +29,7 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const obtenAlumnos = async () => {
+  const obtenAlumnos = useCallback(async () => {
     try {
       onChange(null);
       setLoading(true);
@@ -53,7 +53,7 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
     } finally {
       setLoading(false);
     }
-  };
+  }, [idGrupo, onChange]);
 
   useEffect(() => {
     if (idGrupo === null) {
@@ -61,7 +61,7 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
       return;
     }
     obtenAlumnos();
-  }, [idGrupo]);
+  }, [idGrupo, obtenAlumnos, onChange]);
 
   return (
     <Field.Root required={required} invalid={!!error}>
