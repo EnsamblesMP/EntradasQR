@@ -1,0 +1,34 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "alta-app",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": [],
+			"label": "npm: build - alta-app",
+			"detail": "vite build"
+		},
+		{
+			"type": "npm",
+			"script": "install",
+			"path": "alta-app",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "npm: install - alta-app",
+			"detail": "install dependencies from package"
+		},
+		{
+			"type": "npm",
+			"script": "lint",
+			"path": "alta-app",
+			"problemMatcher": ["$eslint-stylish"],
+			"label": "npm: lint - alta-app",
+			"detail": "eslint ."
+		}
+	]
+}
