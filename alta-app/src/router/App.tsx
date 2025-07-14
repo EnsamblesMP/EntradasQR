@@ -4,6 +4,7 @@ import Layout from '../components/Layout'
 import Home from '../pages/Home'
 import Login from '../pages/Login'
 import AltaDeEntrada from '../pages/AltaDeEntrada'
+import ListaDeEntradas from '../pages/ListaDeEntradas'
 import ProtectedRoute from './ProtectedRoute'
 import ErrorBoundary from './ErrorBoundary'
 
@@ -19,7 +20,7 @@ function App() {
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
               <Route path="/alta-de-entrada" element={<AltaDeEntrada />} />
-              {/* Add more protected routes here */}
+              <Route path="/lista-de-entradas" element={<ListaDeEntradas />} />
             </Route>
             
             {/* Catch all other routes */}

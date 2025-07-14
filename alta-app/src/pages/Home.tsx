@@ -23,11 +23,18 @@ export default function Home() {
             </Button>
           </RouterLink>
         ) : (
-          <RouterLink to="/alta-de-entrada">
-            <Button colorScheme="brand" size="lg">
-              Alta de Entrada
-            </Button>
-          </RouterLink>
+          <VStack gap={6}>
+            <RouterLink to="/alta-de-entrada">
+              <Button colorScheme="brand" size="lg">
+                Alta de Entrada
+              </Button>
+            </RouterLink>
+            <RouterLink to="/lista-de-entradas">
+              <Button colorScheme="brand" size="lg">
+                Lista de Entradas
+              </Button>
+            </RouterLink>
+          </VStack>
         )}
       </Box>
     </VStack>
