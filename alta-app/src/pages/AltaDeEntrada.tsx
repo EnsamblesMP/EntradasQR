@@ -13,8 +13,8 @@ import {
 import { toaster } from '../chakra/toaster';
 import { supabase } from '../supabase/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
-import GrupoSelect from './GrupoSelect';
-import AlumnoSelect from './AlumnoSelect';
+import GrupoSelect from '../components/GrupoSelect';
+import AlumnoSelect from '../components/AlumnoSelect';
 
 const AltaDeEntrada: React.FC = () => {
   // State for form fields

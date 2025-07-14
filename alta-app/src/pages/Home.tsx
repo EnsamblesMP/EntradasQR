@@ -23,7 +23,7 @@ export default function Home() {
             </Button>
           </RouterLink>
         ) : (
-          <RouterLink to="/alta">
+          <RouterLink to="/alta-de-entrada">
             <Button colorScheme="brand" size="lg">
               Alta de Entrada
             </Button>

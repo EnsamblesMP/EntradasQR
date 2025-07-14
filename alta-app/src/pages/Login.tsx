@@ -19,7 +19,7 @@ export default function Login() {
 
   useEffect(() => {
     if (currentUser) {
-      navigate('/alta');
+      navigate('/alta-de-entrada');
     }
   }, [currentUser, navigate]);
 
