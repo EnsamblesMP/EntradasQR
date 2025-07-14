@@ -32,6 +32,11 @@ const getTimeoutPromise = () => {
   );
 }
 
+type SessionDataResponse = {
+  data: { session: { user: User } | null };
+  error: Error | null;
+};
+
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -50,7 +55,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const sessionData = await Promise.race([
           supabase.auth.getSession(),
           getTimeoutPromise(),
-        ]) as { error: Error | null; data: any } | null;
+        ]) as SessionDataResponse;
 
         if (!isMounted) return;
         if (!sessionData) throw new Error('Error al cargar sesión');
@@ -86,8 +91,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const value: AuthContextType = {
     currentUser,
-    authError,
-    loading,
     signInWithOAuth: async (provider) => {
       try {
         const result = await Promise.race([
@@ -96,7 +99,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             options: { redirectTo: getRedirectUrl() }
           }),
           getTimeoutPromise(),
-        ]) as { error: Error | null; data: any } | null;
+        ]) as SessionDataResponse;
 
         if (result?.error) throw result.error;
         setAuthError(undefined);

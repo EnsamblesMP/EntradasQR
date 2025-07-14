@@ -1,4 +1,3 @@
-import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from '../supabase/AuthProvider'
 import Layout from '../components/Layout'

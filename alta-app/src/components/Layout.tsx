@@ -18,6 +18,7 @@ export default function Layout({ children }: LayoutProps) {
   const { currentUser, signOut } = useAuth()
   const navigate = useNavigate()
   const handleLogout = async () => {
+    if (!signOut) return;
     try {
       await signOut()
       navigate('/login')

@@ -24,6 +24,7 @@ export default function Login() {
   }, [currentUser, navigate]);
 
   const handleGitHubSignIn = async () => {
+    if (!signInWithOAuth) return;
     try {
       await signInWithOAuth('github');
     } catch (error) {
