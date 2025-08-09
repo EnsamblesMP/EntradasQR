@@ -35,8 +35,7 @@ const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) =>
   const obtenGrupos = useCallback(async () => {
       try {
         setLoading(true);
-        onChange(null);
-
+        
         const { data, error } = await supabase
           .from('grupos')
           .select('id, nombre_corto, year')
@@ -52,8 +51,8 @@ const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) =>
       } finally {
         setLoading(false);
       }
-    }, [onChange]);
-    
+    }, []);
+
   useEffect(() => {
     obtenGrupos();
   }, [obtenGrupos]);
