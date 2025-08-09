@@ -3,7 +3,10 @@ import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { Provider } from "./chakra/provider"
-import App from './router/App'
+import { AuthProvider } from './supabase/AuthProvider'
+import ErrorBoundary from './components/ErrorBoundary'
+import Layout from './components/Layout'
+import AppRoutes from './router/AppRoutes'
 
 const rootElem = document.getElementById('root');
 
@@ -14,9 +17,15 @@ if (!rootElem) {
 createRoot(rootElem).render(
   <React.StrictMode>
     <BrowserRouter basename="/EntradasQR/">
-      <Provider>
-        <App />
-      </Provider>
+      <ErrorBoundary>
+        <Provider>
+          <AuthProvider>
+            <Layout>
+              <AppRoutes />
+            </Layout>
+          </AuthProvider>
+        </Provider>
+      </ErrorBoundary>
     </BrowserRouter>
-  </React.StrictMode>,
+  </React.StrictMode>
 )
