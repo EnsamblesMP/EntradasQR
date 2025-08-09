@@ -30,9 +30,12 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
   const [error, setError] = useState<string | null>(null);
   
   const obtenAlumnos = useCallback(async () => {
+    if (!idGrupo) return;
+    
     try {
-      onChange(null);
       setLoading(true);
+      setError(null);
+      
       const { data, error } = await supabase
         .from('alumnos')
         .select('id, nombre')
@@ -46,6 +49,7 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
         itemToString: (item) => item.nombre,
         itemToValue: (item) => String(item.id),
       });
+      
       setAlumnos(alumnosCollection);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error cargando alumnos');
@@ -53,15 +57,17 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
     } finally {
       setLoading(false);
     }
-  }, [idGrupo, onChange]);
+  }, [idGrupo]);
 
   useEffect(() => {
-    if (idGrupo === null) {
-      onChange(null);
+    if (!idGrupo) {
+      if (value !== null) {
+        onChange(null);
+      }
       return;
     }
     obtenAlumnos();
-  }, [idGrupo, obtenAlumnos, onChange]);
+  }, [idGrupo, obtenAlumnos]);
 
   return (
     <Field.Root required={required} invalid={!!error}>
