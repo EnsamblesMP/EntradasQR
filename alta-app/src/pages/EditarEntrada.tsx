@@ -1,21 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import CamposEntrada from '../components/CamposEntrada';
 import {
-  Button,
-  Text,
-  Heading,
-  VStack,
-  Input,
-  NumberInput,
-  Field,
   Alert,
-  Image,
+  Button,
+  Heading,
   HStack,
+  Image,
+  VStack,
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toaster } from '../chakra/toaster';
 import { supabase } from '../supabase/supabaseClient';
-import GrupoSelect from '../components/GrupoSelect';
-import AlumnoSelect from '../components/AlumnoSelect';
+import type { Campos }  from '../components/CamposEntrada';
 
 interface EntradaDB {
   id: string;
@@ -34,18 +30,25 @@ const EditarEntrada: React.FC = () => {
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState('');
 
-  const [nombreComprador, setNombreComprador] = useState('');
-  const [emailComprador, setEmailComprador] = useState('');
-  const [idGrupo, setIdGrupo] = useState<string | null>(null);
-  const [idAlumno, setIdAlumno] = useState<number | null>(null);
-  const [cantidad, setCantidad] = useState(1);
+  // State for form data
+  const [campos, setCampos] = useState<Campos>({
+    nombreComprador: '',
+    emailComprador: '',
+    idGrupo: null,
+    idAlumno: null,
+    cantidad: 1
+  });
+
+  const cambiaCampos = (updates: Partial<Campos>) => {
+    setCampos(prev => ({ ...prev, ...updates }));
+  };
 
   const isFormValid = useMemo(() => (
-    nombreComprador.trim() !== '' &&
-    idGrupo !== null &&
-    idAlumno !== null &&
-    cantidad >= 1
-  ), [nombreComprador, idGrupo, idAlumno, cantidad]);
+    campos.nombreComprador.trim() !== '' &&
+    campos.idGrupo !== null &&
+    campos.idAlumno !== null &&
+    campos.cantidad >= 1
+  ), [campos]);
 
   useEffect(() => {
     const cargarEntrada = async () => {
@@ -66,11 +69,13 @@ const EditarEntrada: React.FC = () => {
         }
 
         const entrada = data as unknown as EntradaDB;
-        setNombreComprador(entrada.nombre_comprador || '');
-        setEmailComprador(entrada.email_comprador || '');
-        setCantidad(entrada.cantidad || 1);
-        setIdAlumno(entrada.id_alumno || null);
-        setIdGrupo(entrada.alumno?.grupo || null);
+        cambiaCampos({
+          nombreComprador: entrada.nombre_comprador || '',
+          emailComprador: entrada.email_comprador || '',
+          cantidad: entrada.cantidad || 1,
+          idAlumno: entrada.id_alumno || null,
+          idGrupo: entrada.alumno?.grupo || null
+        });
         setMensaje('');
       } catch (e) {
         console.error(e);
@@ -97,10 +102,10 @@ const EditarEntrada: React.FC = () => {
       const { error } = await supabase
         .from('entradas')
         .update({
-          nombre_comprador: nombreComprador.trim(),
-          email_comprador: emailComprador.trim().toLowerCase(),
-          cantidad,
-          id_alumno: idAlumno,
+          nombre_comprador: campos.nombreComprador.trim(),
+          email_comprador: campos.emailComprador.trim().toLowerCase(),
+          cantidad: campos.cantidad,
+          id_alumno: campos.idAlumno,
         })
         .eq('id', id);
 
@@ -142,55 +147,18 @@ const EditarEntrada: React.FC = () => {
         Editar entrada
       </Heading>
 
-      <VStack gap="6">
-        <Field.Root required>
-          <Field.Label>Nombre del comprador <Field.RequiredIndicator /></Field.Label>
-          <Input
-            placeholder="Nombre completo"
-            value={nombreComprador}
-            onChange={(e) => setNombreComprador(e.target.value)}
-            size="lg"
-            disabled={cargando}
-          />
-        </Field.Root>
+      <VStack gap="6" w="full">
 
-        <Field.Root>
-          <Field.Label>Correo electrónico (opcional)</Field.Label>
-          <Input
-            type="email"
-            placeholder="email@ejemplo.com"
-            value={emailComprador}
-            onChange={(e) => setEmailComprador(e.target.value)}
-            size="lg"
-            disabled={cargando}
-          />
-        </Field.Root>
-
-        <GrupoSelect value={idGrupo} onChange={setIdGrupo} required />
-        <AlumnoSelect value={idAlumno} onChange={setIdAlumno} idGrupo={idGrupo} required />
-
-        <Field.Root required>
-          <Field.Label>Cantidad de entradas <Field.RequiredIndicator /></Field.Label>
-          <NumberInput.Root
-            min={1}
-            value={String(cantidad)}
-            onValueChange={({ value }) => setCantidad(Number(value) || 0)}
-            size="lg"
-            w="100%"
-          >
-            <NumberInput.Scrubber />
-            <NumberInput.Input />
-            <NumberInput.Control>
-              <NumberInput.IncrementTrigger />
-              <NumberInput.DecrementTrigger />
-            </NumberInput.Control>
-          </NumberInput.Root>
-        </Field.Root>
+        <CamposEntrada
+          campos={campos}
+          onChangeCampos={cambiaCampos}
+          disabled={cargando}
+        />
 
         <HStack w="full" mt={4}>
           <Button
             type="submit"
-            colorPalette="blue"
+            colorScheme="blue"
             size="lg"
             w="50%"
             loading={guardando}
@@ -201,12 +169,12 @@ const EditarEntrada: React.FC = () => {
           </Button>
           <Button
             variant="subtle"
-            colorPalette="blue"
+            colorScheme="blue"
             size="lg"
             w="50%"
             onClick={() => navigate('/lista-de-entradas')}
           >
-            Cancelar
+            Volver
           </Button>
         </HStack>
 
@@ -217,18 +185,18 @@ const EditarEntrada: React.FC = () => {
             <Alert.Description>{mensaje}</Alert.Description>
           </Alert.Root>
         )}
-        
+
         <Image
-            src={qr}
-            alt="Código QR de la entrada"
-            mx="auto"
-            borderWidth="1px"
-            borderColor="gray.200"
-            rounded="md"
-            mb="4"
-            display="block"
-            />
-        
+          src={qr}
+          alt="Código QR de la entrada"
+          mx="auto"
+          borderWidth="1px"
+          borderColor="gray.200"
+          rounded="md"
+          mb="4"
+          display="block"
+          />
+
       </VStack>
     </form>
   );

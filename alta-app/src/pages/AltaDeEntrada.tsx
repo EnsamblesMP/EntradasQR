@@ -1,39 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import CamposEntrada from '../components/CamposEntrada';
 import {
-  Button,
-  Text,
-  Heading,
-  VStack,
-  Input,
-  NumberInput,
-  Field,
   Alert,
+  Button,
+  Heading,
+  HStack,
   Image,
+  Text,
+  VStack,
 } from '@chakra-ui/react';
 import { toaster } from '../chakra/toaster';
 import { supabase } from '../supabase/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
-import GrupoSelect from '../components/GrupoSelect';
-import AlumnoSelect from '../components/AlumnoSelect';
+import type { Campos }  from '../components/CamposEntrada';
 
 const AltaDeEntrada: React.FC = () => {
-  // State for form fields
-  const [nombreComprador, setNombreComprador] = useState('');
-  const [emailComprador, setEmailComprador] = useState(''); 
-  const [idGrupo, setIdGrupo] = useState<string | null>(null);
-  const [idAlumno, setIdAlumno] = useState<number | null>(null);
-  const [cantidad, setCantidad] = useState(0);
+  const navigate = useNavigate();
+
+  const [campos, setCampos] = useState<Campos>({
+    nombreComprador: '',
+    emailComprador: '',
+    idGrupo: null,
+    idAlumno: null,
+    cantidad: 1
+  });
+
+  // UI state
   const [mensaje, setMensaje] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [cargando, setIsLoading] = useState(false);
   const [idEntradaGenerada, setIdEntradaGenerada] = useState<string | null>(null);
 
-  // Validar si los campos obligatorios están completos
-  const isFormValid = Boolean(
-    nombreComprador !== '' &&
-    idGrupo !== null &&
-    idAlumno !== null && 
-    cantidad >= 1
-  );
+  const cambiaCampos = (updates: Partial<Campos>) => {
+    setCampos(prev => ({ ...prev, ...updates }));
+  };
+
+  // Validate form
+  const isFormValid = useMemo(() => (
+    campos.nombreComprador.trim() !== '' &&
+    campos.idGrupo !== null &&
+    campos.idAlumno !== null &&
+    campos.cantidad >= 1
+  ), [campos]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,34 +52,34 @@ const AltaDeEntrada: React.FC = () => {
 
     setIsLoading(true);
     setMensaje('Guardando entrada...');
-    
+
     try {
       // Generar un nuevo UUID para la entrada
       const id = uuidv4();
-      
+
       // Insertar en la tabla 'entradas' de Supabase
       const { data: _data, error } = await supabase
         .from('entradas')
         .insert([{
           id,
-          nombre_comprador: nombreComprador.trim(),
-          email_comprador: emailComprador.trim().toLowerCase(),
-          cantidad: cantidad,
-          id_alumno: idAlumno,
+          nombre_comprador: campos.nombreComprador.trim(),
+          email_comprador: campos.emailComprador.trim().toLowerCase(),
+          cantidad: campos.cantidad,
+          id_alumno: campos.idAlumno,
         }])
         .select();
 
       if (error) throw error;
-      
+
       setIdEntradaGenerada(id);
       setMensaje(`✅ Entrada registrada exitosamente con ID: ${id}`);
-      
+
       toaster.create({
         title: 'Entrada generada',
         description: 'La entrada se ha generado correctamente.',
         type: 'success',
       });
-      
+
     } catch (error) {
       console.error('Error al guardar la entrada:', error);
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
@@ -88,27 +96,29 @@ const AltaDeEntrada: React.FC = () => {
 
   if (idEntradaGenerada) {
     const qrGenerado = `https://freeqr.com/api/v1/?data=${idEntradaGenerada}&size=300x300&color=000&bgcolor=3cc`;
-    const subject = encodeURIComponent("Entrada para muestra de Ensables MP");
+    const subject = encodeURIComponent("Entrada para muestra de Ensambles MP");
     const body = encodeURIComponent(
-      `Hola ${nombreComprador}<br>Presentar el QR de esta entrada en la entrada del ensable<br>` +
-      `(cantidad de entradas adquiridas: ${cantidad})<br><br>` +
+      `Hola ${campos.nombreComprador}<br>Presentar el QR de esta entrada en la entrada del ensamble<br>` +
+      `(cantidad de entradas adquiridas: ${campos.cantidad})<br><br>` +
       `<img src="${qrGenerado}" alt="QR" />`
     );
-    const mailToHref = `mailto:${emailComprador}?subject=${subject}&body=${body}`;
+    const mailToHref = `mailto:${campos.emailComprador}?subject=${subject}&body=${body}`;
 
     const handleCloseQr = () => {
       setIdEntradaGenerada(null);
       setMensaje('');
       // Limpiar el formulario
-      setNombreComprador('');
-      setEmailComprador('');
-      setIdGrupo(null);
-      setIdAlumno(null);
-      setCantidad(1);
+      cambiaCampos({
+        nombreComprador: '',
+        emailComprador: '',
+        idGrupo: null,
+        idAlumno: null,
+        cantidad: 1
+      });
     };
 
     return (
-      <VStack>
+      <VStack w="full">
         <Text mb={4} fontSize="lg" fontWeight="medium" p="5">
           {mensaje}
         </Text>
@@ -127,8 +137,8 @@ const AltaDeEntrada: React.FC = () => {
             <a href={mailToHref}>Abrir en cliente de correo</a>
           </Button>
 
-          <Button 
-            colorPalette="gray" 
+          <Button
+            colorPalette="gray"
             w="full"
             onClick={handleCloseQr}
           >
@@ -144,63 +154,39 @@ const AltaDeEntrada: React.FC = () => {
       <Heading as="h1" size="xl" mb={6} textAlign="center">
         Alta de entrada
       </Heading>
-      
+
       <VStack gap="6">
-        <Field.Root required>
-          <Field.Label>Nombre del comprador <Field.RequiredIndicator /></Field.Label>
-          <Input
-            placeholder="Nombre completo"
-            value={nombreComprador}
-            onChange={(e) => setNombreComprador(e.target.value)}
+
+        <CamposEntrada
+          campos={campos}
+          onChangeCampos={cambiaCampos}
+          disabled={cargando} />
+
+        <HStack w="full" mt={4}>
+          <Button
+            type="submit"
+            colorScheme="blue"
             size="lg"
-          />
-        </Field.Root>
-        
-        <Field.Root>
-          <Field.Label>Correo electrónico (opcional)</Field.Label>
-          <Input
-            type="email"
-            placeholder="email@ejemplo.com"
-            value={emailComprador}
-            onChange={(e) => setEmailComprador(e.target.value)}
-            size="lg"
-          />
-        </Field.Root>
-        
-        <GrupoSelect value={idGrupo} onChange={setIdGrupo} required />
-        <AlumnoSelect value={idAlumno} onChange={setIdAlumno} idGrupo={idGrupo} required />
-        
-        <Field.Root required>
-          <Field.Label>Cantidad de entradas <Field.RequiredIndicator /></Field.Label>
-          <NumberInput.Root
-            min={1}
-            value={String(cantidad)}
-            onValueChange={({ value }) => setCantidad(Number(value) || 0)}
-            size="lg"
-            w="100%"
+            w="50%"
+            loading={cargando}
+            disabled={!isFormValid || cargando}
+            loadingText="Generando..."
           >
-            <NumberInput.Scrubber />
-            <NumberInput.Input />
-            <NumberInput.Control>
-              <NumberInput.IncrementTrigger />
-              <NumberInput.DecrementTrigger />
-            </NumberInput.Control>
-          </NumberInput.Root>
-        </Field.Root>
-        
-        <Button 
-          type="submit" 
-          colorPalette="blue" 
-          size="lg" 
-          w="full"
-          mt={4}
-          loading={isLoading}
-          loadingText="Generando..."
-          disabled={!isFormValid || isLoading}
-        >
-          Generar entrada
-        </Button>
-        
+            Generar entrada
+          </Button>
+          <Button
+            type="button"
+            variant="subtle"
+            colorScheme="blue"
+            size="lg"
+            w="50%"
+            onClick={() => navigate('/lista-de-entradas')}
+            disabled={cargando}
+          >
+            Cancelar
+          </Button>
+        </HStack>
+
         {mensaje && (
           <Alert.Root rounded="md" w="full">
             <Alert.Indicator />
