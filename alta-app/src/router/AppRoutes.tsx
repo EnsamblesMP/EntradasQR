@@ -4,6 +4,7 @@ import Login from '../pages/Login'
 import AltaDeEntrada from '../pages/AltaDeEntrada'
 import ListaDeEntradas from '../pages/ListaDeEntradas'
 import ProtectedRoute from './ProtectedRoute'
+import EditarEntrada from '../pages/EditarEntrada'
 
 function AppRoutes() {
   return (
@@ -15,6 +16,7 @@ function AppRoutes() {
       <Route element={<ProtectedRoute />}>
         <Route path="/alta-de-entrada" element={<AltaDeEntrada />} />
         <Route path="/lista-de-entradas" element={<ListaDeEntradas />} />
+        <Route path="/editar-entrada/:id" element={<EditarEntrada />} />
       </Route>
       
       {/* Catch all other routes */}

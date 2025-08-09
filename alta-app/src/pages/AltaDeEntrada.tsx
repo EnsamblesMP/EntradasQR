@@ -167,14 +167,14 @@ const AltaDeEntrada: React.FC = () => {
           />
         </Field.Root>
         
-        <GrupoSelect value={idGrupo} onChange={setIdGrupo} required/>
-        <AlumnoSelect value={idAlumno} onChange={setIdAlumno} idGrupo={idGrupo} required/>
+        <GrupoSelect value={idGrupo} onChange={setIdGrupo} required />
+        <AlumnoSelect value={idAlumno} onChange={setIdAlumno} idGrupo={idGrupo} required />
         
         <Field.Root required>
           <Field.Label>Cantidad de entradas <Field.RequiredIndicator /></Field.Label>
           <NumberInput.Root
             min={1}
-            value={cantidad.toString()}
+            value={String(cantidad)}
             onValueChange={({ value }) => setCantidad(Number(value) || 0)}
             size="lg"
             w="100%"
