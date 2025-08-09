@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import CamposEntrada from '../components/CamposEntrada';
+import { ImagenQr } from '../components/ImagenQr';
 import {
   Alert,
   Button,
   Heading,
   HStack,
-  Image,
   VStack,
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -139,8 +139,6 @@ const EditarEntrada: React.FC = () => {
     );
   }
 
-  const qr = `https://freeqr.com/api/v1/?data=${id}&size=300x300&color=000&bgcolor=3cc`;
-
   return (
     <form onSubmit={handleGuardar}>
       <Heading as="h1" size="xl" mb={6} textAlign="center">
@@ -186,16 +184,7 @@ const EditarEntrada: React.FC = () => {
           </Alert.Root>
         )}
 
-        <Image
-          src={qr}
-          alt="Código QR de la entrada"
-          mx="auto"
-          borderWidth="1px"
-          borderColor="gray.200"
-          rounded="md"
-          mb="4"
-          display="block"
-          />
+        <ImagenQr idEntrada={id}/>
 
       </VStack>
     </form>

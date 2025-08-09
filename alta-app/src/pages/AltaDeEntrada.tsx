@@ -1,15 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CamposEntrada from '../components/CamposEntrada';
-import { CopyableField } from '../components/CopyableField';
+import EntradaRecienGenerada from '../components/EntradaRecienGenerada';
 import {
   Alert,
   Button,
-  Flex,
   Heading,
   HStack,
-  Image,
-  Text,
   VStack,
 } from '@chakra-ui/react';
 import { toaster } from '../chakra/toaster';
@@ -97,8 +94,6 @@ const AltaDeEntrada: React.FC = () => {
   };
 
   if (idEntradaGenerada) {
-    const qr = `https://freeqr.com/api/v1/?data=${idEntradaGenerada}&size=300x300&color=000&bgcolor=3cc`;
-
     const handleCloseQr = () => {
       setIdEntradaGenerada(null);
       setMensaje('');
@@ -113,61 +108,11 @@ const AltaDeEntrada: React.FC = () => {
     };
 
     return (
-      <VStack w="full">
-        <Text fontSize="lg" fontWeight="medium" p="5">
-          Ahora enviar el QR al comprador<br />
-        </Text>
-
-        <Flex gap="4" w="full">
-          <Text fontSize="sm" fontWeight="medium" mr={1}>
-            Email:
-          </Text>
-          <CopyableField w="full">
-            {campos.emailComprador}
-          </CopyableField>
-        </Flex>
-
-        <Flex gap="4" w="full">
-          <Text fontSize="sm" fontWeight="medium" mr={1}>
-            Asunto:
-          </Text>
-          <CopyableField w="full">
-            Entrada para muestra de Ensambles MP
-          </CopyableField>
-        </Flex>
-
-        <Flex w="full" flexDir="column">
-          <Text fontSize="sm" fontWeight="medium" mb={1}>
-            Contenido del email:
-          </Text>
-          <CopyableField w="full">
-            <p><em>Hola {campos.nombreComprador}</em></p>
-            <p>Presentar el <b>QR</b> de esta entrada en la entrada del ensamble</p>
-            <p>(cantidad de entradas adquiridas: <b>{campos.cantidad}</b>)</p>
-          </CopyableField>
-        </Flex>
-
-        <Image
-          src={qr}
-          alt="Código QR de la entrada"
-          mx="auto"
-          borderWidth="1px"
-          borderColor="gray.200"
-          rounded="md"
-          mt="4"
-          mb="4"
-          display="block"
-        />
-        <VStack gap="4">
-          <Button
-            colorPalette="gray"
-            w="full"
-            onClick={handleCloseQr}
-          >
-            Generar otra entrada
-          </Button>
-        </VStack>
-      </VStack>
+      <EntradaRecienGenerada
+        idEntrada={idEntradaGenerada}
+        campos={campos}
+        onClose={handleCloseQr}
+      />
     );
   }
 
