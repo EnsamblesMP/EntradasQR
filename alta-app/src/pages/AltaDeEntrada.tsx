@@ -1,9 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CamposEntrada from '../components/CamposEntrada';
+import { CopyableField } from '../components/CopyableField';
 import {
   Alert,
   Button,
+  Flex,
   Heading,
   HStack,
   Image,
@@ -95,14 +97,7 @@ const AltaDeEntrada: React.FC = () => {
   };
 
   if (idEntradaGenerada) {
-    const qrGenerado = `https://freeqr.com/api/v1/?data=${idEntradaGenerada}&size=300x300&color=000&bgcolor=3cc`;
-    const subject = encodeURIComponent("Entrada para muestra de Ensambles MP");
-    const body = encodeURIComponent(
-      `Hola ${campos.nombreComprador}<br>Presentar el QR de esta entrada en la entrada del ensamble<br>` +
-      `(cantidad de entradas adquiridas: ${campos.cantidad})<br><br>` +
-      `<img src="${qrGenerado}" alt="QR" />`
-    );
-    const mailToHref = `mailto:${campos.emailComprador}?subject=${subject}&body=${body}`;
+    const qr = `https://freeqr.com/api/v1/?data=${idEntradaGenerada}&size=300x300&color=000&bgcolor=3cc`;
 
     const handleCloseQr = () => {
       setIdEntradaGenerada(null);
@@ -119,24 +114,51 @@ const AltaDeEntrada: React.FC = () => {
 
     return (
       <VStack w="full">
-        <Text mb={4} fontSize="lg" fontWeight="medium" p="5">
-          {mensaje}
+        <Text fontSize="lg" fontWeight="medium" p="5">
+          Ahora enviar el QR al comprador<br />
         </Text>
+
+        <Flex gap="4" w="full">
+          <Text fontSize="sm" fontWeight="medium" mr={1}>
+            Email:
+          </Text>
+          <CopyableField w="full">
+            {campos.emailComprador}
+          </CopyableField>
+        </Flex>
+
+        <Flex gap="4" w="full">
+          <Text fontSize="sm" fontWeight="medium" mr={1}>
+            Asunto:
+          </Text>
+          <CopyableField w="full">
+            Entrada para muestra de Ensambles MP
+          </CopyableField>
+        </Flex>
+
+        <Flex w="full" flexDir="column">
+          <Text fontSize="sm" fontWeight="medium" mb={1}>
+            Contenido del email:
+          </Text>
+          <CopyableField w="full">
+            <p><em>Hola {campos.nombreComprador}</em></p>
+            <p>Presentar el <b>QR</b> de esta entrada en la entrada del ensamble</p>
+            <p>(cantidad de entradas adquiridas: <b>{campos.cantidad}</b>)</p>
+          </CopyableField>
+        </Flex>
+
         <Image
-          src={qrGenerado}
+          src={qr}
           alt="Código QR de la entrada"
           mx="auto"
           borderWidth="1px"
           borderColor="gray.200"
           rounded="md"
+          mt="4"
           mb="4"
           display="block"
         />
         <VStack gap="4">
-          <Button asChild colorPalette="blue" w="full">
-            <a href={mailToHref}>Abrir en cliente de correo</a>
-          </Button>
-
           <Button
             colorPalette="gray"
             w="full"
