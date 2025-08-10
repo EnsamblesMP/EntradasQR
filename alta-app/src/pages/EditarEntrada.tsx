@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import CampoCopiable from '../components/CampoCopiable';
 import CamposEntrada from '../components/CamposEntrada';
 import { ImagenQr } from '../components/ImagenQr';
 import {
@@ -184,7 +185,9 @@ const EditarEntrada: React.FC = () => {
           </Alert.Root>
         )}
 
-        <ImagenQr idEntrada={id}/>
+        <CampoCopiable>
+          <ImagenQr idEntrada={id}/>
+        </CampoCopiable>
 
       </VStack>
     </form>
