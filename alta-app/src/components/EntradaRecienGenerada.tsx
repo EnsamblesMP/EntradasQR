@@ -52,8 +52,8 @@ export const EntradaRecienGenerada: React.FC<EntradaRecienGeneradaProps> = ({
           el código <b>QR</b> que se ve abajo
           {
             campos.cantidad < 2
-              ? ''
-              : (<b>(vale por {campos.cantidad} entradas)</b>)
+              ? <></>
+              : (<> <b>(vale por {campos.cantidad} entradas)</b></>)
           }
           .<br /><br />
           Nombre de la Sala: Galpón B<br />
