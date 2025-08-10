@@ -1,5 +1,4 @@
-import { Box, IconButton, Flex, BoxProps } from "@chakra-ui/react";
-import { FaCopy } from 'react-icons/fa';
+import { Box, BoxProps, Button, Clipboard, Flex } from "@chakra-ui/react";
 import { ReactNode, useRef } from 'react';
 import { copiarHtmlAlPortapapeles } from './Portapapeles';
 
@@ -47,16 +46,13 @@ export const CampoCopiable = ({ children, ...props }: CampoCopiableProps) => {
         >
           {children}
         </Box>
-        <IconButton
-          size="lg"
-          colorScheme="blue"
-          variant="outline"
-          onClick={handleCopy}
-          aria-label="Copiar"
-          px={3}
-        >
-          <FaCopy />
-        </IconButton>
+        <Clipboard.Root onClick={handleCopy}>
+          <Clipboard.Trigger>
+            <Button variant="outline" size="sm">
+              <Clipboard.Indicator />
+            </Button>
+          </Clipboard.Trigger>
+        </Clipboard.Root>
       </Flex>
     </Box>
   );

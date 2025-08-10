@@ -19,7 +19,8 @@ export const copiarHtmlAlPortapapeles = async (htmlElementToCopy: HTMLElement) =
     });
     navigator.clipboard.write([clipboardItem]).then(() => {
       toaster.create({
-        description: 'Contenido copiado al portapapeles',
+        description: `Texto ${textContent !== htmlContent
+          ? 'formateado ' : ''}copiado al portapapeles`,
         type: 'success',
       });
     }).catch(err => {
@@ -38,7 +39,7 @@ export const copiarHtmlAlPortapapeles = async (htmlElementToCopy: HTMLElement) =
         type: 'success',
       });
     } catch (err) {
-      console.error('Error al copiar:', err);
+      console.error('Error al copiar al portapeles:', err);
       toaster.create({
         description: 'Error al copiar al portapeles',
         type: 'error',
