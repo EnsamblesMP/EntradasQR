@@ -46,13 +46,24 @@ export const EntradaRecienGenerada: React.FC<EntradaRecienGeneradaProps> = ({
           Contenido del email:
         </Text>
         <CampoCopiable w="full">
-          <p><em>Hola {campos.nombreComprador}</em></p>
-          <p>Presentar el <b>QR</b> de esta entrada en la entrada del ensamble</p>
-          <p>(cantidad de entradas adquiridas: <b>{campos.cantidad}</b>)</p>
+          Hola {campos.nombreComprador}<br/>
+          <br />
+          Para ingresar al recital de Ensambles MP deberás presentar
+          el código <b>QR</b> que se ve abajo
+          {
+            campos.cantidad < 2
+              ? ''
+              : (<b>(vale por {campos.cantidad} entradas)</b>)
+          }
+          .<br /><br />
+          Nombre de la Sala: Galpón B<br />
+          Dirección: Cochabamba 2536, C1247 CABA<br />
+          Fecha: ??/??/????<br />
+          Hora: ??:??<br />
+          <br />
+          <ImagenQr idEntrada={idEntrada} />
         </CampoCopiable>
       </Flex>
-
-      <ImagenQr idEntrada={idEntrada} />
 
       <VStack gap="4">
         <Button
