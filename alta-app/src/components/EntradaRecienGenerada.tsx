@@ -1,5 +1,5 @@
 import { ImagenQr } from './ImagenQr';
-import { CopyableField } from './CopyableField';
+import { CampoCopiable } from './CampoCopiable';
 import { VStack, Text, Button, Flex } from '@chakra-ui/react';
 import type { Campos }  from './CamposEntrada';
 
@@ -27,29 +27,29 @@ export const EntradaRecienGenerada: React.FC<EntradaRecienGeneradaProps> = ({
         <Text fontSize="sm" fontWeight="medium" mr={1}>
           Email:
         </Text>
-        <CopyableField w="full">
+        <CampoCopiable w="full">
           {campos.emailComprador}
-        </CopyableField>
+        </CampoCopiable>
       </Flex>
 
       <Flex gap="4" w="full">
         <Text fontSize="sm" fontWeight="medium" mr={1}>
           Asunto:
         </Text>
-        <CopyableField w="full">
+        <CampoCopiable w="full">
           Entrada para muestra de Ensambles MP
-        </CopyableField>
+        </CampoCopiable>
       </Flex>
 
       <Flex w="full" flexDir="column">
         <Text fontSize="sm" fontWeight="medium" mb={1}>
           Contenido del email:
         </Text>
-        <CopyableField w="full">
+        <CampoCopiable w="full">
           <p><em>Hola {campos.nombreComprador}</em></p>
           <p>Presentar el <b>QR</b> de esta entrada en la entrada del ensamble</p>
           <p>(cantidad de entradas adquiridas: <b>{campos.cantidad}</b>)</p>
-        </CopyableField>
+        </CampoCopiable>
       </Flex>
 
       <ImagenQr idEntrada={idEntrada} />
