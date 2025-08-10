@@ -17,15 +17,15 @@ if (!rootElem) {
 createRoot(rootElem).render(
   <React.StrictMode>
     <BrowserRouter basename="/EntradasQR/">
-      <ErrorBoundary>
-        <Provider>
+      <Provider>
+        <ErrorBoundary>
           <AuthProvider>
             <Layout>
               <AppRoutes />
             </Layout>
           </AuthProvider>
-        </Provider>
-      </ErrorBoundary>
+        </ErrorBoundary>
+      </Provider>
     </BrowserRouter>
   </React.StrictMode>
 )
