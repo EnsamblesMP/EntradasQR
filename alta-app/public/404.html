@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      // Guardamos la ruta completa para la redirección
+      const fullPath = window.location.pathname + window.location.search + window.location.hash;
+      // Guardamos la ruta relativa a la raíz de la aplicación
+      const appBase = '/EntradasQR';
+      const appPath = fullPath.startsWith(appBase) ? fullPath.slice(appBase.length) : fullPath;
+      
+      // Guardamos la ruta para que la app la use
+      sessionStorage.setItem('redirect', appPath);
+      
+      // Redirigimos a la raíz de la aplicación
+      window.location.href = appBase + '/';
+    </script>
+  </head>
+  <body>
+    <p>Redirigiendo...</p>
+  </body>
+</html>
