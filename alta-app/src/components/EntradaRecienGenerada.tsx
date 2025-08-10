@@ -37,7 +37,7 @@ export const EntradaRecienGenerada: React.FC<EntradaRecienGeneradaProps> = ({
           Asunto:
         </Text>
         <CampoCopiable w="full">
-          Entrada para muestra de Ensambles MP
+          Entrada para muestra de MP Ensambles
         </CampoCopiable>
       </Flex>
 
@@ -48,7 +48,7 @@ export const EntradaRecienGenerada: React.FC<EntradaRecienGeneradaProps> = ({
         <CampoCopiable w="full">
           Hola {campos.nombreComprador}<br/>
           <br />
-          Para ingresar al recital de Ensambles MP deberás presentar
+          Para ingresar al recital de MP Ensambles deberás presentar
           el código <b>QR</b> que se ve abajo
           {
             campos.cantidad < 2

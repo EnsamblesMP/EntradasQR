@@ -11,7 +11,7 @@ export default function Home() {
           Entradas QR Alta App
         </Heading>
         <Text fontSize="2xl" colorPalette="green" color="green.700">
-          Ensambles MP
+          MP Ensambles
         </Text>
       </VStack>
       
