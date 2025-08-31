@@ -63,12 +63,51 @@ const formatearFechaYHora = (fecha: string) => {
   });
 };
 
+type SettingsMenuContentProps = {
+  columnas: Columna[];
+  columnasVisibles: nombreColumna[];
+  toggleColumn: (column: nombreColumna) => void;
+};
+
+const SettingsMenuContent: FC<SettingsMenuContentProps> = ({
+  columnas,
+  columnasVisibles,
+  toggleColumn
+}) => {
+  return (
+    <Menu.Content>
+      <Menu.ItemGroup>
+        <Menu.ItemGroupLabel>
+          <Flex direction="row" gap={2} align="center">
+            <FiColumns />
+            Columnas a mostrar
+          </Flex>
+        </Menu.ItemGroupLabel>
+        <Flex direction="row" flexWrap="wrap" gap={2}>
+          {columnas.map((col) => (
+            <Menu.CheckboxItem
+              key={col.key}
+              value={col.key}
+              checked={columnasVisibles.includes(col.key)}
+              onCheckedChange={() => toggleColumn(col.key)}
+              style={{ flexBasis: '1rem', border: '1px solid var(--global-color-border)', borderRadius: '0.5rem' }}
+            >
+              {col.label}
+              <Menu.ItemIndicator />
+            </Menu.CheckboxItem>
+          ))}
+        </Flex>
+      </Menu.ItemGroup>
+    </Menu.Content>
+  );
+};
+
 const ListaDeEntradas: FC = () => {
   const navigate = useNavigate();
   const [entradas, setEntradas] = useState<Entrada[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-    const [columnasVisibles, setColumnasVisibles] = useState<nombreColumna[]>([
+  const [columnasVisibles, setColumnasVisibles] = useState<nombreColumna[]>([
     'comprador',
     'alumno',
     'grupo',
@@ -163,30 +202,7 @@ const ListaDeEntradas: FC = () => {
               </IconButton>
             </Menu.Trigger>
           </Flex>
-          <Menu.Content>
-            <Menu.ItemGroup>
-              <Menu.ItemGroupLabel>
-                <Flex direction="row" gap={2} align="center">
-                  <FiColumns />
-                  Columnas a mostrar
-                </Flex>
-              </Menu.ItemGroupLabel>
-              <Flex direction="row" flexWrap="wrap" gap={2}>
-                {columnas.map((column) => (
-                  <Menu.CheckboxItem
-                    key={column.key}
-                    value={column.key}
-                    checked={columnasVisibles.includes(column.key)}
-                    onCheckedChange={() => toggleColumn(column.key)}
-                    style={{flexBasis: '1rem', border: '1px solid var(--global-color-border)', borderRadius: '0.5rem'}}
-                  >
-                    {column.label}
-                    <Menu.ItemIndicator />
-                  </Menu.CheckboxItem>
-                ))}
-              </Flex>
-            </Menu.ItemGroup>
-          </Menu.Content>
+          <SettingsMenuContent columnas={columnas} columnasVisibles={columnasVisibles} toggleColumn={toggleColumn} />
         </Menu.Root>
         {isLoading ? (
             <Spinner size="xl" color="blue.500" />
