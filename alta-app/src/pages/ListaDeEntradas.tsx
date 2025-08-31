@@ -12,7 +12,7 @@ import {
   Text,
   Button,
 } from '@chakra-ui/react';
-import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
+import { FiPlusSquare, FiEdit, FiTrash2 } from 'react-icons/fi';
 import { supabase } from '../supabase/supabaseClient';
 import { toaster } from '../chakra/toaster';
 
@@ -83,7 +83,7 @@ const ListaDeEntradas: React.FC = () => {
       <Flex justify="flex-end">
         <RouterLink to="/alta-de-entrada">
             <Button size="sm" variant="solid" backgroundColor="blue.600" _hover={{ backgroundColor: 'blue.500' }}>
-            <FaPlus />
+            <FiPlusSquare />
             Alta de Entrada
             </Button>
         </RouterLink>
@@ -122,10 +122,10 @@ const ListaDeEntradas: React.FC = () => {
                     <Table.Cell>
                         <HStack>
                         <IconButton aria-label="Edit" colorPalette="blue" size="xs" onClick={() => handleEdit(entrada.id)}>
-                            <FaEdit />
+                            <FiEdit />
                         </IconButton>
                         <IconButton aria-label="Delete" colorPalette="red" size="xs" onClick={() => handleDelete(entrada.id)}>
-                            <FaTrash />
+                            <FiTrash2 />
                         </IconButton>
                         </HStack>
                     </Table.Cell>

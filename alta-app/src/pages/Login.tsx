@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaGithub } from 'react-icons/fa';
+import { FiGithub } from 'react-icons/fi';
 import {
   Button,
   VStack,
@@ -57,7 +57,7 @@ export default function Login() {
                 width="full"
                 size="lg"
               >
-                <FaGithub />
+                <FiGithub />
                 Iniciar sesión con GitHub
               </Button>
             </VStack>
