@@ -1,4 +1,4 @@
-import { Box, BoxProps, Button, Clipboard, Flex } from "@chakra-ui/react";
+import { Box, BoxProps, IconButton, Clipboard, Flex } from "@chakra-ui/react";
 import { ReactNode, useRef, MouseEvent } from 'react';
 import { copiarHtmlAlPortapapeles } from './Portapapeles';
 import type { FC } from 'react';
@@ -48,10 +48,10 @@ export const CampoCopiable: FC<CampoCopiableProps> = ({ children, ...props }) =>
           {children}
         </Box>
         <Clipboard.Root onClick={handleCopy}>
-          <Clipboard.Trigger>
-            <Button variant="outline" size="sm">
+          <Clipboard.Trigger asChild>
+            <IconButton variant="outline" size="xs">
               <Clipboard.Indicator />
-            </Button>
+            </IconButton>
           </Clipboard.Trigger>
         </Clipboard.Root>
       </Flex>
