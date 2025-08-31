@@ -63,6 +63,45 @@ const formatearFechaYHora = (fecha: string) => {
   });
 };
 
+interface EntradasTableProps {
+  columnas: Columna[];
+  columnasVisibles: nombreColumna[];
+  entradas: Entrada[];
+}
+
+const TablaEntradas: FC<EntradasTableProps> = ({
+  columnas,
+  columnasVisibles,
+  entradas,
+}) => {
+  return (
+    <Box overflowX="auto" width="100%">
+      <Table.Root size="sm" variant="outline">
+        <Table.Header>
+          <Table.Row>
+            <For each={columnas}>
+              {col => columnasVisibles.includes(col.key) && (
+                <Table.ColumnHeader key={col.key}>{col.label}</Table.ColumnHeader>
+              )}
+            </For>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {entradas.map((entrada) => (
+            <Table.Row key={entrada.id}>
+              <For each={columnas}>
+                {col => columnasVisibles.includes(col.key) && (
+                  <Table.Cell>{col.render(entrada)}</Table.Cell>
+                )}
+              </For>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table.Root>
+    </Box>
+  );
+};
+
 type SettingsMenuContentProps = {
   columnas: Columna[];
   columnasVisibles: nombreColumna[];
@@ -213,30 +252,7 @@ const ListaDeEntradas: FC = () => {
           ) : entradas.length === 0 ? (
             <Box p={6}><Text>No hay entradas registradas para este año aún.</Text></Box>
           ) : (
-            <Box overflowX="auto" width="100%">
-              <Table.Root size="sm" variant="outline">
-                <Table.Header>
-                  <Table.Row>
-                    <For each={columnas}>
-                      {col => columnasVisibles.includes(col.key) && (
-                        <Table.ColumnHeader key={col.key}>{col.label}</Table.ColumnHeader>
-                      )}
-                    </For>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {entradas.map((entrada) => (
-                    <Table.Row key={entrada.id}>
-                      <For each={columnas}>
-                        {col => columnasVisibles.includes(col.key) && (
-                          <Table.Cell>{col.render(entrada)}</Table.Cell>
-                        )}
-                      </For>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Root>
-            </Box>
+            <TablaEntradas columnas={columnas} columnasVisibles={columnasVisibles} entradas={entradas} />
           )}
         </VStack>
     </Flex>
