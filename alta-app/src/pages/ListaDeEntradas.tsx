@@ -35,6 +35,7 @@ interface Entrada {
 }
 
 type nombreColumna =
+  'id' |
   'comprador' |
   'alumno' |
   'grupo' |
@@ -61,6 +62,7 @@ const ListaDeEntradas: FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [columnasVisibles, setColumnasVisibles] = useState({
+    id: false,
     comprador: true,
     alumno: true,
     grupo: true,
@@ -70,6 +72,7 @@ const ListaDeEntradas: FC = () => {
   } as Record<nombreColumna, boolean>);
 
   const columnas = [
+    { key: 'id', label: 'ID', render: (entrada: Entrada) => entrada.id },
     { key: 'comprador', label: 'Comprador', render: (entrada: Entrada) => entrada.nombre_comprador },
     { key: 'alumno', label: 'Alumno', render: (entrada: Entrada) => entrada.alumno.nombre },
     { key: 'grupo', label: 'Grupo', render: (entrada: Entrada) => entrada.alumno.grupo },
