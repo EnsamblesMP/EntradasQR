@@ -2,6 +2,7 @@ import { ImagenQr } from './ImagenQr';
 import { CampoCopiable } from './CampoCopiable';
 import { VStack, Text, Button, Flex } from '@chakra-ui/react';
 import type { Campos }  from './CamposEntrada';
+import type { FC } from 'react';
 
 interface EntradaRecienGeneradaProps {
   idEntrada: string;
@@ -9,7 +10,7 @@ interface EntradaRecienGeneradaProps {
   onClose: () => void;
 }
 
-export const EntradaRecienGenerada: React.FC<EntradaRecienGeneradaProps> = ({
+export const EntradaRecienGenerada: FC<EntradaRecienGeneradaProps> = ({
   idEntrada,
   campos,
   onClose,

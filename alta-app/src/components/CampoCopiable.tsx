@@ -1,12 +1,13 @@
 import { Box, BoxProps, Button, Clipboard, Flex } from "@chakra-ui/react";
-import { ReactNode, useRef } from 'react';
+import { ReactNode, useRef, MouseEvent } from 'react';
 import { copiarHtmlAlPortapapeles } from './Portapapeles';
+import type { FC } from 'react';
 
 interface CampoCopiableProps extends BoxProps {
   children: ReactNode;
 }
 
-export const CampoCopiable = ({ children, ...props }: CampoCopiableProps) => {
+export const CampoCopiable: FC<CampoCopiableProps> = ({ children, ...props }) => {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const handleCopy = async () => {
@@ -14,7 +15,7 @@ export const CampoCopiable = ({ children, ...props }: CampoCopiableProps) => {
     copiarHtmlAlPortapapeles(contentRef.current);
   };
 
-  const handleBoxClick = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleBoxClick = (e: MouseEvent<HTMLDivElement>) => {
     const selection = window.getSelection();
     if (!selection) return;
 

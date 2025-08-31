@@ -1,10 +1,11 @@
 import { Image } from '@chakra-ui/react';
+import type { FC } from 'react';
 
 interface ImagenQrProps {
   idEntrada: string;
 }
 
-export const ImagenQr: React.FC<ImagenQrProps> = ({ idEntrada }) => {
+export const ImagenQr: FC<ImagenQrProps> = ({ idEntrada }) => {
   const qr = `https://freeqr.com/api/v1/?data=${idEntrada}&size=300x300&color=000&bgcolor=3cc`;
   return (
     <Image
