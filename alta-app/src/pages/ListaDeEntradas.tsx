@@ -1,5 +1,5 @@
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, ReactNode } from 'react';
 import {
   IconButton,
   Heading,
@@ -11,10 +11,20 @@ import {
   Box,
   Text,
   Button,
+  Menu,
+  Separator,
+  For,
 } from '@chakra-ui/react';
-import { FiPlusSquare, FiEdit, FiTrash2 } from 'react-icons/fi';
+import {
+  FiPlusSquare,
+  FiEdit,
+  FiTrash2,
+  FiSettings,
+  FiColumns,
+} from 'react-icons/fi';
 import { supabase } from '../supabase/supabaseClient';
 import { toaster } from '../chakra/toaster';
+import type { FC } from 'react';
 
 interface Entrada {
   id: string;
@@ -23,6 +33,14 @@ interface Entrada {
   cantidad: number;
   created_at: string;
 }
+
+type nombreColumna =
+  'comprador' |
+  'alumno' |
+  'grupo' |
+  'cantidad' |
+  'fecha' |
+  'acciones';
 
 const formatearFechaYHora = (fecha: string) => {
   const fechaObj = new Date(fecha);
@@ -37,11 +55,44 @@ const formatearFechaYHora = (fecha: string) => {
   });
 };
 
-const ListaDeEntradas: React.FC = () => {
+const ListaDeEntradas: FC = () => {
   const navigate = useNavigate();
   const [entradas, setEntradas] = useState<Entrada[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [columnasVisibles, setColumnasVisibles] = useState({
+    comprador: true,
+    alumno: true,
+    grupo: true,
+    cantidad: true,
+    fecha: true,
+    acciones: true,
+  } as Record<nombreColumna, boolean>);
+
+  const columnas = [
+    { key: 'comprador', label: 'Comprador', render: (entrada: Entrada) => entrada.nombre_comprador },
+    { key: 'alumno', label: 'Alumno', render: (entrada: Entrada) => entrada.alumno.nombre },
+    { key: 'grupo', label: 'Grupo', render: (entrada: Entrada) => entrada.alumno.grupo },
+    { key: 'cantidad', label: 'Cantidad', render: (entrada: Entrada) => entrada.cantidad },
+    { key: 'fecha', label: 'Fecha', render: (entrada: Entrada) => formatearFechaYHora(entrada.created_at) },
+    { key: 'acciones', label: 'Acciones', render: (entrada: Entrada) => (
+      <HStack>
+        <IconButton aria-label="Edit" colorPalette="blue" size="xs" onClick={() => handleEdit(entrada.id)}>
+          <FiEdit />
+        </IconButton>
+        <IconButton aria-label="Delete" colorPalette="red" size="xs" onClick={() => handleDelete(entrada.id)}>
+          <FiTrash2 />
+        </IconButton>
+      </HStack>
+    ) },
+  ] as Array<{ key: nombreColumna, label: string, render: (entrada: Entrada) => ReactNode }>;
+
+  const toggleColumn = (col: nombreColumna) => {
+    setColumnasVisibles(prev => ({
+      ...prev,
+      [col]: !prev[col]
+    }));
+  };
 
   const fetchEntradas = async () => {
     setIsLoading(true);
@@ -79,63 +130,88 @@ const ListaDeEntradas: React.FC = () => {
   };
 
   return (
-    <Flex direction="column">
+    <Flex direction="column" gap={4}>
       <Flex justify="flex-end">
         <RouterLink to="/alta-de-entrada">
-            <Button size="sm" variant="solid" backgroundColor="blue.600" _hover={{ backgroundColor: 'blue.500' }}>
+          <Button size="sm" variant="solid" backgroundColor="blue.600" _hover={{ backgroundColor: 'blue.500' }}>
             <FiPlusSquare />
-            Alta de Entrada
-            </Button>
+            Agregar entrada
+          </Button>
         </RouterLink>
       </Flex>
       <VStack>
-        <Heading as="h1" size="lg">Lista de Entradas</Heading>
+        <Menu.Root>
+          <Flex justify="space-between" direction="row" w="full">
+            <Separator />
+            <Heading as="h1" size="lg" flexBasis="auto">
+              Lista de Entradas
+            </Heading>
+            <Menu.Trigger asChild>
+              <IconButton size="xs" variant="outline">
+                <FiSettings />
+              </IconButton>
+            </Menu.Trigger>
+          </Flex>
+          <Menu.Content>
+            <Menu.ItemGroup>
+              <Menu.ItemGroupLabel>
+                <Flex direction="row" gap={2} align="center">
+                  <FiColumns />
+                  Columnas a mostrar
+                </Flex>
+              </Menu.ItemGroupLabel>
+              <Flex direction="row" flexWrap="wrap" gap={2}>
+                {columnas.map((column) => (
+                  <Menu.CheckboxItem
+                    key={column.key}
+                    value={column.key}
+                    checked={columnasVisibles[column.key as keyof typeof columnasVisibles]}
+                    onCheckedChange={() => toggleColumn(column.key)}
+                    style={{flexBasis: '1rem', border: '1px solid var(--global-color-border)', borderRadius: '0.5rem'}}
+                  >
+                    {column.label}
+                    <Menu.ItemIndicator />
+                  </Menu.CheckboxItem>
+                ))}
+              </Flex>
+            </Menu.ItemGroup>
+          </Menu.Content>
+        </Menu.Root>
         {isLoading ? (
             <Spinner size="xl" color="blue.500" />
-        ) : error ? (
+          ) : error ? (
             <Box bg="red.100" color="red.800" p={4} borderRadius="md">
-            {error}
+              {error}
             </Box>
-        ) : entradas.length === 0 ? (
+          ) : entradas.length === 0 ? (
             <Box p={6}><Text>No hay entradas registradas para este año aún.</Text></Box>
-        ) : (
-            <Box>
-            <Table.Root size="sm" variant="outline">
+          ) : (
+            <Box overflowX="auto" width="100%">
+              <Table.Root size="sm" variant="outline">
                 <Table.Header>
-                <Table.Row>
-                    <Table.ColumnHeader>Comprador</Table.ColumnHeader>
-                    <Table.ColumnHeader>Alumno</Table.ColumnHeader>
-                    <Table.ColumnHeader>Grupo</Table.ColumnHeader>
-                    <Table.ColumnHeader>Cantidad</Table.ColumnHeader>
-                    <Table.ColumnHeader>Fecha</Table.ColumnHeader>
-                    <Table.ColumnHeader>Acciones</Table.ColumnHeader>
-                </Table.Row>
+                  <Table.Row>
+                    <For each={columnas}>
+                      {col => columnasVisibles[col.key] && (
+                        <Table.ColumnHeader key={col.key}>{col.label}</Table.ColumnHeader>
+                      )}
+                    </For>
+                  </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                {entradas.map((entrada) => (
+                  {entradas.map((entrada) => (
                     <Table.Row key={entrada.id}>
-                    <Table.Cell>{entrada.nombre_comprador}</Table.Cell>
-                    <Table.Cell>{entrada.alumno.nombre}</Table.Cell>
-                    <Table.Cell>{entrada.alumno.grupo}</Table.Cell>
-                    <Table.Cell>{entrada.cantidad}</Table.Cell>
-                    <Table.Cell>{formatearFechaYHora(entrada.created_at)}</Table.Cell>
-                    <Table.Cell>
-                        <HStack>
-                        <IconButton aria-label="Edit" colorPalette="blue" size="xs" onClick={() => handleEdit(entrada.id)}>
-                            <FiEdit />
-                        </IconButton>
-                        <IconButton aria-label="Delete" colorPalette="red" size="xs" onClick={() => handleDelete(entrada.id)}>
-                            <FiTrash2 />
-                        </IconButton>
-                        </HStack>
-                    </Table.Cell>
+                      <For each={columnas}>
+                        {col => columnasVisibles[col.key] && (
+                          <Table.Cell>{col.render(entrada)}</Table.Cell>
+                        )}
+                      </For>
                     </Table.Row>
-                ))}
+                  ))}
                 </Table.Body>
-            </Table.Root>
+              </Table.Root>
             </Box>
-        )}
-      </VStack>
+          )}
+        </VStack>
     </Flex>
   );
 };
