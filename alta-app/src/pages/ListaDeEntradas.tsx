@@ -29,6 +29,7 @@ import type { FC } from 'react';
 interface Entrada {
   id: string;
   nombre_comprador: string;
+  email_comprador: string;
   alumno: { nombre: string, grupo: string };
   cantidad: number;
   created_at: string;
@@ -79,6 +80,7 @@ const ListaDeEntradas: FC = () => {
   const columnas: Columna[] = [
     { key: 'id', label: 'ID', render: (entrada: Entrada) => entrada.id },
     { key: 'comprador', label: 'Comprador', render: (entrada: Entrada) => entrada.nombre_comprador },
+    { key: 'email', label: 'Email', render: (entrada: Entrada) => entrada.email_comprador },
     { key: 'alumno', label: 'Alumno', render: (entrada: Entrada) => entrada.alumno.nombre },
     { key: 'grupo', label: 'Grupo', render: (entrada: Entrada) => entrada.alumno.grupo },
     { key: 'cantidad', label: 'Cantidad', render: (entrada: Entrada) => entrada.cantidad },
@@ -108,7 +110,7 @@ const ListaDeEntradas: FC = () => {
     setError(null);
     const { data, error } = await supabase
       .from('entradas')
-      .select('id, nombre_comprador, alumno:id_alumno(nombre, grupo), cantidad, created_at')
+      .select('id, nombre_comprador, email_comprador, alumno:id_alumno(nombre, grupo), cantidad, created_at')
       .order('created_at', { ascending: true });
     if (error) {
       setError('Error al cargar las entradas.');
