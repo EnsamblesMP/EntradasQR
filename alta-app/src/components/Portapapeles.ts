@@ -30,7 +30,7 @@ export const copiarHtmlAlPortapapeles = async (htmlElementToCopy: HTMLElement) =
         type: 'error',
       });
     });
-  } catch (err) {
+  } catch {
     // si falla intentar copiar sin formato nomas
     try {
       await navigator.clipboard.writeText(textContent);
