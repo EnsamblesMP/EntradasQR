@@ -59,15 +59,19 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
     }
   }, [idGrupo]);
 
+  const safeOnChange = useCallback((value: number | null) => {
+    onChange(value);
+  }, [onChange]);
+
   useEffect(() => {
     if (!idGrupo) {
       if (value !== null) {
-        onChange(null);
+        safeOnChange(null);
       }
       return;
     }
     obtenAlumnos();
-  }, [idGrupo, obtenAlumnos]);
+  }, [idGrupo, obtenAlumnos, value, safeOnChange]);
 
   return (
     <Field.Root required={required} invalid={!!error}>
