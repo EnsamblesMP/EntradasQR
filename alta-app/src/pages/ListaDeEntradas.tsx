@@ -35,13 +35,19 @@ interface Entrada {
 }
 
 type nombreColumna =
-  'id' |
-  'comprador' |
-  'alumno' |
-  'grupo' |
-  'cantidad' |
-  'fecha' |
-  'acciones';
+  | 'id'
+  | 'comprador'
+  | 'alumno'
+  | 'grupo'
+  | 'cantidad'
+  | 'fecha'
+  | 'acciones';
+
+type Columna = {
+  key: nombreColumna;
+  label: string;
+  render: (entrada: Entrada) => ReactNode;
+};
 
 const formatearFechaYHora = (fecha: string) => {
   const fechaObj = new Date(fecha);
@@ -61,17 +67,16 @@ const ListaDeEntradas: FC = () => {
   const [entradas, setEntradas] = useState<Entrada[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [columnasVisibles, setColumnasVisibles] = useState({
-    id: false,
-    comprador: true,
-    alumno: true,
-    grupo: true,
-    cantidad: true,
-    fecha: true,
-    acciones: true,
-  } as Record<nombreColumna, boolean>);
+    const [columnasVisibles, setColumnasVisibles] = useState<nombreColumna[]>([
+    'comprador',
+    'alumno',
+    'grupo',
+    'cantidad',
+    'fecha',
+    'acciones'
+  ]);
 
-  const columnas = [
+  const columnas: Columna[] = [
     { key: 'id', label: 'ID', render: (entrada: Entrada) => entrada.id },
     { key: 'comprador', label: 'Comprador', render: (entrada: Entrada) => entrada.nombre_comprador },
     { key: 'alumno', label: 'Alumno', render: (entrada: Entrada) => entrada.alumno.nombre },
@@ -90,11 +95,12 @@ const ListaDeEntradas: FC = () => {
     ) },
   ] as Array<{ key: nombreColumna, label: string, render: (entrada: Entrada) => ReactNode }>;
 
-  const toggleColumn = (col: nombreColumna) => {
-    setColumnasVisibles(prev => ({
-      ...prev,
-      [col]: !prev[col]
-    }));
+  const toggleColumn = (column: nombreColumna) => {
+    setColumnasVisibles(prev => 
+      prev.includes(column)
+        ? prev.filter(col => col !== column)
+        : [...prev, column]
+    );
   };
 
   const fetchEntradas = async () => {
@@ -168,7 +174,7 @@ const ListaDeEntradas: FC = () => {
                   <Menu.CheckboxItem
                     key={column.key}
                     value={column.key}
-                    checked={columnasVisibles[column.key as keyof typeof columnasVisibles]}
+                    checked={columnasVisibles.includes(column.key)}
                     onCheckedChange={() => toggleColumn(column.key)}
                     style={{flexBasis: '1rem', border: '1px solid var(--global-color-border)', borderRadius: '0.5rem'}}
                   >
@@ -194,7 +200,7 @@ const ListaDeEntradas: FC = () => {
                 <Table.Header>
                   <Table.Row>
                     <For each={columnas}>
-                      {col => columnasVisibles[col.key] && (
+                      {col => columnasVisibles.includes(col.key) && (
                         <Table.ColumnHeader key={col.key}>{col.label}</Table.ColumnHeader>
                       )}
                     </For>
@@ -204,7 +210,7 @@ const ListaDeEntradas: FC = () => {
                   {entradas.map((entrada) => (
                     <Table.Row key={entrada.id}>
                       <For each={columnas}>
-                        {col => columnasVisibles[col.key] && (
+                        {col => columnasVisibles.includes(col.key) && (
                           <Table.Cell>{col.render(entrada)}</Table.Cell>
                         )}
                       </For>
