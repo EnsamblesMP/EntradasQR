@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import CampoCopiable from '../components/CampoCopiable';
 import CamposEntrada from '../components/CamposEntrada';
 import { ImagenQr } from '../components/ImagenQr';
@@ -12,7 +12,7 @@ import {
 import { useNavigate, useParams } from 'react-router-dom';
 import { toaster } from '../chakra/toaster';
 import { supabase } from '../supabase/supabaseClient';
-import type { Campos }  from '../components/CamposEntrada';
+import { useCampos } from '../components/Campos';
 
 interface EntradaDB {
   id: string;
@@ -31,25 +31,11 @@ const EditarEntrada: React.FC = () => {
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState('');
 
-  // State for form data
-  const [campos, setCampos] = useState<Campos>({
-    nombreComprador: '',
-    emailComprador: '',
-    idGrupo: null,
-    idAlumno: null,
-    cantidad: 1
-  });
-
-  const cambiaCampos = (updates: Partial<Campos>) => {
-    setCampos(prev => ({ ...prev, ...updates }));
-  };
-
-  const isFormValid = useMemo(() => (
-    campos.nombreComprador.trim() !== '' &&
-    campos.idGrupo !== null &&
-    campos.idAlumno !== null &&
-    campos.cantidad >= 1
-  ), [campos]);
+  const {
+    campos,
+    cambiarCampos,
+    camposValidos,
+  } = useCampos();
 
   useEffect(() => {
     const cargarEntrada = async () => {
@@ -70,7 +56,7 @@ const EditarEntrada: React.FC = () => {
         }
 
         const entrada = data as unknown as EntradaDB;
-        cambiaCampos({
+        cambiarCampos({
           nombreComprador: entrada.nombre_comprador || '',
           emailComprador: entrada.email_comprador || '',
           cantidad: entrada.cantidad || 1,
@@ -87,12 +73,12 @@ const EditarEntrada: React.FC = () => {
       }
     };
     cargarEntrada();
-  }, [id]);
+  }, [id, cambiarCampos]);
 
-  const handleGuardar = async (e: React.FormEvent) => {
+  const handleGuardar = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
-    if (!isFormValid) {
+    if (!camposValidos) {
       setMensaje('❌ Por favor, completa todos los campos obligatorios.');
       return;
     }
@@ -126,7 +112,7 @@ const EditarEntrada: React.FC = () => {
     } finally {
       setGuardando(false);
     }
-  };
+  }, [campos, id, camposValidos]);
 
   if (!id) {
     return (
@@ -150,7 +136,7 @@ const EditarEntrada: React.FC = () => {
 
         <CamposEntrada
           campos={campos}
-          onChangeCampos={cambiaCampos}
+          onChangeCampos={cambiarCampos}
           disabled={cargando}
         />
 
@@ -162,7 +148,7 @@ const EditarEntrada: React.FC = () => {
             w="50%"
             loading={guardando}
             loadingText="Guardando..."
-            disabled={!isFormValid || guardando || cargando}
+            disabled={!camposValidos || guardando || cargando}
           >
             Guardar cambios
           </Button>

@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useCampos } from '../components/Campos';
 import { useNavigate } from 'react-router-dom';
 import CamposEntrada from '../components/CamposEntrada';
 import EntradaRecienGenerada from '../components/EntradaRecienGenerada';
@@ -12,44 +13,35 @@ import {
 import { toaster } from '../chakra/toaster';
 import { supabase } from '../supabase/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
-import type { Campos }  from '../components/CamposEntrada';
 
 const AltaDeEntrada: React.FC = () => {
   const navigate = useNavigate();
 
-  const [campos, setCampos] = useState<Campos>({
-    nombreComprador: '',
-    emailComprador: '',
-    idGrupo: null,
-    idAlumno: null,
-    cantidad: 1
-  });
-
-  // UI state
   const [mensaje, setMensaje] = useState('');
-  const [cargando, setIsLoading] = useState(false);
+  const [cargando, setCargando] = useState(false);
   const [idEntradaGenerada, setIdEntradaGenerada] = useState<string | null>(null);
 
-  const cambiaCampos = (updates: Partial<Campos>) => {
-    setCampos(prev => ({ ...prev, ...updates }));
-  };
+  const {
+    campos,
+    cambiarCampos,
+    reiniciarCampos,
+    camposValidos,
+  } = useCampos();
 
-  // Validate form
-  const isFormValid = useMemo(() => (
-    campos.nombreComprador.trim() !== '' &&
-    campos.idGrupo !== null &&
-    campos.idAlumno !== null &&
-    campos.cantidad >= 1
-  ), [campos]);
+  const handleCloseQr = useCallback(() => {
+    setIdEntradaGenerada(null);
+    setMensaje('');
+    reiniciarCampos();
+  }, [reiniciarCampos]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isFormValid) {
+    if (!camposValidos) {
       setMensaje('❌ Por favor, completa todos los campos obligatorios.');
       return;
     }
 
-    setIsLoading(true);
+    setCargando(true);
     setMensaje('Guardando entrada...');
 
     try {
@@ -72,13 +64,13 @@ const AltaDeEntrada: React.FC = () => {
 
       setIdEntradaGenerada(id);
       setMensaje(`✅ Entrada registrada exitosamente con ID: ${id}`);
+      reiniciarCampos();
 
       toaster.create({
         title: 'Entrada generada',
         description: 'La entrada se ha generado correctamente.',
         type: 'success',
       });
-
     } catch (error) {
       console.error('Error al guardar la entrada:', error);
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
@@ -89,23 +81,11 @@ const AltaDeEntrada: React.FC = () => {
         type: 'error',
       });
     } finally {
-      setIsLoading(false);
+      setCargando(false);
     }
-  };
+  }, [campos, camposValidos, reiniciarCampos]);
 
   if (idEntradaGenerada) {
-    const handleCloseQr = () => {
-      setIdEntradaGenerada(null);
-      setMensaje('');
-      // Limpiar el formulario
-      cambiaCampos({
-        nombreComprador: '',
-        emailComprador: '',
-        idGrupo: null,
-        idAlumno: null,
-        cantidad: 1
-      });
-    };
 
     return (
       <EntradaRecienGenerada
@@ -126,7 +106,7 @@ const AltaDeEntrada: React.FC = () => {
 
         <CamposEntrada
           campos={campos}
-          onChangeCampos={cambiaCampos}
+          onChangeCampos={cambiarCampos}
           disabled={cargando} />
 
         <HStack w="full" mt={4}>
@@ -136,7 +116,7 @@ const AltaDeEntrada: React.FC = () => {
             size="lg"
             w="50%"
             loading={cargando}
-            disabled={!isFormValid || cargando}
+            disabled={!camposValidos || cargando}
             loadingText="Generando..."
           >
             Generar entrada

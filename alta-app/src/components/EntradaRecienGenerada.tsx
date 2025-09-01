@@ -1,7 +1,7 @@
 import { ImagenQr } from './ImagenQr';
 import { CampoCopiable } from './CampoCopiable';
 import { VStack, Text, Button, Flex } from '@chakra-ui/react';
-import type { Campos }  from './CamposEntrada';
+import type { Campos }  from './Campos';
 import type { FC } from 'react';
 
 interface EntradaRecienGeneradaProps {

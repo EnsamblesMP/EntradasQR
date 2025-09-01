@@ -7,14 +7,7 @@ import {
 } from '@chakra-ui/react';
 import GrupoSelect from './GrupoSelect';
 import AlumnoSelect from './AlumnoSelect';
-
-export type Campos = {
-  nombreComprador: string;
-  emailComprador: string;
-  idGrupo: string | null;
-  idAlumno: number | null;
-  cantidad: number;
-};
+import type { Campos } from './Campos';
 
 export interface CamposEntradaProps {
   campos: Campos;
