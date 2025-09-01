@@ -1,4 +1,4 @@
-import React from 'react';
+import { ChangeEvent, useCallback } from 'react';
 import {
   Field,
   Input,
@@ -8,18 +8,40 @@ import {
 import GrupoSelect from './GrupoSelect';
 import AlumnoSelect from './AlumnoSelect';
 import type { Campos } from './Campos';
+import type { FC } from 'react';
 
 export interface CamposEntradaProps {
   campos: Campos;
-  onChangeCampos: (updates: Partial<Campos>) => void;
+  alCambiarCampos: (updates: Partial<Campos>) => void;
   disabled?: boolean;
 }
 
-const CamposEntrada: React.FC<CamposEntradaProps> = ({
+const CamposEntrada: FC<CamposEntradaProps> = ({
   campos,
-  onChangeCampos,
+  alCambiarCampos,
   disabled = false,
 }) => {
+
+  const alCambiarNombre = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    alCambiarCampos({ nombreComprador: e.target.value });
+  }, [alCambiarCampos]);
+
+  const alCambiarEmail = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    alCambiarCampos({ emailComprador: e.target.value });
+  }, [alCambiarCampos]);
+
+  const alCambiarCantidad = useCallback((details: {valueAsNumber: number}) => {
+    alCambiarCampos({ cantidad: details.valueAsNumber });
+  }, [alCambiarCampos]);
+
+  const alCambiarGrupo = useCallback((value: string | null) => {
+    alCambiarCampos({ idGrupo: value, idAlumno: null });
+  }, [alCambiarCampos]);
+
+  const alCambiarAlumno = useCallback((value: number | null) => {
+    alCambiarCampos({ idAlumno: value });
+  }, [alCambiarCampos]);
+
   return (
     <VStack gap="6" w="full">
 
@@ -28,7 +50,7 @@ const CamposEntrada: React.FC<CamposEntradaProps> = ({
         <Input
           placeholder="Nombre completo"
           value={campos.nombreComprador}
-          onChange={(e) => onChangeCampos({ nombreComprador: e.target.value })}
+          onChange={alCambiarNombre}
           size="lg"
           disabled={disabled}
         />
@@ -40,7 +62,7 @@ const CamposEntrada: React.FC<CamposEntradaProps> = ({
           type="email"
           placeholder="email@ejemplo.com"
           value={campos.emailComprador}
-          onChange={(e) => onChangeCampos({ emailComprador: e.target.value })}
+          onChange={alCambiarEmail}
           size="lg"
           disabled={disabled}
         />
@@ -48,13 +70,13 @@ const CamposEntrada: React.FC<CamposEntradaProps> = ({
 
       <GrupoSelect
         value={campos.idGrupo}
-        onChange={(value) => onChangeCampos({ idGrupo: value, idAlumno: null })}
+        onChange={alCambiarGrupo}
         required
       />
 
       <AlumnoSelect
         value={campos.idAlumno}
-        onChange={(value) => onChangeCampos({ idAlumno: value })}
+        onChange={alCambiarAlumno}
         idGrupo={campos.idGrupo}
         required
       />
@@ -64,7 +86,7 @@ const CamposEntrada: React.FC<CamposEntradaProps> = ({
         <NumberInput.Root
           min={1}
           value={String(campos.cantidad)}
-          onValueChange={({ value }) => onChangeCampos({ cantidad: Number(value) || 0 })}
+          onValueChange={alCambiarCantidad}
           size="lg"
           w="100%"
           disabled={disabled}

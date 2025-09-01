@@ -136,7 +136,7 @@ const EditarEntrada: React.FC = () => {
 
         <CamposEntrada
           campos={campos}
-          onChangeCampos={cambiarCampos}
+          alCambiarCampos={cambiarCampos}
           disabled={cargando}
         />
 

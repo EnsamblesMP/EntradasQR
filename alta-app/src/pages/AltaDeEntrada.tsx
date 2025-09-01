@@ -106,7 +106,7 @@ const AltaDeEntrada: React.FC = () => {
 
         <CamposEntrada
           campos={campos}
-          onChangeCampos={cambiarCampos}
+          alCambiarCampos={cambiarCampos}
           disabled={cargando} />
 
         <HStack w="full" mt={4}>
