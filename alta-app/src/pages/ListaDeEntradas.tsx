@@ -1,5 +1,5 @@
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { useEffect, useState, ReactNode } from 'react';
+import { useCallback, useEffect, useState, ReactNode } from 'react';
 import {
   IconButton,
   Heading,
@@ -22,6 +22,7 @@ import {
   FiSettings,
   FiColumns,
 } from 'react-icons/fi';
+import { useAnio } from '../supabase/anioUtils';
 import { supabase } from '../supabase/supabaseClient';
 import { toaster } from '../chakra/toaster';
 import type { FC } from 'react';
@@ -30,9 +31,11 @@ interface Entrada {
   id: string;
   nombre_comprador: string;
   email_comprador: string;
-  alumno: { nombre: string, grupo: string };
   cantidad: number;
   created_at: string;
+  alumno_nombre: string;
+  grupo: string;
+  anio_grupo: number;
 }
 
 type nombreColumna =
@@ -143,6 +146,7 @@ const SettingsMenuContent: FC<SettingsMenuContentProps> = ({
 
 const ListaDeEntradas: FC = () => {
   const navigate = useNavigate();
+  const { anio } = useAnio();
   const [entradas, setEntradas] = useState<Entrada[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -159,8 +163,9 @@ const ListaDeEntradas: FC = () => {
     { key: 'id', label: 'ID', render: (entrada: Entrada) => entrada.id },
     { key: 'comprador', label: 'Comprador', render: (entrada: Entrada) => entrada.nombre_comprador },
     { key: 'email', label: 'Email', render: (entrada: Entrada) => entrada.email_comprador },
-    { key: 'alumno', label: 'Alumno', render: (entrada: Entrada) => entrada.alumno.nombre },
-    { key: 'grupo', label: 'Grupo', render: (entrada: Entrada) => entrada.alumno.grupo },
+    { key: 'alumno', label: 'Alumno', render: (entrada: Entrada) => entrada.alumno_nombre },
+    { key: 'grupo', label: 'Grupo', render: (entrada: Entrada) => entrada.grupo },
+    { key: 'anio', label: 'Año', render: (entrada: Entrada) => entrada.anio_grupo },
     { key: 'cantidad', label: 'Cantidad', render: (entrada: Entrada) => entrada.cantidad },
     { key: 'fecha', label: 'Fecha', render: (entrada: Entrada) => formatearFechaYHora(entrada.created_at) },
     { key: 'acciones', label: 'Acciones', render: (entrada: Entrada) => (
@@ -183,25 +188,39 @@ const ListaDeEntradas: FC = () => {
     );
   };
 
-  const fetchEntradas = async () => {
+  const fetchEntradas = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     const { data, error } = await supabase
       .from('entradas')
-      .select('id, nombre_comprador, email_comprador, alumno:id_alumno(nombre, grupo), cantidad, created_at')
+      .select(`
+        id,
+        nombre_comprador,
+        email_comprador,
+        cantidad,
+        created_at,
+        ...alumnos!inner(
+          alumno_nombre:nombre,
+          ...grupos!inner(
+            grupo:nombre_corto,
+            anio_grupo:year
+          )
+        )
+      `)
+      .eq('alumnos.grupos.year', anio)
       .order('created_at', { ascending: true });
     if (error) {
-      setError('Error al cargar las entradas.');
+      setError(`Error al cargar las entradas del año ${anio}.`);
       setEntradas([]);
     } else {
       setEntradas(data as unknown as Entrada[] || []);
     }
     setIsLoading(false);
-  };
+  }, [anio]);
 
   useEffect(() => {
     fetchEntradas();
-  }, []);
+  }, [fetchEntradas]);
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('¿Seguro que deseas borrar esta entrada?')) return;
@@ -250,7 +269,7 @@ const ListaDeEntradas: FC = () => {
               {error}
             </Box>
           ) : entradas.length === 0 ? (
-            <Box p={6}><Text>No hay entradas registradas para este año aún.</Text></Box>
+            <Box p={6}><Text>No hay entradas registradas para el año {anio}.</Text></Box>
           ) : (
             <TablaEntradas columnas={columnas} columnasVisibles={columnasVisibles} entradas={entradas} />
           )}

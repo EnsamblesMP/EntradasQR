@@ -8,6 +8,7 @@ import {
   SelectValueChangeDetails,
   createListCollection,
 } from '@chakra-ui/react';
+import { useAnio } from '../supabase/anioUtils';
 import { supabase } from '../supabase/supabaseClient';
 
 interface Grupo {
@@ -23,11 +24,8 @@ interface GrupoSelectProps {
   required?: boolean;
 }
 
-const getCurrentYear = () => {
-  return new Date().getFullYear();
-};
-
 const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) => {
+  const { anio } = useAnio();
   const [grupos, setGrupos] = useState<Grupo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,23 +37,28 @@ const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) =>
         const { data, error } = await supabase
           .from('grupos')
           .select('id, nombre_corto, year')
-          .eq('year', getCurrentYear())
+          .eq('year', anio)
           .order('orden', { ascending: true });
 
         if (error) throw error;
 
+        if (!data || data.length === 0) {
+          onChange(null);
+        }
+
         setGrupos(data as Grupo[]);
+
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error cargando grupos');
         console.error('Error cargando grupos:', err);
       } finally {
         setLoading(false);
       }
-    }, []);
+    }, [anio]);
 
   useEffect(() => {
     obtenGrupos();
-  }, [obtenGrupos]);
+  }, [obtenGrupos, anio]);
 
   const collection = useMemo(() => createListCollection({
     items: grupos,
