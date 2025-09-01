@@ -147,7 +147,7 @@ const AltaDeEntrada: React.FC = () => {
             colorScheme="blue"
             size="lg"
             w="50%"
-            onClick={() => navigate('/lista-de-entradas')}
+            onClick={() => navigate('/')}
             disabled={cargando}
           >
             Cancelar
