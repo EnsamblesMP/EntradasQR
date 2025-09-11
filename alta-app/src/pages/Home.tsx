@@ -34,6 +34,11 @@ export default function Home() {
                 Lista de Entradas
               </Button>
             </RouterLink>
+            <RouterLink to="/preacreditacion">
+              <Button colorScheme="brand" size="lg">
+                Preacreditación
+              </Button>
+            </RouterLink>
           </VStack>
         )}
       </Box>

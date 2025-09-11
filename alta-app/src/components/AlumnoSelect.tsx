@@ -82,6 +82,7 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
           value={value !== null ? [String(value)] : []}
           onValueChange={o => onChange(o.value.length > 0 ? Number(o.value[0]) : null)}
           size="lg"
+          positioning={{ strategy: 'fixed', sameWidth: true, placement: "bottom" }}
         >
           <Select.Control>
             <Select.Trigger>
@@ -93,7 +94,7 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
             </Select.Trigger>
           </Select.Control>
           <Select.Positioner>
-            <Select.Content>
+            <Select.Content width="full">
               {alumnos.items.map((alumno) => (
                 <Select.Item key={alumno.id} item={alumno}>
                   {alumno.nombre}

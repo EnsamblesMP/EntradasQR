@@ -54,7 +54,7 @@ const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) =>
       } finally {
         setLoading(false);
       }
-    }, [anio]);
+    }, [anio, onChange]);
 
   useEffect(() => {
     obtenGrupos();
@@ -62,7 +62,7 @@ const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) =>
 
   const collection = useMemo(() => createListCollection({
     items: grupos,
-    itemToString: (item) => item.id,
+    itemToString: (item) => item.nombre_corto,
     itemToValue: (item) => item.id,
   }), [grupos]);
 
@@ -81,7 +81,13 @@ const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) =>
     <Field.Root required={required} invalid={!!error}>
       <Field.Label>Grupo <Field.RequiredIndicator /></Field.Label>
       <Skeleton loading={loading || error !== null} w="full">
-        <Select.Root collection={collection} onValueChange={handleValueChange} value={values} size="lg">
+        <Select.Root
+          collection={collection}
+          onValueChange={handleValueChange}
+          value={values}
+          size="lg"
+          positioning={{ strategy: 'fixed', sameWidth: true, placement: "bottom" }}
+        >
           <Select.Control>
             <Select.Trigger>
               <Select.ValueText placeholder={
@@ -92,7 +98,7 @@ const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) =>
             </Select.Trigger>
           </Select.Control>
           <Select.Positioner>
-            <Select.Content>
+            <Select.Content width="full">
               {collection.items.map((grupo) => (
                 <Select.Item key={grupo.id} item={grupo}>
                   {grupo.nombre_corto}
