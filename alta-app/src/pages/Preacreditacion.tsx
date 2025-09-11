@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { FiCamera, FiSliders } from 'react-icons/fi';
 import AlumnoSelect from '../components/AlumnoSelect';
 import GrupoSelect from '../components/GrupoSelect';
 import { FiltroConLupita } from '../components/FiltroConLupita';
+import { QrScanner } from '../components/QrScanner';
 import {
   Box,
   Button,
@@ -13,6 +14,7 @@ import {
   Text,
   Collapsible,
   Badge,
+  useDisclosure,
 } from '@chakra-ui/react';
 import { supabase } from '../supabase/supabaseClient';
 import { useAnio } from '../supabase/anioUtils';
@@ -30,6 +32,10 @@ interface Entrada {
   grupo_id: string;
   grupo: string;
   anio_grupo: number;
+}
+
+function esGuidValido(idEntrada: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idEntrada);
 }
 
 const calcularRestantes = (compradas: number, usadas: number) => {
@@ -152,12 +158,70 @@ export default function Preacreditacion() {
     fetchEntradas();
   }, [fetchEntradas]);
 
+  const { open: qrAbierto, onOpen: alAbrirQr, onClose: alCerrarQr } = useDisclosure();
+  const cuentaScanRef = useRef(0);
+
+  const alScanearQr = useCallback((idEntrada: string) => {
+    cuentaScanRef.current++;
+    if (cuentaScanRef.current > 1) return; // Evitar múltiples escaneos
+    try {
+      console.log(`idEntrada: ${idEntrada}`);
+      if (!esGuidValido(idEntrada)) {
+        toaster.create({
+          type: 'error',
+          title: 'Error',
+          description: 'El código QR no es válido (no es un GUID)',
+          duration: 5000,
+          closable: true,
+        });
+        cuentaScanRef.current = 0;
+        return;
+      }
+      alCerrarQr();
+      // Buscar la entrada en la lista
+      const entrada = entradas.find(e => e.id === idEntrada);
+      if (entrada) {
+        toaster.create({
+          type: 'success',
+          title: 'Entrada válida',
+          description: `Entrada de ${entrada.nombre_comprador} escaneada correctamente`,
+          duration: 5000,
+          closable: true,
+        });
+        alSeleccionarEntrada(entrada);
+      } else {
+        toaster.create({
+          type: 'warning',
+          title: 'Entrada no encontrada',
+          description: 'La entrada escaneada no está en la base de datos',
+          duration: 5000,
+          closable: true,
+        });
+      }
+    } catch (error) {
+      console.error('Error al procesar el código QR:', error);
+      toaster.create({
+        type: 'error',
+        title: 'Error',
+        description: 'El código QR no es válido o está dañado',
+        duration: 5000,
+        closable: true,
+      });
+    } finally {
+      // Resetear el contador después de un tiempo para permitir nuevos escaneos
+      setTimeout(() => {
+        cuentaScanRef.current = 0;
+      }, 3000);
+    }
+  }, [entradas]);
+
   const alEscanear = () => {
-    toaster.create({ type: 'warning', description: "Escanear QR no implementado aún", duration: 5000, closable: true });
+    cuentaScanRef.current = 0;
+    alAbrirQr();
   };
 
-  const alSeleccionarEntrada = () => {
-    toaster.create({ type: 'warning', description: "Seleccionar entrada no implementado aún", duration: 5000, closable: true });
+  const alSeleccionarEntrada = (entrada: Entrada) => {
+    toaster.create({ type: 'warning', title: 'No implementado aún', description: "Seleccionando entrada de " + entrada.nombre_comprador + " (no implementado aún)", duration: 5000, closable: true });
   };
 
   return (
@@ -167,6 +231,11 @@ export default function Preacreditacion() {
           <FiCamera />
           Escanear QR
         </Button>
+        <QrScanner
+          estaAbierto={qrAbierto}
+          alCerrar={alCerrarQr}
+          alScanear={alScanearQr}
+        />
 
         <Flex gap={2} flex={1}>
           <FiltroConLupita
@@ -216,7 +285,7 @@ export default function Preacreditacion() {
                 width="100%"
                 height="auto"
                 variant="outline"
-                onClick={alSeleccionarEntrada}
+                onClick={() => alSeleccionarEntrada(entrada)}
               >
                 <Flex direction="column" gap={1} w="full">
                   <Flex direction="row" wrap="wrap" justify="space-between" gap={1}>
