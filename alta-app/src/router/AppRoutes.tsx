@@ -6,6 +6,7 @@ import ListaDeEntradas from '../pages/ListaDeEntradas'
 import ProtectedRoute from './ProtectedRoute'
 import EditarEntrada from '../pages/EditarEntrada'
 import Preacreditacion from '../pages/Preacreditacion'
+import Acreditar from '../pages/Acreditar'
 
 function AppRoutes() {
   return (
@@ -19,6 +20,7 @@ function AppRoutes() {
         <Route path="/lista-de-entradas" element={<ListaDeEntradas />} />
         <Route path="/editar-entrada/:id" element={<EditarEntrada />} />
         <Route path="/preacreditacion" element={<Preacreditacion />} />
+        <Route path="/acreditar/:id" element={<Acreditar />} />
       </Route>
       
       {/* Catch all other routes */}

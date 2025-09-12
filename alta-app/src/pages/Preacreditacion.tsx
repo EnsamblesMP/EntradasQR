@@ -19,6 +19,13 @@ import {
 import { supabase } from '../supabase/supabaseClient';
 import { useAnio } from '../supabase/anioUtils';
 import { toaster } from '../chakra/toaster';
+import { useNavigate } from 'react-router-dom';
+import {
+  esGuidValido,
+  calcularRestantes,
+  darColorEstado,
+  darEstado
+} from '../components/EntradaFunc';
 
 interface Entrada {
   id: string;
@@ -34,41 +41,8 @@ interface Entrada {
   anio_grupo: number;
 }
 
-function esGuidValido(idEntrada: string) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idEntrada);
-}
-
-const calcularRestantes = (compradas: number, usadas: number) => {
-  return compradas - usadas;
-};
-
-const darEstado = (compradas: number, usadas: number) => {
-  if (compradas === usadas) {
-    return 'Ya usada';
-  }
-  if (usadas === 0) {
-    return 'Pendiente';
-  }
-  if (usadas < compradas) {
-    return 'Parcialmente usada';
-  }
-  return 'Usada de más';
-};
-
-const darColorEstado = (compradas: number, usadas: number) => {
-  if (compradas === usadas) {
-    return 'red';
-  }
-  if (usadas === 0) {
-    return 'green';
-  }
-  if (usadas < compradas) {
-    return 'yellow';
-  }
-  return 'purple';
-};
-
 export default function Preacreditacion() {
+  const navigate = useNavigate();
   const [usarFiltros, setUsarFiltros] = useState(false);
   const [filtroTexto, setFiltroTexto] = useState('');
   const [grupoElegido, setGrupoElegido] = useState<string | null>(null);
@@ -161,6 +135,15 @@ export default function Preacreditacion() {
   const { open: qrAbierto, onOpen: alAbrirQr, onClose: alCerrarQr } = useDisclosure();
   const cuentaScanRef = useRef(0);
 
+  const alEscanear = () => {
+    cuentaScanRef.current = 0;
+    alAbrirQr();
+  };
+
+  const alSeleccionarEntrada = useCallback((entrada: Entrada) => {
+    navigate(`/acreditar/${entrada.id}`);
+  }, [navigate]);
+
   const alScanearQr = useCallback((idEntrada: string) => {
     cuentaScanRef.current++;
     if (cuentaScanRef.current > 1) return; // Evitar múltiples escaneos
@@ -213,16 +196,7 @@ export default function Preacreditacion() {
         cuentaScanRef.current = 0;
       }, 3000);
     }
-  }, [entradas]);
-
-  const alEscanear = () => {
-    cuentaScanRef.current = 0;
-    alAbrirQr();
-  };
-
-  const alSeleccionarEntrada = (entrada: Entrada) => {
-    toaster.create({ type: 'warning', title: 'No implementado aún', description: "Seleccionando entrada de " + entrada.nombre_comprador + " (no implementado aún)", duration: 5000, closable: true });
-  };
+  }, [entradas, alCerrarQr, alSeleccionarEntrada]);
 
   return (
     <Box p={4}>
@@ -270,7 +244,7 @@ export default function Preacreditacion() {
           
           {isLoading ? (
             <Flex flex="1" align="center" justify="center">
-              <Spinner />
+              <Spinner size="xl" color="blue.500" />
             </Flex>
           ) : (
             <Flex direction="column" gap={3} overflowY="auto" flex="1">
