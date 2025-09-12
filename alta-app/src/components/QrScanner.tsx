@@ -27,12 +27,12 @@ export const QrScanner = ({
         });
         return;
       }
-      var idEntrada = detectedCodes[0].rawValue;
+      const idEntrada = detectedCodes[0].rawValue;
       alScanear(idEntrada);
     }
   };
 
-  const handleError = (err: any) => {
+  const handleError = (err: unknown) => {
     console.error(err);
     toaster.create({
       type: 'error',
@@ -48,7 +48,6 @@ export const QrScanner = ({
     alCerrar();
     if (wasOpen) {
       setTimeout(() => {
-        // @ts-ignore
         window.location.reload();
       }, 100);
     }
