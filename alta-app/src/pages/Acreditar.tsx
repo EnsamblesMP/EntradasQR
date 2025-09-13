@@ -189,7 +189,7 @@ const Acreditar = () => {
     <Card.Root>
       <Card.Header pb={0}>
         <Flex align="center" justify="space-between" flexWrap="wrap" gap={2}>
-          <Heading as="h1" size="xl" mb={2} color="blue.700">
+          <Heading as="h1" size="xl" mb={2} color="brand.700">
             Acreditar Entrada
           </Heading>
           <Badge
@@ -210,23 +210,15 @@ const Acreditar = () => {
             <Box>
               <Text fontSize="sm" color="gray.500" mb={1}>Comprador</Text>
               <HStack>
-                <Icon as={FiUser} color="blue.500" />
+                <Icon as={FiUser} color="brand.500" />
                 <Text fontWeight="medium">{entrada.nombre_comprador}</Text>
-              </HStack>
-            </Box>
-
-            <Box>
-              <Text fontSize="sm" color="gray.500" mb={1}>Email</Text>
-              <HStack>
-                <Icon as={FiMail} color="blue.500" />
-                <Text>{entrada.email_comprador}</Text>
               </HStack>
             </Box>
 
             <Box>
               <Text fontSize="sm" color="gray.500" mb={1}>Alumno</Text>
               <HStack>
-                <Icon as={FiUser} color="blue.500" />
+                <Icon as={FiUser} color="brand.500" />
                 <Text>{entrada.alumno_nombre}</Text>
               </HStack>
             </Box>
@@ -234,7 +226,7 @@ const Acreditar = () => {
             <Box>
               <Text fontSize="sm" color="gray.500" mb={1}>Grupo</Text>
               <HStack>
-                <Icon as={FiUsers} color="blue.500" />
+                <Icon as={FiUsers} color="brand.500" />
                 <Text>{entrada.grupo} (Año {entrada.anio_grupo})</Text>
               </HStack>
             </Box>
@@ -242,18 +234,27 @@ const Acreditar = () => {
             <Box>
               <Text fontSize="sm" color="gray.500" mb={1}>Fecha de compra</Text>
               <HStack>
-                <Icon as={FiCalendar} color="blue.500" />
+                <Icon as={FiCalendar} color="brand.500" />
                 <Text>{new Date(entrada.created_at).toLocaleDateString('es-AR')}</Text>
               </HStack>
             </Box>
+
+            <Box>
+              <Text fontSize="sm" color="gray.500" mb={1}>Email</Text>
+              <HStack>
+                <Icon as={FiMail} color="brand.500" />
+                <Text fontSize="xs">{entrada.email_comprador}</Text>
+              </HStack>
+            </Box>
+
           </VStack>
 
           <VStack align="stretch" gap={6}>
-            <Box bg="blue.50" p={4} borderRadius="md">
+            <Box bg={{ base: "gray.200", _dark: "gray.800" }} p={4} borderRadius="md">
               <SimpleGrid columns={2} gap={4}>
                 <Box>
                   <Text fontSize="sm" color="gray.500">Compradas</Text>
-                  <Text fontSize="2xl" fontWeight="bold" color="blue.700">
+                  <Text fontSize="2xl" fontWeight="bold" color="brand.700">
                     {entrada.cantidad}
                   </Text>
                 </Box>
