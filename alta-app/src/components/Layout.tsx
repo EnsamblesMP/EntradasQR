@@ -56,13 +56,14 @@ export default function Layout({ children }: LayoutProps) {
     }
   };
 
-  const bgOuterColor = useColorModeValue('gray.100', 'gray.900');
+  const bgTopColor = useColorModeValue('brand.50', 'brand.950');
+  const bgOuterColor = useColorModeValue('gray.50', 'gray.950');
   const bgInnerColor = useColorModeValue('white', 'gray.800');
 
   return (
     <VStack>
       <nav>
-        <HStack bg={bgOuterColor} w="sm" justifyContent="space-between" rounded="lg" mt="2" px="2">
+        <HStack bg={bgTopColor} w="sm" justifyContent="space-between" rounded="lg" mt="2" px="2">
           <SelectorDeAnio anio={anio} setAnio={setAnio} />
           <RouterLink to="/">
             <Button size="xs" variant="surface">

@@ -132,7 +132,7 @@ const SettingsMenuContent: FC<SettingsMenuContentProps> = ({
               value={col.key}
               checked={columnasVisibles.includes(col.key)}
               onCheckedChange={() => toggleColumn(col.key)}
-              style={{ flexBasis: '1rem', border: '1px solid var(--global-color-border)', borderRadius: '0.5rem' }}
+              style={{ flexBasis: '1rem', border: '1px solid var(--chakra-colors-gray-200)', borderRadius: '0.5rem' }}
             >
               {col.label}
               <Menu.ItemIndicator />
