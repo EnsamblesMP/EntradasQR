@@ -4,7 +4,7 @@ export const themeConfig = defineConfig({
   theme: {
     tokens: {
       colors: {
-        // Green color palette, but does not seem to work
+        // Paleta verde
         brand: {
           50: { value: "#f0fdf4" },
           100: { value: "#dcfce7" },
@@ -16,12 +16,45 @@ export const themeConfig = defineConfig({
           700: { value: "#15803d" },
           800: { value: "#166534" },
           900: { value: "#14532d" },
+          950: { value: "#063012" },
         },
       },
       fonts: {
         heading: { value: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" },
         body: { value: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" },
       },
+    },
+    semanticTokens: {
+      colors: {
+        brand: {
+          solid: {
+            value: { base: "{colors.brand.600}", _dark: "{colors.brand.400}" },
+          },
+          contrast: {
+            value: { base: "{colors.white}", _dark: "{colors.gray.900}" },
+          },
+          fg: {
+            value: { base: "{colors.brand.800}", _dark: "{colors.brand.100}" },
+          },
+          muted: {
+            value: { base: "{colors.brand.100}", _dark: "{colors.brand.700}" },
+          },
+          subtle: {
+            value: { base: "{colors.brand.200}", _dark: "{colors.brand.600}" },
+          },
+          emphasized: {
+            value: { base: "{colors.brand.300}", _dark: "{colors.brand.500}" },
+          },
+          focusRing: {
+            value: { base: "{colors.brand.500}", _dark: "{colors.brand.200}" },
+          },
+        },
+      },
+    },
+  },
+  globalCss: {
+    html: {
+      colorPalette: "brand",
     },
   },
 });

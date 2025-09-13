@@ -199,7 +199,7 @@ export default function Preacreditacion() {
 
   return (
     <Flex direction="column" gap={4}>
-      <Button colorPalette="teal" size="lg" onClick={alEscanear}>
+      <Button size="lg" onClick={alEscanear} variant="solid">
         <FiCamera />
         Escanear QR
       </Button>
@@ -215,7 +215,7 @@ export default function Preacreditacion() {
           setTexto={setFiltroTexto}
           placeholder="Buscar comprador o alumno"
         />
-        <Button onClick={() => setUsarFiltros(!usarFiltros)}>
+        <Button onClick={() => setUsarFiltros(!usarFiltros)} variant="subtle">
           <FiSliders />
           Filtros
         </Button>
