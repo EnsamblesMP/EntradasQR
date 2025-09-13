@@ -1,4 +1,4 @@
-import { InputGroup, Input, CloseButton } from '@chakra-ui/react';
+import { Icon, InputGroup, Input, CloseButton } from '@chakra-ui/react';
 import { useRef } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { ChangeEvent } from 'react';
@@ -18,14 +18,21 @@ export const FiltroConLupita: FC<FiltroConLupitaProps> = ({
   const entradaRef = useRef<HTMLInputElement | null>(null);
   return (
     <InputGroup
-      startElement={<FiSearch color="gray.500" />}
+      startOffset="1em"
+      startElement={
+        <Icon
+          as={FiSearch}
+          ms="-1"
+          color="gray.500"
+        />
+      }
       endElement={texto && (
         <CloseButton
-          size="sm"
           onClick={() => {
             setTexto('')
             entradaRef.current?.focus()
           }}
+          size="2xs"
           me="-2"
           _hover={{ bg: 'transparent' }}
           _active={{ bg: 'transparent' }}

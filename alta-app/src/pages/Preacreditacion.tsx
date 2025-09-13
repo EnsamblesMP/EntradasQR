@@ -213,7 +213,7 @@ export default function Preacreditacion() {
         <FiltroConLupita
           texto={filtroTexto}
           setTexto={setFiltroTexto}
-          placeholder="Buscar por comprador o alumno"
+          placeholder="Buscar comprador o alumno"
         />
         <Button onClick={() => setUsarFiltros(!usarFiltros)}>
           <FiSliders />
