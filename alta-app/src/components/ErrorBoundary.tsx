@@ -53,7 +53,7 @@ class ErrorBoundary extends Component<Props, State> {
         </Text>
         <Button 
           onClick={() => window.location.reload()}
-          colorScheme="red"
+          colorPalette="red"
           size="sm"
         >
           Recargar Página

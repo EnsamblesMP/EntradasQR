@@ -90,7 +90,7 @@ export const QrScanner = ({
                   />
                 )}
                 <Button
-                  colorScheme="blue"
+                  colorPalette="blue"
                   onClick={alReintentar}
                 >
                   <AiOutlineQrcode size={20} />

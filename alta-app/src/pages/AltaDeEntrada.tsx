@@ -82,7 +82,7 @@ const AltaDeEntrada: React.FC = () => {
     } finally {
       setCargando(false);
     }
-  }, [campos, camposValidos, reiniciarCampos]);
+  }, [campos, camposValidos]);
 
   if (idEntradaGenerada) {
 
