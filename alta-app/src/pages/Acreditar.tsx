@@ -91,10 +91,11 @@ const Acreditar = () => {
       setEntrada(data);
 
       const cantidadRestantes = calcularRestantes(data.cantidad, data.cantidad_usada);
+      const disponibles = Math.max(cantidadRestantes, 0);
 
       setCantidadAUsar({
-        value: cantidadRestantes.toString(),
-        valueAsNumber: cantidadRestantes
+        value: disponibles.toString(),
+        valueAsNumber: disponibles
       });
 
     } catch (err) {
@@ -139,7 +140,7 @@ const Acreditar = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!cantidadAUsar || cantidadAUsar.valueAsNumber < 1) {
+    if (!cantidadAUsar || cantidadAUsar.value === '') {
       toaster.create({
         title: 'Error',
         description: 'Por favor ingrese una cantidad válida',
@@ -274,7 +275,6 @@ const Acreditar = () => {
                   <NumberInput.Root
                     value={cantidadAUsar?.value}
                     onValueChange={setCantidadAUsar}
-                    min={1}
                   >
                     <NumberInput.Input />
                     <NumberInput.Control>
