@@ -1,30 +1,24 @@
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useCallback, useEffect, useState, ReactNode } from 'react';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   IconButton,
   Heading,
   VStack,
   Flex,
-  Table,
   Spinner,
-  HStack,
   Box,
   Text,
   Button,
   Menu,
   Separator,
-  For,
 } from '@chakra-ui/react';
 import {
   FiPlusSquare,
-  FiEdit,
-  FiTrash2,
   FiSettings,
   FiColumns,
 } from 'react-icons/fi';
 import { useAnio } from '../supabase/anioUtils';
 import { supabase } from '../supabase/supabaseClient';
-import { toaster } from '../chakra/toaster';
 import type { FC } from 'react';
 
 interface Entrada {
@@ -32,6 +26,7 @@ interface Entrada {
   nombre_comprador: string;
   email_comprador: string;
   cantidad: number;
+  cantidad_usada: number;
   created_at: string;
   alumno_nombre: string;
   grupo: string;
@@ -41,11 +36,13 @@ interface Entrada {
 type nombreColumna =
   | 'id'
   | 'comprador'
+  | 'email'
   | 'alumno'
   | 'grupo'
+  | 'anio'
   | 'cantidad'
-  | 'fecha'
-  | 'acciones';
+  | 'cantidad_usada'
+  | 'fecha';
 
 type Columna = {
   key: nombreColumna;
@@ -72,36 +69,45 @@ interface EntradasTableProps {
   entradas: Entrada[];
 }
 
-const TablaEntradas: FC<EntradasTableProps> = ({
-  columnas,
-  columnasVisibles,
-  entradas,
-}) => {
+const TablaEntradas: FC<EntradasTableProps> = ({ columnas, columnasVisibles, entradas }) => {
+  const navigate = useNavigate();
   return (
-    <Box overflowX="auto" width="100%">
-      <Table.Root size="sm" variant="outline">
-        <Table.Header>
-          <Table.Row>
-            <For each={columnas}>
-              {col => columnasVisibles.includes(col.key) && (
-                <Table.ColumnHeader key={col.key}>{col.label}</Table.ColumnHeader>
-              )}
-            </For>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {entradas.map((entrada) => (
-            <Table.Row key={entrada.id}>
-              <For each={columnas}>
-                {col => columnasVisibles.includes(col.key) && (
-                  <Table.Cell>{col.render(entrada)}</Table.Cell>
-                )}
-              </For>
-            </Table.Row>
-          ))}
-        </Table.Body>
-      </Table.Root>
-    </Box>
+    <VStack gap={2} w="full">
+      {entradas.map((entrada) => (
+        <Button
+          key={entrada.id}
+          variant="surface"
+          justifyContent="flex-start"
+          p={3}
+          h="fit"
+          w="full"
+          onClick={() => navigate(`/editar-entrada/${entrada.id}`)}
+        >
+          <Flex direction="column" align="stretch" alignContent="space-evenly" w="full" gap={1}>
+            <Flex direction="row" wrap="wrap" gapY={1} gapX={10} align="flex-start" w="full">
+              {columnas.
+                filter(col => 
+                  columnasVisibles.includes(col.key)
+                  && (col.key !== 'cantidad_usada' || entrada.cantidad_usada > 0)
+                )
+                .map((col) => (
+                  <Flex key={col.key} flexShrink={1} direction="row" wrap="wrap" justify="space-between" gapX="1">
+                    <Text fontSize="xs">{col.label}:</Text>
+                    <Text
+                      whiteSpace="pre-line"
+                      fontWeight="semibold"
+                      fontSize={col.key === 'grupo' || col.key === 'cantidad' || col.key === 'cantidad_usada'
+                        ? "1.2em" : undefined}
+                    >
+                      {col.render(entrada)}
+                    </Text>
+                  </Flex>
+              ))}
+            </Flex>
+          </Flex>
+        </Button>
+      ))}
+    </VStack>
   );
 };
 
@@ -145,7 +151,6 @@ const SettingsMenuContent: FC<SettingsMenuContentProps> = ({
 };
 
 const ListaDeEntradas: FC = () => {
-  const navigate = useNavigate();
   const { anio } = useAnio();
   const [entradas, setEntradas] = useState<Entrada[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -154,7 +159,9 @@ const ListaDeEntradas: FC = () => {
     'comprador',
     'alumno',
     'grupo',
-    'acciones'
+    'cantidad',
+    'cantidad_usada',
+    'fecha'
   ]);
 
   const columnas: Columna[] = [
@@ -165,17 +172,8 @@ const ListaDeEntradas: FC = () => {
     { key: 'grupo', label: 'Grupo', render: (entrada: Entrada) => entrada.grupo },
     { key: 'anio', label: 'Año', render: (entrada: Entrada) => entrada.anio_grupo },
     { key: 'cantidad', label: 'Cantidad', render: (entrada: Entrada) => entrada.cantidad },
+    { key: 'cantidad_usada', label: 'Usadas', render: (entrada: Entrada) => entrada.cantidad_usada },
     { key: 'fecha', label: 'Fecha', render: (entrada: Entrada) => formatearFechaYHora(entrada.created_at) },
-    { key: 'acciones', label: 'Acciones', render: (entrada: Entrada) => (
-      <HStack>
-        <IconButton aria-label="Edit" colorPalette="blue" variant="surface" size="xs" onClick={() => handleEdit(entrada.id)}>
-          <FiEdit />
-        </IconButton>
-        <IconButton aria-label="Delete" colorPalette="red" variant="surface" size="xs" onClick={() => handleDelete(entrada.id)}>
-          <FiTrash2 />
-        </IconButton>
-      </HStack>
-    ) },
   ] as Array<{ key: nombreColumna, label: string, render: (entrada: Entrada) => ReactNode }>;
 
   const toggleColumn = (column: nombreColumna) => {
@@ -196,6 +194,7 @@ const ListaDeEntradas: FC = () => {
         nombre_comprador,
         email_comprador,
         cantidad,
+        cantidad_usada,
         created_at,
         ...alumnos!inner(
           alumno_nombre:nombre,
@@ -219,21 +218,6 @@ const ListaDeEntradas: FC = () => {
   useEffect(() => {
     fetchEntradas();
   }, [fetchEntradas]);
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('¿Seguro que deseas borrar esta entrada?')) return;
-    const { error } = await supabase.from('entradas').delete().eq('id', id);
-    if (error) {
-      toaster.create({ type: 'error', title: 'Error al borrar entrada', description: error.message });
-    } else {
-      toaster.create({ type: 'success', title: 'Entrada borrada', description: 'La entrada se ha borrado correctamente.' });
-      setEntradas(entradas.filter((e) => e.id !== id));
-    }
-  };
-
-  const handleEdit = (id: string) => {
-    navigate(`/editar-entrada/${id}`);
-  };
 
   return (
     <Flex direction="column" gap={4}>

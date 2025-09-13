@@ -10,6 +10,7 @@ import {
   Heading,
   VStack,
 } from '@chakra-ui/react';
+import { DeleteConfirmation } from '../components/DeleteConfirmation';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toaster } from '../chakra/toaster';
 import { supabase } from '../supabase/supabaseClient';
@@ -76,6 +77,17 @@ const EditarEntrada: React.FC = () => {
     cargarEntrada();
   }, [id, cambiarCampos]);
 
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from('entradas').delete().eq('id', id);
+    if (error) {
+      toaster.create({ type: 'error', title: 'Error al borrar entrada', description: error.message });
+      throw error;
+    } else {
+      toaster.create({ type: 'success', title: 'Entrada borrada', description: 'La entrada se ha borrado correctamente.' });
+      navigate('/lista-de-entradas');
+    }
+  };
+
   const handleGuardar = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id) return;
@@ -129,11 +141,22 @@ const EditarEntrada: React.FC = () => {
 
   return (
     <Box as="form" onSubmit={handleGuardar}>
-      <Heading as="h1" mb={6} textAlign="center" minW="sm">
-        Editar entrada
-      </Heading>
+      <Flex w="full">
+        <Heading as="h1" mb={6} textAlign="center" flex="1" ml="2em">
+          Editar entrada
+        </Heading>
+        <DeleteConfirmation
+          onConfirm={() => handleDelete(id)}
+          title="Eliminar entrada"
+          message="¿Seguro que deseas borrar esta entrada? Esta acción no se puede deshacer."
+          confirmText="Eliminar entrada"
+          cancelText="Cancelar"
+          disabled={cargando || guardando}
+        />
+      </Flex>
+
       <VStack gap="6" w="full">
-        
+
         <CamposEntrada
           campos={campos}
           alCambiarCampos={cambiarCampos}
