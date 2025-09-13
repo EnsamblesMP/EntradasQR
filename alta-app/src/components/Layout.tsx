@@ -56,16 +56,17 @@ export default function Layout({ children }: LayoutProps) {
     }
   };
 
-  const bgColor = useColorModeValue('gray.50', 'gray.900');
+  const bgOuterColor = useColorModeValue('gray.100', 'gray.900');
+  const bgInnerColor = useColorModeValue('white', 'gray.800');
 
   return (
-    <VStack w="lg" mx="auto">
+    <VStack>
       <nav>
-        <HStack>
+        <HStack bg={bgOuterColor} w="sm" justifyContent="space-between" rounded="lg" mt="2" px="2">
           <SelectorDeAnio anio={anio} setAnio={setAnio} />
           <RouterLink to="/">
             <Button size="xs" variant="surface">
-              Entradas QR Alta App
+              Entradas QR App
             </Button>
           </RouterLink>
           {currentUser && (
@@ -78,9 +79,11 @@ export default function Layout({ children }: LayoutProps) {
       </nav>
       <main>
         <AnioContext.Provider value={{ anio: anio }}>
-          <Box w="lg" bg={bgColor} p={6} rounded="lg" shadow="md" maxW="2xl" mx="auto">
+        <Box bg={bgOuterColor} p="3" rounded="lg" shadow="2xl" w="sm">
+          <Box bg={bgInnerColor} p="3" rounded="lg">
             {children}
           </Box>
+        </Box>
         </AnioContext.Provider>
       </main>
     </VStack>

@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { ButtonLink } from '../router/ButtonLink';
 import {
   esGuidValido,
   calcularRestantes,
@@ -8,19 +9,18 @@ import {
 import {
   Badge,
   Box,
+  Button,
   Card,
   Field,
   Flex,
   Heading,
-  NumberInput,
   HStack,
   Icon,
+  NumberInput,
   SimpleGrid,
   Spinner,
   Text,
   VStack,
-  Button,
-  Stack,
 } from '@chakra-ui/react';
 import {
   FiUser,
@@ -267,7 +267,7 @@ const Acreditar = () => {
             </Box>
 
             <form onSubmit={handleSubmit}>
-              <Stack gap={4} align="stretch">
+              <VStack gap={4} align="stretch">
                 <Field.Root>
                   <Field.Label>Entradas a usar ahora <Field.RequiredIndicator /></Field.Label>
                   <NumberInput.Root
@@ -289,6 +289,7 @@ const Acreditar = () => {
                 <Flex gap={2} align="stretch">
                   <Button
                     type="submit"
+                    variant="solid"
                     colorPalette="green"
                     size="md"
                     flex="1"
@@ -298,17 +299,18 @@ const Acreditar = () => {
                     Acreditar
                   </Button>
                   
-                  <Button
-                    size="md"
+                  <ButtonLink
+                    to="/preacreditacion"
                     flex="1"
+                    variant="subtle"
+                    size="md"
                     loading={isSubmitting}
-                    onClick={() => navigate('/preacreditacion')}
                   >
                     Cancelar
-                  </Button>
+                  </ButtonLink>
                 </Flex>
                 
-              </Stack>
+              </VStack>
             </form>
           </VStack>
         </SimpleGrid>

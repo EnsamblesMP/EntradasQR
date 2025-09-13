@@ -4,9 +4,10 @@ import CamposEntrada from '../components/CamposEntrada';
 import { ImagenQr } from '../components/ImagenQr';
 import {
   Alert,
+  Box,
   Button,
+  Flex,
   Heading,
-  HStack,
   VStack,
 } from '@chakra-ui/react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -127,25 +128,25 @@ const EditarEntrada: React.FC = () => {
   }
 
   return (
-    <form onSubmit={handleGuardar}>
-      <Heading as="h1" size="xl" mb={6} textAlign="center">
+    <Box as="form" onSubmit={handleGuardar}>
+      <Heading as="h1" mb={6} textAlign="center" minW="sm">
         Editar entrada
       </Heading>
-
       <VStack gap="6" w="full">
-
+        
         <CamposEntrada
           campos={campos}
           alCambiarCampos={cambiarCampos}
           disabled={cargando}
         />
 
-        <HStack w="full" mt={4}>
+        <Flex direction="row" gap={3} mt={4} w="full">
           <Button
             type="submit"
-            colorScheme="blue"
+            variant="solid"
+            colorPalette="green"
             size="lg"
-            w="50%"
+            flex={1}
             loading={guardando}
             loadingText="Guardando..."
             disabled={!camposValidos || guardando || cargando}
@@ -154,14 +155,14 @@ const EditarEntrada: React.FC = () => {
           </Button>
           <Button
             variant="subtle"
-            colorScheme="blue"
+            colorPalette="green"
             size="lg"
-            w="50%"
+            flex={1}
             onClick={() => navigate('/lista-de-entradas')}
           >
             Volver
           </Button>
-        </HStack>
+        </Flex>
 
         {mensaje && (
           <Alert.Root rounded="md" w="full">
@@ -176,7 +177,7 @@ const EditarEntrada: React.FC = () => {
         </CampoCopiable>
 
       </VStack>
-    </form>
+    </Box>
   );
 };
 

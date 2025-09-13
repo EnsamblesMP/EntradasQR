@@ -5,10 +5,10 @@ import CamposEntrada from '../components/CamposEntrada';
 import EntradaRecienGenerada from '../components/EntradaRecienGenerada';
 import {
   Alert,
+  Box,
   Button,
+  Flex,
   Heading,
-  HStack,
-  VStack,
 } from '@chakra-ui/react';
 import { toaster } from '../chakra/toaster';
 import { supabase } from '../supabase/supabaseClient';
@@ -97,24 +97,24 @@ const AltaDeEntrada: React.FC = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Heading as="h1" size="xl" mb={6} textAlign="center">
+    <Box as="form" onSubmit={handleSubmit}>
+      <Heading as="h1" mb={6} textAlign="center" minW="sm">
         Alta de entrada
       </Heading>
-
-      <VStack gap="6">
+      <Box gap="6" w="full">
 
         <CamposEntrada
           campos={campos}
           alCambiarCampos={cambiarCampos}
-          disabled={cargando} />
+          disabled={cargando}/>
 
-        <HStack w="full" mt={4}>
+        <Flex direction="row" gap={3} mt={4} w="full">
           <Button
             type="submit"
-            colorScheme="blue"
+            colorPalette="green"
+            variant="solid"
             size="lg"
-            w="50%"
+            flex={1}
             loading={cargando}
             disabled={!camposValidos || cargando}
             loadingText="Generando..."
@@ -124,15 +124,14 @@ const AltaDeEntrada: React.FC = () => {
           <Button
             type="button"
             variant="subtle"
-            colorScheme="blue"
             size="lg"
-            w="50%"
+            flex={1}
             onClick={() => navigate('/')}
             disabled={cargando}
           >
             Cancelar
           </Button>
-        </HStack>
+        </Flex>
 
         {mensaje && (
           <Alert.Root rounded="md" w="full">
@@ -141,8 +140,8 @@ const AltaDeEntrada: React.FC = () => {
             <Alert.Description>{mensaje}</Alert.Description>
           </Alert.Root>
         )}
-      </VStack>
-    </form>
+      </Box>
+    </Box>
   );
 };
 

@@ -7,7 +7,11 @@ import { ThemeProviderProps } from 'next-themes'
 
 export function ColorModeProvider(props: ThemeProviderProps) {
   return (
-    <ThemeProvider attribute='class' disableTransitionOnChange {...props} />
+    <ThemeProvider
+      attribute='class'
+      disableTransitionOnChange
+      {...props}
+    />
   )
 }
 
@@ -49,7 +53,6 @@ export const LightMode = React.forwardRef(
         color='fg'
         display='contents'
         className='chakra-theme light'
-        colorPalette='gray'
         colorScheme='light'
         ref={ref}
         {...props}
@@ -65,7 +68,6 @@ export const DarkMode = React.forwardRef(
         color='fg'
         display='contents'
         className='chakra-theme dark'
-        colorPalette='gray'
         colorScheme='dark'
         ref={ref}
         {...props}

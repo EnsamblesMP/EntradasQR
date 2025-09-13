@@ -88,7 +88,7 @@ const CamposEntrada: FC<CamposEntradaProps> = ({
           value={String(campos.cantidad)}
           onValueChange={alCambiarCantidad}
           size="lg"
-          w="100%"
+          w="full"
           disabled={disabled}
         >
           <NumberInput.Scrubber />

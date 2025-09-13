@@ -5,7 +5,6 @@ import GrupoSelect from '../components/GrupoSelect';
 import { FiltroConLupita } from '../components/FiltroConLupita';
 import { QrScanner } from '../components/QrScanner';
 import {
-  Box,
   Button,
   Flex,
   Heading,
@@ -199,97 +198,95 @@ export default function Preacreditacion() {
   }, [entradas, alCerrarQr, alSeleccionarEntrada]);
 
   return (
-    <Box p={4}>
-      <Flex direction="column" gap={4}>
-        <Button colorPalette="teal" size="lg" onClick={alEscanear}>
-          <FiCamera />
-          Escanear QR
-        </Button>
-        <QrScanner
-          estaAbierto={qrAbierto}
-          alCerrar={alCerrarQr}
-          alScanear={alScanearQr}
+    <Flex direction="column" gap={4}>
+      <Button colorPalette="teal" size="lg" onClick={alEscanear}>
+        <FiCamera />
+        Escanear QR
+      </Button>
+      <QrScanner
+        estaAbierto={qrAbierto}
+        alCerrar={alCerrarQr}
+        alScanear={alScanearQr}
+      />
+
+      <Flex gap={2} flex={1}>
+        <FiltroConLupita
+          texto={filtroTexto}
+          setTexto={setFiltroTexto}
+          placeholder="Buscar por comprador o alumno"
         />
-
-        <Flex gap={2} flex={1}>
-          <FiltroConLupita
-            texto={filtroTexto}
-            setTexto={setFiltroTexto}
-            placeholder="Buscar por comprador o alumno"
-          />
-          <Button onClick={() => setUsarFiltros(!usarFiltros)}>
-            <FiSliders />
-            Filtros
-          </Button>
-        </Flex>
-
-        <Collapsible.Root open={usarFiltros}>
-          <Collapsible.Content>
-            <Flex direction="column" gap={4} p={4} borderWidth={1} borderRadius="md">
-              <GrupoSelect
-                value={grupoElegido || null}
-                onChange={(value) => {setGrupoElegido(value); setAlumnoElegido(null)}}
-              />
-              <AlumnoSelect
-                idGrupo={grupoElegido}
-                value={alumnoElegido || null}
-                onChange={(value) => setAlumnoElegido(value)}
-              />
-            </Flex>
-          </Collapsible.Content>
-        </Collapsible.Root>
-
-        <Flex direction="column" flex="1" overflow="hidden">
-          <Heading size="md" mb={3}>Resultados</Heading>
-          
-          {isLoading ? (
-            <Flex flex="1" align="center" justify="center">
-              <Spinner size="xl" color="blue.500" />
-            </Flex>
-          ) : (
-            <Flex direction="column" gap={3} overflowY="auto" flex="1">
-            {entradasFiltradas.map((entrada) => (
-              <Button
-                key={entrada.id}
-                p={3}
-                borderWidth={1}
-                borderRadius="md"
-                justifyContent="flex-start"
-                textAlign="left"
-                width="100%"
-                height="auto"
-                variant="outline"
-                onClick={() => alSeleccionarEntrada(entrada)}
-              >
-                <Flex direction="column" gap={1} w="full">
-                  <Flex direction="row" wrap="wrap" justify="space-between" gap={1}>
-                      <Text fontSize="xs">Comprador:</Text>
-                      <Text fontWeight="bold">{entrada.nombre_comprador}</Text>
-                      <Spacer />
-                      <Badge colorPalette={darColorEstado(entrada.cantidad, entrada.cantidad_usada)}>
-                        {darEstado(entrada.cantidad, entrada.cantidad_usada)}
-                      </Badge>
-                      <Text fontSize="xs" color="gray.500">
-                        {entrada.cantidad_usada < 1 ? <></>
-                        : <>{entrada.cantidad_usada} usada{entrada.cantidad_usada !== 1 ? 's' : ''} de </>
-                        }
-                        {entrada.cantidad} comprada{entrada.cantidad !== 1 ? 's' : ''}
-                      </Text>
-                  </Flex>
-                  <Flex direction="row" wrap="wrap" justify="space-between" gap={1}>
-                    <Text fontSize="xs">Alumno:</Text>
-                    <Text fontSize="sm">{entrada.alumno_nombre}</Text>
-                    <Spacer />
-                    <Text fontSize="xs">Grupo:</Text>
-                    <Text fontSize="xs" fontWeight="bold">{entrada.grupo}</Text>
-                  </Flex>
-                </Flex>
-              </Button>
-            ))}
-            </Flex>
-          )}
-        </Flex>
+        <Button onClick={() => setUsarFiltros(!usarFiltros)}>
+          <FiSliders />
+          Filtros
+        </Button>
       </Flex>
-    </Box>
+
+      <Collapsible.Root open={usarFiltros}>
+        <Collapsible.Content>
+          <Flex direction="column" gap={4} p={4} borderWidth={1} borderRadius="md">
+            <GrupoSelect
+              value={grupoElegido || null}
+              onChange={(value) => {setGrupoElegido(value); setAlumnoElegido(null)}}
+            />
+            <AlumnoSelect
+              idGrupo={grupoElegido}
+              value={alumnoElegido || null}
+              onChange={(value) => setAlumnoElegido(value)}
+            />
+          </Flex>
+        </Collapsible.Content>
+      </Collapsible.Root>
+
+      <Flex direction="column" flex="1" overflow="hidden">
+        <Heading size="md" mb={3}>Resultados</Heading>
+        
+        {isLoading ? (
+          <Flex flex="1" align="center" justify="center">
+            <Spinner size="xl" color="blue.500" />
+          </Flex>
+        ) : (
+          <Flex direction="column" gap={3} overflowY="auto" flex="1">
+          {entradasFiltradas.map((entrada) => (
+            <Button
+              key={entrada.id}
+              p={3}
+              borderWidth={1}
+              borderRadius="md"
+              justifyContent="flex-start"
+              textAlign="left"
+              width="100%"
+              height="auto"
+              variant="outline"
+              onClick={() => alSeleccionarEntrada(entrada)}
+            >
+              <Flex direction="column" gap={1} w="full">
+                <Flex direction="row" wrap="wrap" justify="space-between" gap={1}>
+                    <Text fontSize="xs">Comprador:</Text>
+                    <Text fontWeight="bold">{entrada.nombre_comprador}</Text>
+                    <Spacer />
+                    <Badge colorPalette={darColorEstado(entrada.cantidad, entrada.cantidad_usada)}>
+                      {darEstado(entrada.cantidad, entrada.cantidad_usada)}
+                    </Badge>
+                    <Text fontSize="xs" color="gray.500">
+                      {entrada.cantidad_usada < 1 ? <></>
+                      : <>{entrada.cantidad_usada} usada{entrada.cantidad_usada !== 1 ? 's' : ''} de </>
+                      }
+                      {entrada.cantidad} comprada{entrada.cantidad !== 1 ? 's' : ''}
+                    </Text>
+                </Flex>
+                <Flex direction="row" wrap="wrap" justify="space-between" gap={1}>
+                  <Text fontSize="xs">Alumno:</Text>
+                  <Text fontSize="sm">{entrada.alumno_nombre}</Text>
+                  <Spacer />
+                  <Text fontSize="xs">Grupo:</Text>
+                  <Text fontSize="xs" fontWeight="bold">{entrada.grupo}</Text>
+                </Flex>
+              </Flex>
+            </Button>
+          ))}
+          </Flex>
+        )}
+      </Flex>
+    </Flex>
   );
 }

@@ -154,8 +154,6 @@ const ListaDeEntradas: FC = () => {
     'comprador',
     'alumno',
     'grupo',
-    'cantidad',
-    'fecha',
     'acciones'
   ]);
 
@@ -170,10 +168,10 @@ const ListaDeEntradas: FC = () => {
     { key: 'fecha', label: 'Fecha', render: (entrada: Entrada) => formatearFechaYHora(entrada.created_at) },
     { key: 'acciones', label: 'Acciones', render: (entrada: Entrada) => (
       <HStack>
-        <IconButton aria-label="Edit" colorPalette="blue" size="xs" onClick={() => handleEdit(entrada.id)}>
+        <IconButton aria-label="Edit" colorPalette="blue" variant="surface" size="xs" onClick={() => handleEdit(entrada.id)}>
           <FiEdit />
         </IconButton>
-        <IconButton aria-label="Delete" colorPalette="red" size="xs" onClick={() => handleDelete(entrada.id)}>
+        <IconButton aria-label="Delete" colorPalette="red" variant="surface" size="xs" onClick={() => handleDelete(entrada.id)}>
           <FiTrash2 />
         </IconButton>
       </HStack>
@@ -241,7 +239,7 @@ const ListaDeEntradas: FC = () => {
     <Flex direction="column" gap={4}>
       <Flex justify="flex-end">
         <RouterLink to="/alta-de-entrada">
-          <Button size="sm" variant="solid" backgroundColor="blue.600" _hover={{ backgroundColor: 'blue.500' }}>
+          <Button size="sm" variant="solid" colorPalette="green">
             <FiPlusSquare />
             Agregar entrada
           </Button>
