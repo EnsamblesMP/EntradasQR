@@ -249,18 +249,17 @@ export default function Preacreditacion() {
           {entradasFiltradas.map((entrada) => (
             <Button
               key={entrada.id}
-              p={3}
-              borderWidth={1}
-              borderRadius="md"
+              p={2}
+              borderRadius="xl"
               justifyContent="flex-start"
               textAlign="left"
-              width="100%"
-              height="auto"
-              variant="outline"
+              w="full"
+              h="fit"
+              variant="subtle"
               onClick={() => alSeleccionarEntrada(entrada)}
             >
-              <Flex direction="column" gap={1} w="full">
-                <Flex direction="row" wrap="wrap" justify="space-between" gap={1}>
+              <Flex direction="column" gap={1} w="full" alignItems="stretch" flex="max-content">
+                <Flex direction="row" wrap="wrap" justify="space-between" gap={1} flexBasis="1">
                     <Text fontSize="xs">Comprador:</Text>
                     <Text fontWeight="bold">{entrada.nombre_comprador}</Text>
                     <Spacer />
@@ -274,7 +273,7 @@ export default function Preacreditacion() {
                       {entrada.cantidad} comprada{entrada.cantidad !== 1 ? 's' : ''}
                     </Text>
                 </Flex>
-                <Flex direction="row" wrap="wrap" justify="space-between" gap={1}>
+                <Flex direction="row" wrap="wrap" justify="space-between" gap={1} flexBasis="1">
                   <Text fontSize="xs">Alumno:</Text>
                   <Text fontSize="sm">{entrada.alumno_nombre}</Text>
                   <Spacer />

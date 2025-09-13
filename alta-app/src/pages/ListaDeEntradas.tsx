@@ -76,34 +76,35 @@ const TablaEntradas: FC<EntradasTableProps> = ({ columnas, columnasVisibles, ent
       {entradas.map((entrada) => (
         <Button
           key={entrada.id}
-          variant="surface"
-          justifyContent="flex-start"
-          p={3}
+          variant="subtle"
           h="fit"
           w="full"
+          borderRadius="xl"
+          p={2}
+          gapY={1}
+          gapX={10}
           onClick={() => navigate(`/editar-entrada/${entrada.id}`)}
         >
-          <Flex direction="column" align="stretch" alignContent="space-evenly" w="full" gap={1}>
-            <Flex direction="row" wrap="wrap" gapY={1} gapX={10} align="flex-start" w="full">
-              {columnas.
-                filter(col => 
-                  columnasVisibles.includes(col.key)
-                  && (col.key !== 'cantidad_usada' || entrada.cantidad_usada > 0)
-                )
-                .map((col) => (
-                  <Flex key={col.key} flexShrink={1} direction="row" wrap="wrap" justify="space-between" gapX="1">
-                    <Text fontSize="xs">{col.label}:</Text>
-                    <Text
-                      whiteSpace="pre-line"
-                      fontWeight="semibold"
-                      fontSize={col.key === 'grupo' || col.key === 'cantidad' || col.key === 'cantidad_usada'
-                        ? "1.2em" : undefined}
-                    >
-                      {col.render(entrada)}
-                    </Text>
-                  </Flex>
-              ))}
-            </Flex>
+          <Flex direction="row" wrap="wrap" gapY={1} gapX={10} w="full" justifyContent="space-between" alignItems="stretch" flex="max-content">
+            {columnas.
+              filter(col => 
+                columnasVisibles.includes(col.key)
+                && (col.key !== 'cantidad_usada' || entrada.cantidad_usada > 0)
+              )
+              .map((col) => (
+                <Flex key={col.key} flexShrink={1} direction="row" wrap="nowrap" gapX="1" flexBasis="auto">
+                  <Text fontSize="xs">{col.label}:</Text>
+                  <Text
+                    whiteSpace="pre-wrap"
+                    fontWeight="semibold"
+                    textAlign="left"
+                    fontSize={col.key === 'grupo'
+                      ? "1.2em" : undefined}
+                  >
+                    {col.render(entrada)}
+                  </Text>
+                </Flex>
+            ))}
           </Flex>
         </Button>
       ))}
