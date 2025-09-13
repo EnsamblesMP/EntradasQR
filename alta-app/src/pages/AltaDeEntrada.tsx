@@ -64,7 +64,6 @@ const AltaDeEntrada: React.FC = () => {
 
       setIdEntradaGenerada(id);
       setMensaje(`✅ Entrada registrada exitosamente con ID: ${id}`);
-      reiniciarCampos();
 
       toaster.create({
         title: 'Entrada generada',
@@ -122,7 +121,6 @@ const AltaDeEntrada: React.FC = () => {
             Generar entrada
           </Button>
           <Button
-            type="button"
             variant="subtle"
             size="lg"
             flex={1}

@@ -1,6 +1,7 @@
 import { ImagenQr } from './ImagenQr';
 import { CampoCopiable } from './CampoCopiable';
 import { VStack, Text, Button, Flex } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 import type { Campos }  from './Campos';
 import type { FC } from 'react';
 
@@ -15,6 +16,7 @@ export const EntradaRecienGenerada: FC<EntradaRecienGeneradaProps> = ({
   campos,
   onClose,
 }) => {
+  const navigate = useNavigate();
   return (
     <VStack w="full">
       <Text fontSize="lg" fontWeight="medium" textAlign="center">
@@ -66,15 +68,24 @@ export const EntradaRecienGenerada: FC<EntradaRecienGeneradaProps> = ({
         </CampoCopiable>
       </Flex>
 
-      <VStack gap="4">
+      <Flex direction="row" gap={3} mt={4} w="full">
         <Button
-          colorScheme="gray"
-          w="full"
+          variant="solid"
+          size="lg"
+          flex={1}
           onClick={onClose}
         >
           Generar otra entrada
         </Button>
-      </VStack>
+        <Button
+          variant="subtle"
+          size="lg"
+          flex={1}
+          onClick={() => navigate('/')}
+        >
+          Cancelar
+        </Button>
+      </Flex>
     </VStack>
   );
 };
