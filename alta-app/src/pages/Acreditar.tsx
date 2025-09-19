@@ -13,11 +13,13 @@ import {
   Card,
   Field,
   Flex,
+  GridItem,
   Heading,
   HStack,
   Icon,
   NumberInput,
   SimpleGrid,
+  Spacer,
   Spinner,
   Text,
   VStack,
@@ -137,7 +139,7 @@ const Acreditar = () => {
 
   const cantidadRestantes = calcularRestantes(entrada.cantidad, entrada.cantidad_usada);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLDivElement>) => {
     e.preventDefault();
 
     if (!cantidadAUsar || cantidadAUsar.value === '') {
@@ -189,16 +191,14 @@ const Acreditar = () => {
   return (
     <Card.Root>
       <Card.Header pb={0}>
-        <Flex align="center" justify="space-between" flexWrap="wrap" gap={2}>
-          <Heading as="h1" size="xl" mb={2} color="brand.700">
+        <Flex align="base" justify="space-between" flexWrap="wrap" gap={2}>
+          <Heading as="h1" size="xl" color="brand.700">
             Acreditar Entrada
           </Heading>
           <Badge
             colorPalette={badgeColor}
-            px={3}
-            py={1}
             borderRadius="full"
-            fontSize="sm"
+            fontSize="xs"
           >
             {darEstado(entrada.cantidad, entrada.cantidad_usada)}
           </Badge>
@@ -206,115 +206,125 @@ const Acreditar = () => {
       </Card.Header>
 
       <Card.Body>
-        <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
-          <VStack align="stretch" gap={4}>
-            <Box>
-              <Text fontSize="sm" color="gray.500" mb={1}>Comprador</Text>
-              <HStack>
-                <Icon as={FiUser} color="brand.500" />
-                <Text fontWeight="medium">{entrada.nombre_comprador}</Text>
-              </HStack>
-            </Box>
+        <VStack gap={2} alignItems="stretch" mb="3">
+          <Box>
+            <Text fontSize="xs" color="gray.500" mb={1}>Comprador</Text>
+            <HStack>
+              <Icon as={FiUser} color="brand.500" />
+              <Text fontWeight="medium">{entrada.nombre_comprador}</Text>
+            </HStack>
+          </Box>
 
-            <Box>
-              <Text fontSize="sm" color="gray.500" mb={1}>Alumno</Text>
-              <HStack>
-                <Icon as={FiUser} color="brand.500" />
-                <Text>{entrada.alumno_nombre}</Text>
-              </HStack>
-            </Box>
+          <Box>
+            <Text fontSize="xs" color="gray.500" mb={1}>Alumno</Text>
+            <HStack>
+              <Icon as={FiUser} color="brand.500" />
+              <Text>{entrada.alumno_nombre}</Text>
+            </HStack>
+          </Box>
+        </VStack>
+        <SimpleGrid columns={8} gap={3} templateColumns="repeat(8, 1fr)">
+          <GridItem colSpan={5}>
+            <Text fontSize="xs" color="gray.500" mb={1}>Grupo</Text>
+            <HStack>
+              <Icon as={FiUsers} color="brand.500" />
+              <Text>{entrada.grupo} (Año {entrada.anio_grupo})</Text>
+            </HStack>
+          </GridItem>
 
-            <Box>
-              <Text fontSize="sm" color="gray.500" mb={1}>Grupo</Text>
-              <HStack>
-                <Icon as={FiUsers} color="brand.500" />
-                <Text>{entrada.grupo} (Año {entrada.anio_grupo})</Text>
-              </HStack>
-            </Box>
+          <GridItem colSpan={3}>
+            <Text fontSize="xs" color="gray.500" mb={1}>Fecha de compra</Text>
+            <HStack>
+              <Icon as={FiCalendar} color="brand.500" />
+              <Text>{new Date(entrada.created_at).toLocaleDateString('es-AR')}</Text>
+            </HStack>
+          </GridItem>
+          
+          <GridItem colSpan={5}>
+            <Text fontSize="xs" color="gray.500" mb={1}>Email</Text>
+            <HStack>
+              <Icon as={FiMail} color="brand.500" />
+              <Text fontSize="xs">{entrada.email_comprador}</Text>
+            </HStack>
+          </GridItem>
 
-            <Box>
-              <Text fontSize="sm" color="gray.500" mb={1}>Fecha de compra</Text>
-              <HStack>
-                <Icon as={FiCalendar} color="brand.500" />
-                <Text>{new Date(entrada.created_at).toLocaleDateString('es-AR')}</Text>
-              </HStack>
-            </Box>
-
-            <Box>
-              <Text fontSize="sm" color="gray.500" mb={1}>Email</Text>
-              <HStack>
-                <Icon as={FiMail} color="brand.500" />
-                <Text fontSize="xs">{entrada.email_comprador}</Text>
-              </HStack>
-            </Box>
-
-          </VStack>
-
-          <VStack align="stretch" gap={6}>
-            <Box bg={{ base: "gray.200", _dark: "gray.800" }} p={4} borderRadius="md">
-              <SimpleGrid columns={2} gap={4}>
-                <Box>
-                  <Text fontSize="sm" color="gray.500">Compradas</Text>
-                  <Text fontSize="2xl" fontWeight="bold" color="brand.700">
-                    {entrada.cantidad}
-                  </Text>
-                </Box>
-                <Box>
-                  <Text fontSize="sm" color="gray.500">Usadas</Text>
-                  <Text fontSize="2xl" fontWeight="bold" color={entrada.cantidad_usada > 0 ? 'orange.500' : 'gray.500'}>
-                    {entrada.cantidad_usada}
-                  </Text>
-                </Box>
-              </SimpleGrid>
-            </Box>
-
-            <form onSubmit={handleSubmit}>
-              <VStack gap={4} align="stretch">
-                <Field.Root>
-                  <Field.Label>Entradas a usar ahora <Field.RequiredIndicator /></Field.Label>
-                  <NumberInput.Root
-                    value={cantidadAUsar?.value}
-                    onValueChange={setCantidadAUsar}
-                  >
-                    <NumberInput.Input />
-                    <NumberInput.Control>
-                      <NumberInput.IncrementTrigger />
-                      <NumberInput.DecrementTrigger />
-                    </NumberInput.Control>
-                  </NumberInput.Root>
-                  <Text fontSize="sm" color={cantidadRestantes > 0 ? 'green.600' : 'red.500'}>
-                    {cantidadRestantes} disponible{cantidadRestantes !== 1 ? 's' : ''}
-                  </Text>
-                </Field.Root>
-
-                <Flex gap={2} align="stretch">
-                  <Button
-                    type="submit"
-                    variant="solid"
-                    colorPalette="green"
-                    size="md"
-                    flex="1"
-                    loading={isSubmitting}
-                    loadingText="Acreditando..."
-                  >
-                    Acreditar
-                  </Button>
-                  
-                  <ButtonLink
-                    to="/preacreditacion"
-                    flex="1"
-                    variant="subtle"
-                    size="md"
-                    loading={isSubmitting}
-                  >
-                    Cancelar
-                  </ButtonLink>
-                </Flex>
-                
-              </VStack>
-            </form>
-          </VStack>
+          <GridItem colSpan={3} bg={{ base: "gray.100", _dark: "gray.900" }} p={1} borderRadius="md">
+            <Flex columns={2} gap={1}>
+              <Box>
+                <Text fontSize="2xs" color="gray.500">Compradas</Text>
+                <Text fontSize="2xl" fontWeight="bold" color="brand.700">
+                  {entrada.cantidad}
+                </Text>
+              </Box>
+              <Spacer />
+              <Box>
+                <Text fontSize="2xs" color="gray.500">Usadas</Text>
+                <Text fontSize="2xl" fontWeight="bold" color={entrada.cantidad_usada > 0 ? 'orange.500' : 'gray.500'}>
+                  {entrada.cantidad_usada}
+                </Text>
+              </Box>
+            </Flex>
+          </GridItem>
         </SimpleGrid>
+        
+        <VStack
+          as="form"
+          onSubmit={handleSubmit}
+          align="stretch"
+          bg="brand.50"
+          gap={2}
+          my="2"
+          p={2}
+          borderRadius="md"
+        >
+          <Field.Root>
+            <Field.Label>Entradas a usar ahora <Field.RequiredIndicator /></Field.Label>
+            <NumberInput.Root
+              value={cantidadAUsar?.value}
+              onValueChange={setCantidadAUsar}
+              size="lg"
+              w="full"
+              variant="outline"
+              borderWidth="1px"
+              borderColor="brand.500"
+              borderRadius="sm"
+              bg="white"
+            >
+              <NumberInput.Input />
+              <NumberInput.Control>
+                <NumberInput.IncrementTrigger />
+                <NumberInput.DecrementTrigger />
+              </NumberInput.Control>
+            </NumberInput.Root>
+            <Text fontSize="sm" color={cantidadRestantes > 0 ? 'green.600' : 'red.500'}>
+              {cantidadRestantes} disponible{cantidadRestantes !== 1 ? 's' : ''}
+            </Text>
+          </Field.Root>
+
+          <Flex gap={2} align="stretch">
+            <Button
+              type="submit"
+              variant="solid"
+              colorPalette="green"
+              size="md"
+              flex="1"
+              loading={isSubmitting}
+              loadingText="Acreditando..."
+            >
+              Acreditar
+            </Button>
+            
+            <ButtonLink
+              to="/preacreditacion"
+              flex="1"
+              variant="subtle"
+              size="md"
+              loading={isSubmitting}
+            >
+              Cancelar
+            </ButtonLink>
+          </Flex>
+        </VStack>
       </Card.Body>
     </Card.Root>
   );
