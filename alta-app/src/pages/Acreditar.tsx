@@ -271,14 +271,24 @@ const Acreditar = () => {
           as="form"
           onSubmit={handleSubmit}
           align="stretch"
-          bg="brand.50"
+          bg={{ base: "brand.50", _dark: "brand.900" }}
           gap={2}
           my="2"
           p={2}
           borderRadius="md"
         >
           <Field.Root>
-            <Field.Label>Entradas a usar ahora <Field.RequiredIndicator /></Field.Label>
+            <Field.Label w="full">
+              <Flex gap={2} w="full" justifyContent="space-between">
+                <Text>Entradas a usar ahora: <Field.RequiredIndicator /></Text>
+                <Text fontSize="sm" fontWeight="semibold" color={{
+                  base: cantidadRestantes > 0 ? 'brand.600' : 'red.500',
+                  _dark: cantidadRestantes > 0 ? 'brand.300' : 'red.400'
+                }}>
+                  ({cantidadRestantes} disponible{cantidadRestantes !== 1 ? 's' : ''})
+                </Text>
+              </Flex>
+            </Field.Label>
             <NumberInput.Root
               value={cantidadAUsar?.value}
               onValueChange={setCantidadAUsar}
@@ -288,7 +298,7 @@ const Acreditar = () => {
               borderWidth="1px"
               borderColor="brand.500"
               borderRadius="sm"
-              bg="white"
+              bg={{ base: "white", _dark: "gray.900" }}
             >
               <NumberInput.Input />
               <NumberInput.Control>
@@ -296,9 +306,6 @@ const Acreditar = () => {
                 <NumberInput.DecrementTrigger />
               </NumberInput.Control>
             </NumberInput.Root>
-            <Text fontSize="sm" color={cantidadRestantes > 0 ? 'green.600' : 'red.500'}>
-              {cantidadRestantes} disponible{cantidadRestantes !== 1 ? 's' : ''}
-            </Text>
           </Field.Root>
 
           <Flex gap={2} align="stretch">
