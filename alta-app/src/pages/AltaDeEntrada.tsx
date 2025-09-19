@@ -2,7 +2,6 @@ import React, { useCallback, useState } from 'react';
 import { useCampos } from '../components/Campos';
 import { useNavigate } from 'react-router-dom';
 import CamposEntrada from '../components/CamposEntrada';
-import EntradaRecienGenerada from '../components/EntradaRecienGenerada';
 import {
   Alert,
   Box,
@@ -19,20 +18,12 @@ const AltaDeEntrada: React.FC = () => {
 
   const [mensaje, setMensaje] = useState('');
   const [cargando, setCargando] = useState(false);
-  const [idEntradaGenerada, setIdEntradaGenerada] = useState<string | null>(null);
 
   const {
     campos,
     cambiarCampos,
-    reiniciarCampos,
     camposValidos,
   } = useCampos();
-
-  const handleCloseQr = useCallback(() => {
-    setIdEntradaGenerada(null);
-    setMensaje('');
-    reiniciarCampos();
-  }, [reiniciarCampos]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +53,6 @@ const AltaDeEntrada: React.FC = () => {
 
       if (error) throw error;
 
-      setIdEntradaGenerada(id);
       setMensaje(`✅ Entrada registrada exitosamente con ID: ${id}`);
 
       toaster.create({
@@ -70,6 +60,9 @@ const AltaDeEntrada: React.FC = () => {
         description: 'La entrada se ha generado correctamente.',
         type: 'success',
       });
+
+      navigate(`/template-entrada/${id}`);
+
     } catch (error) {
       console.error('Error al guardar la entrada:', error);
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
@@ -83,17 +76,6 @@ const AltaDeEntrada: React.FC = () => {
       setCargando(false);
     }
   }, [campos, camposValidos]);
-
-  if (idEntradaGenerada) {
-
-    return (
-      <EntradaRecienGenerada
-        idEntrada={idEntradaGenerada}
-        campos={campos}
-        onClose={handleCloseQr}
-      />
-    );
-  }
 
   return (
     <Box as="form" onSubmit={handleSubmit}>

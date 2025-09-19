@@ -5,6 +5,7 @@ import AltaDeEntrada from '../pages/AltaDeEntrada'
 import ListaDeEntradas from '../pages/ListaDeEntradas'
 import ProtectedRoute from './ProtectedRoute'
 import EditarEntrada from '../pages/EditarEntrada'
+import TemplateEntrada from '../pages/TemplateEntrada'
 import Preacreditacion from '../pages/Preacreditacion'
 import Acreditar from '../pages/Acreditar'
 
@@ -19,6 +20,7 @@ function AppRoutes() {
         <Route path="/alta-de-entrada" element={<AltaDeEntrada />} />
         <Route path="/lista-de-entradas" element={<ListaDeEntradas />} />
         <Route path="/editar-entrada/:id" element={<EditarEntrada />} />
+        <Route path="/template-entrada/:id" element={<TemplateEntrada />} />
         <Route path="/preacreditacion" element={<Preacreditacion />} />
         <Route path="/acreditar/:id" element={<Acreditar />} />
       </Route>

@@ -167,7 +167,6 @@ const EditarEntrada: React.FC = () => {
           <Button
             type="submit"
             variant="solid"
-            colorPalette="green"
             size="lg"
             flex={1}
             loading={guardando}
@@ -186,6 +185,14 @@ const EditarEntrada: React.FC = () => {
             Volver
           </Button>
         </Flex>
+
+        <Button
+          variant="surface"
+          size="lg"
+          onClick={() => navigate(`/template-entrada/${id}`)}
+        >
+          Ver Email
+        </Button>
 
         {mensaje && (
           <Alert.Root rounded="md" w="full">
