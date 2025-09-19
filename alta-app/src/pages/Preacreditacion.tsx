@@ -266,7 +266,7 @@ export default function Preacreditacion() {
                     <Badge colorPalette={darColorEstado(entrada.cantidad, entrada.cantidad_usada)}>
                       {darEstado(entrada.cantidad, entrada.cantidad_usada)}
                     </Badge>
-                    <Text fontSize="xs" color="gray.500">
+                    <Text fontSize="xs" color={{ base: "gray.500", _dark: "gray.400" }}>
                       {entrada.cantidad_usada < 1 ? <></>
                       : <>{entrada.cantidad_usada} usada{entrada.cantidad_usada !== 1 ? 's' : ''} de </>
                       }
