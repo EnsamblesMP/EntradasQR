@@ -6,7 +6,7 @@ interface ImagenQrProps {
 }
 
 export const ImagenQr: FC<ImagenQrProps> = ({ idEntrada }) => {
-  const qr = `https://freeqr.com/api/v1/?data=${idEntrada}&size=300x300&color=000&bgcolor=3cc`;
+  const qr = `https://freeqr.com/api/v1/?data=${idEntrada}&size=300x300&color=000&bgcolor=fff`;
   return (
     <Image
       src={qr}
