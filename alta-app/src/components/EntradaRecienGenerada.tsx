@@ -83,7 +83,7 @@ export const EntradaRecienGenerada: FC<EntradaRecienGeneradaProps> = ({
           flex={1}
           onClick={() => navigate('/')}
         >
-          Cancelar
+          Cerrar
         </Button>
       </Flex>
     </VStack>
