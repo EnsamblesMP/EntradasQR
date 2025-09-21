@@ -114,11 +114,11 @@ export default function Preacreditacion() {
 
     // ordenar por tickets restantes (desc) y luego por nombre del comprador (asc)
     filtradas.sort((a, b) => {
-      const aRestantes = calcularRestantes(a.cantidad, a.cantidad_usada);
-      const bRestantes = calcularRestantes(b.cantidad, b.cantidad_usada);
+      const estadoA = darEstado(a.cantidad, a.cantidad_usada);
+      const estadoB = darEstado(b.cantidad, b.cantidad_usada);
       
-      if (aRestantes !== bRestantes) {
-        return bRestantes - aRestantes;
+      if (estadoA !== estadoB) {
+        return estadoA.localeCompare(estadoB);
       }
       
       return a.nombre_comprador.localeCompare(b.nombre_comprador);
@@ -238,7 +238,7 @@ export default function Preacreditacion() {
       </Collapsible.Root>
 
       <Flex direction="column" flex="1" overflow="hidden">
-        <Heading size="md" mb={3}>Resultados</Heading>
+        <Heading size="md" mb={3}>{entradasFiltradas.length} Resultados</Heading>
         
         {isLoading ? (
           <Flex flex="1" align="center" justify="center">
