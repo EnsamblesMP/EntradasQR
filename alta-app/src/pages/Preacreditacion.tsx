@@ -21,7 +21,6 @@ import { toaster } from '../chakra/toaster';
 import { useNavigate } from 'react-router-dom';
 import {
   esGuidValido,
-  calcularRestantes,
   darColorEstado,
   darEstado
 } from '../components/EntradaFunc';

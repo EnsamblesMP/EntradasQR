@@ -35,14 +35,14 @@ export default function Home() {
           </ButtonLink>
         ) : (
           <VStack gap={3}>
-            <ButtonLink to="/alta-de-entrada" variant="surface" size="md" w="full">
-              Alta de Entrada
+            <ButtonLink to="/preacreditacion" variant="surface" size="2xl" w="full">
+              Acreditaciones
             </ButtonLink>
             <ButtonLink to="/lista-de-entradas" variant="surface" size="md" w="full">
-              Lista de Entradas
+              Administrar Entradas
             </ButtonLink>
-            <ButtonLink to="/preacreditacion" variant="surface" size="md" w="full">
-              Preacreditación
+            <ButtonLink to="/lista-imprimible-de-entradas" variant="surface" size="md" w="full">
+              Lista Imprimible de Entradas
             </ButtonLink>
             <Box textAlign="right" w="full">
             {currentUser && (

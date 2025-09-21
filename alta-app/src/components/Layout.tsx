@@ -2,16 +2,13 @@ import { ReactNode, useState } from 'react'
 import { ButtonLink } from '../router/ButtonLink'
 import {
   Box,
-  Icon,
-  NumberInput,
   Spacer,
   Stack,
 } from '@chakra-ui/react';
-import { FiCalendar } from 'react-icons/fi';
 import { ColorModeButton } from '../chakra/color-mode';
 import { useColorModeValue } from '../chakra/use-color-mode';
 import { AnioContext } from '../supabase/anioUtils'
-import { InputGroup } from '@chakra-ui/react';
+import { SelectorDeAnio } from './SelectorDeAnio';
 
 interface LayoutProps {
   children: ReactNode
@@ -20,36 +17,6 @@ interface LayoutProps {
 const getCurrentYear = () => {
   return new Date().getFullYear();
 };
-
-interface SelectorDeAnioProps {
-  anio: number;
-  setAnio: (anio: number) => void;
-}
-
-const SelectorDeAnio = ({ anio, setAnio }: SelectorDeAnioProps) => {
-  return (
-    <Stack direction="row" align="center">
-      <NumberInput.Root
-        defaultValue={anio.toString()}
-        onValueChange={(e) => setAnio(parseInt(e.value))}
-        variant="flushed"
-        size="xs"
-        w="80px"
-      >
-        <InputGroup
-          startElement={<Icon as={FiCalendar} size="lg" ml={-3} />}
-        >
-          <NumberInput.Input min={2020} max={2080} />
-        </InputGroup>
-        <NumberInput.Control>
-          <NumberInput.IncrementTrigger />
-          <NumberInput.DecrementTrigger />
-        </NumberInput.Control>
-      </NumberInput.Root>
-    </Stack>
-  );
-};
-
 
 export default function Layout({ children }: LayoutProps) {
   const [anio, setAnio] = useState(getCurrentYear());

@@ -5,7 +5,6 @@ import { BrowserRouter } from 'react-router-dom'
 import { Provider } from "./chakra/provider"
 import { AuthProvider } from './supabase/AuthProvider'
 import ErrorBoundary from './components/ErrorBoundary'
-import Layout from './components/Layout'
 import AppRoutes from './router/AppRoutes'
 
 const rootElem = document.getElementById('root');
@@ -21,9 +20,7 @@ createRoot(rootElem).render(
       <Provider>
         <ErrorBoundary>
           <AuthProvider>
-            <Layout>
-              <AppRoutes />
-            </Layout>
+            <AppRoutes />
           </AuthProvider>
         </ErrorBoundary>
       </Provider>
