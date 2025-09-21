@@ -1,9 +1,22 @@
 import { useAuth } from '../supabase/authUtils';
-import { VStack, Heading, Text, Box } from '@chakra-ui/react';
+import { Box, Button, Heading, Text, VStack } from '@chakra-ui/react';
 import { ButtonLink } from '../router/ButtonLink';
+import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
-  const { currentUser } = useAuth();
+  const navigate = useNavigate();
+  const { currentUser, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    if (!signOut) return;
+    try {
+      await signOut()
+      navigate('/login')
+    } catch (error) {
+      console.error('Failed to log out', error)
+    }
+  };
+
   return (
     <VStack gap={6} textAlign="center" py={12}>
       <VStack gap={3}>
@@ -31,6 +44,13 @@ export default function Home() {
             <ButtonLink to="/preacreditacion" variant="surface" size="md" w="full">
               Preacreditación
             </ButtonLink>
+            <Box textAlign="right" w="full">
+            {currentUser && (
+              <Button onClick={handleLogout} size="xs" variant="surface" mt={5}>
+                Cerrar Sesión
+              </Button>
+            )}
+            </Box>
           </VStack>
         )}
       </Box>

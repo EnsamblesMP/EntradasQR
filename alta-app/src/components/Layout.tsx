@@ -1,17 +1,15 @@
 import { ReactNode, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { ButtonLink } from '../router/ButtonLink'
 import {
   Box,
-  Button,
   Icon,
   NumberInput,
+  Spacer,
   Stack,
 } from '@chakra-ui/react';
 import { FiCalendar } from 'react-icons/fi';
 import { ColorModeButton } from '../chakra/color-mode';
 import { useColorModeValue } from '../chakra/use-color-mode';
-import { useAuth } from '../supabase/authUtils'
 import { AnioContext } from '../supabase/anioUtils'
 import { InputGroup } from '@chakra-ui/react';
 
@@ -55,18 +53,6 @@ const SelectorDeAnio = ({ anio, setAnio }: SelectorDeAnioProps) => {
 
 export default function Layout({ children }: LayoutProps) {
   const [anio, setAnio] = useState(getCurrentYear());
-  const { currentUser, signOut } = useAuth();
-  const navigate = useNavigate();
-  const handleLogout = async () => {
-    if (!signOut) return;
-    try {
-      await signOut()
-      navigate('/login')
-    } catch (error) {
-      console.error('Failed to log out', error)
-    }
-  };
-
   const bgTopColor = useColorModeValue('brand.50', 'brand.950');
   const bgOuterColor = useColorModeValue('gray.50', 'gray.950');
   const bgInnerColor = useColorModeValue('white', 'gray.800');
@@ -75,14 +61,10 @@ export default function Layout({ children }: LayoutProps) {
     <Stack align="left" ml="1em" mt="3px">
       <Stack as="nav" direction="row" bg={bgTopColor} w="sm" justifyContent="space-between" rounded="lg" px="2" py="2">
         <SelectorDeAnio anio={anio} setAnio={setAnio} />
+        <Spacer />
         <ButtonLink to="/" size="xs" variant="surface">
-          Entradas QR App
+          Administrar
         </ButtonLink>
-        {currentUser && (
-          <Button onClick={handleLogout} size="xs" variant="surface">
-            Cerrar Sesión
-          </Button>
-        )}
         <ColorModeButton />
       </Stack>
       <Stack as="main">
