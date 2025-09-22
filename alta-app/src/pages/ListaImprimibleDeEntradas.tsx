@@ -12,7 +12,6 @@ import { supabase } from '../supabase/supabaseClient';
 import type { FC } from 'react';
 import { SelectorDeAnio } from '../components/SelectorDeAnio';
 import FuncionSelect from '../components/FuncionSelect';
-import { LightMode } from '../chakra/color-mode';
 
 interface Entrada {
   id: string;
@@ -32,7 +31,17 @@ interface EntradasTableProps {
 
 const TablaEntradas: FC<EntradasTableProps> = ({ entradas }) => {
   return (
-    <Table.Root w="full" color="black" bg="white" size="xs">
+    <Table.Root
+      w="full"
+      color="black"
+      bg="white"
+      size="md"
+      css={{
+        '& th, & td': {
+          padding: '0.1rem 0.3rem',
+        }
+      }}
+    >
       <Table.Header>
         <Table.Row>
           <Table.ColumnHeader bg="white" color="black">Asistentes</Table.ColumnHeader>
@@ -82,6 +91,7 @@ const ListaImprimibleDeEntradas: FC = () => {
     const query = supabase
       .from('entradas')
       .select(`
+        id,
         nombre_comprador,
         cantidad,
         ...alumnos!inner(
@@ -114,31 +124,31 @@ const ListaImprimibleDeEntradas: FC = () => {
 
   const localidades = entradas.reduce((total, entrada) => total + entrada.cantidad, 0);
   return (
-    <Flex direction="column" gap={4} bg="white" color="black">
-      <LightMode>
-        <Box display="flex">
-          <Heading as="h1" size="lg">
-            Lista Imprimible de Entradas 
-            ({entradas.length} items, {localidades} localidades)
-          </Heading>
-          <Spacer />
-          <Box display="flex" gap={2}>
-            <FuncionSelect anio={anio} value={funcion} onChange={setFuncion} size="sm" />
-            <SelectorDeAnio anio={anio} setAnio={setAnio} />
-          </Box>
+    <Flex direction="column" gap={4} bg="white" color="black" className="light">
+      <Box display="flex">
+        <Heading as="h1" size="lg">
+          Lista Imprimible de Entradas 
+          ({entradas.length} items, {localidades} localidades)
+        </Heading>
+        <Spacer />
+        <Box display="flex" gap={2}>
+          <FuncionSelect anio={anio} value={funcion} onChange={setFuncion} size="sm" />
+          <SelectorDeAnio anio={anio} setAnio={setAnio} />
         </Box>
-        {isLoading ? (
-            <Spinner size="xl" color="blue.500" />
-          ) : error ? (
-            <Box bg="red.100" color="red.800" p={4} borderRadius="md">
-              {error}
-            </Box>
-          ) : entradas.length === 0 ? (
-            <Box p={6}><Text>No hay entradas registradas para el año {anio}.</Text></Box>
-          ) : (
+      </Box>
+      {isLoading ? (
+          <Spinner size="xl" color="blue.500" />
+        ) : error ? (
+          <Box bg="red.100" color="red.800" p={4} borderRadius="md">
+            {error}
+          </Box>
+        ) : entradas.length === 0 ? (
+          <Box p={6}><Text>No hay entradas registradas para el año {anio}.</Text></Box>
+        ) : (
+          <Box pl={5}>
             <TablaEntradas entradas={entradas} />
-          )}
-        </LightMode>
+          </Box>
+        )}
     </Flex>
   );
 };
