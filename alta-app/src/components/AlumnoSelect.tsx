@@ -92,6 +92,9 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
                   : "Seleccionar Alumno"
               } />
             </Select.Trigger>
+            <Select.IndicatorGroup>
+              <Select.Indicator />
+            </Select.IndicatorGroup>
           </Select.Control>
           <Select.Positioner>
             <Select.Content width="full">

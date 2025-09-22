@@ -96,6 +96,9 @@ const GrupoSelect = ({ value, onChange, required = false }: GrupoSelectProps) =>
                   : "Seleccionar Grupo"
               } />
             </Select.Trigger>
+            <Select.IndicatorGroup>
+              <Select.Indicator />
+            </Select.IndicatorGroup>
           </Select.Control>
           <Select.Positioner>
             <Select.Content width="full">
