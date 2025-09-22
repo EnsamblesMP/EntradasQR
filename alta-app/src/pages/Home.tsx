@@ -35,7 +35,7 @@ export default function Home() {
           </ButtonLink>
         ) : (
           <VStack gap={3}>
-            <ButtonLink to="/preacreditacion" variant="surface" size="2xl" w="full">
+            <ButtonLink to="/acreditaciones" variant="surface" size="2xl" w="full">
               Acreditaciones
             </ButtonLink>
             <ButtonLink to="/lista-de-entradas" variant="surface" size="md" w="full">

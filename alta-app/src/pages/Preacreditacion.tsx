@@ -18,7 +18,7 @@ import {
 import { supabase } from '../supabase/supabaseClient';
 import { useAnio } from '../supabase/anioUtils';
 import { toaster } from '../chakra/toaster';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   esGuidValido,
   darColorEstado,
@@ -41,6 +41,7 @@ interface Entrada {
 
 export default function Preacreditacion() {
   const navigate = useNavigate();
+  const { funcion } = useParams<{ funcion: string }>();
   const [usarFiltros, setUsarFiltros] = useState(false);
   const [filtroTexto, setFiltroTexto] = useState('');
   const [grupoElegido, setGrupoElegido] = useState<string | null>(null);
@@ -54,7 +55,7 @@ export default function Preacreditacion() {
     try {
       setIsLoading(true);
       
-      const { data, error: queryError } = await supabase
+      const query = supabase
         .from('entradas')
         .select(`
           id,
@@ -74,6 +75,12 @@ export default function Preacreditacion() {
           )
         `)
         .eq('alumnos.grupos.year', anio);
+
+      if (funcion) {
+        query.eq('alumnos.grupos.nombre_funcion', funcion);
+      }
+
+      const { data, error: queryError } = await query;
 
       if (queryError) throw queryError;
       

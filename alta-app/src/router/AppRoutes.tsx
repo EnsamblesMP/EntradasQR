@@ -10,6 +10,7 @@ import EditarEntrada from '../pages/EditarEntrada'
 import TemplateEntrada from '../pages/TemplateEntrada'
 import Preacreditacion from '../pages/Preacreditacion'
 import Acreditar from '../pages/Acreditar'
+import Acreditaciones from '../pages/Acreditaciones'
 
 function AppRoutes() {
   return (
@@ -19,12 +20,13 @@ function AppRoutes() {
       
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
+        <Route path="/acreditaciones" element={<Layout><Acreditaciones /></Layout>} />
         <Route path="/alta-de-entrada" element={<Layout><AltaDeEntrada /></Layout>} />
         <Route path="/lista-de-entradas" element={<Layout><ListaDeEntradas /></Layout>} />
         <Route path="/lista-imprimible-de-entradas" element={<ListaImprimibleDeEntradas />} />
         <Route path="/editar-entrada/:id" element={<Layout><EditarEntrada /></Layout>} />
         <Route path="/template-entrada/:id" element={<Layout><TemplateEntrada /></Layout>} />
-        <Route path="/preacreditacion" element={<Layout><Preacreditacion /></Layout>} />
+        <Route path="/preacreditacion/:funcion?" element={<Layout><Preacreditacion /></Layout>} />
         <Route path="/acreditar/:id" element={<Layout><Acreditar /></Layout>} />
       </Route>
       
