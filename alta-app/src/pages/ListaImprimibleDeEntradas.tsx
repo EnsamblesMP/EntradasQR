@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
-  Table,
-  Heading,
-  VStack,
-  Flex,
-  Spinner,
   Box,
+  Flex,
+  Heading,
+  Spacer,
+  Spinner,
+  Table,
   Text,
 } from '@chakra-ui/react';
 import { supabase } from '../supabase/supabaseClient';
 import type { FC } from 'react';
 import { SelectorDeAnio } from '../components/SelectorDeAnio';
+import FuncionSelect from '../components/FuncionSelect';
+import { LightMode } from '../chakra/color-mode';
 
 interface Entrada {
   id: string;
@@ -72,11 +74,12 @@ const ListaImprimibleDeEntradas: FC = () => {
   const [entradas, setEntradas] = useState<Entrada[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [funcion, setFuncion] = useState<string | null>(null);
 
   const fetchEntradas = useCallback(async () => {
     setIsLoading(true);
     setError(null);
-    const { data, error } = await supabase
+    const query = supabase
       .from('entradas')
       .select(`
         nombre_comprador,
@@ -85,11 +88,16 @@ const ListaImprimibleDeEntradas: FC = () => {
           alumno_nombre:nombre,
           ...grupos!inner(
             grupo:nombre_corto,
-            anio_grupo:year
+            anio_grupo:year,
+            nombre_funcion
           )
         )
       `)
-      .eq('alumnos.grupos.year', anio)
+      .eq('alumnos.grupos.year', anio);
+    if (funcion) {
+      query.eq('alumnos.grupos.nombre_funcion', funcion);
+    }
+    const { data, error } = await query
       .order('nombre_comprador', { ascending: true });
     if (error) {
       setError(`Error al cargar las entradas del año ${anio}.`);
@@ -98,7 +106,7 @@ const ListaImprimibleDeEntradas: FC = () => {
       setEntradas(data as unknown as Entrada[] || []);
     }
     setIsLoading(false);
-  }, [anio]);
+  }, [anio, funcion]);
 
   useEffect(() => {
     fetchEntradas();
@@ -107,13 +115,17 @@ const ListaImprimibleDeEntradas: FC = () => {
   const localidades = entradas.reduce((total, entrada) => total + entrada.cantidad, 0);
   return (
     <Flex direction="column" gap={4} bg="white" color="black">
-      <VStack>
-        <Box w="full" display="flex" justifyContent="space-between">
-          <Heading as="h1" size="lg" flexBasis="auto">
+      <LightMode>
+        <Box display="flex">
+          <Heading as="h1" size="lg">
             Lista Imprimible de Entradas 
             ({entradas.length} items, {localidades} localidades)
           </Heading>
-          <SelectorDeAnio anio={anio} setAnio={setAnio} />
+          <Spacer />
+          <Box display="flex" gap={2}>
+            <FuncionSelect anio={anio} value={funcion} onChange={setFuncion} size="sm" />
+            <SelectorDeAnio anio={anio} setAnio={setAnio} />
+          </Box>
         </Box>
         {isLoading ? (
             <Spinner size="xl" color="blue.500" />
@@ -126,7 +138,7 @@ const ListaImprimibleDeEntradas: FC = () => {
           ) : (
             <TablaEntradas entradas={entradas} />
           )}
-        </VStack>
+        </LightMode>
     </Flex>
   );
 };
