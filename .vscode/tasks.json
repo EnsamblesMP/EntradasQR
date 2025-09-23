@@ -4,30 +4,27 @@
 		{
 			"type": "npm",
 			"script": "build",
-			"path": "alta-app",
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
 			"problemMatcher": [],
-			"label": "npm: build - alta-app",
+			"label": "npm: build",
 			"detail": "vite build"
 		},
 		{
 			"type": "npm",
 			"script": "install",
-			"path": "alta-app",
 			"group": "build",
 			"problemMatcher": [],
-			"label": "npm: install - alta-app",
+			"label": "npm: install",
 			"detail": "install dependencies from package"
 		},
 		{
 			"type": "npm",
 			"script": "lint",
-			"path": "alta-app",
 			"problemMatcher": ["$eslint-stylish"],
-			"label": "npm: lint - alta-app",
+			"label": "npm: lint",
 			"detail": "eslint ."
 		}
 	]

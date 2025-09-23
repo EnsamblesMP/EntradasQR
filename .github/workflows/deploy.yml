@@ -20,7 +20,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build Alta-App
+    name: Build App
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,26 +30,23 @@ jobs:
         with:
           node-version: lts/*
           cache: 'npm'
-          cache-dependency-path: alta-app/package-lock.json
+          cache-dependency-path: package-lock.json
       - name: Install dependencies
         uses: bahmutov/npm-install@v1
-        with:
-          working-directory: alta-app
       - name: Build
         run: npm run build
-        working-directory: alta-app
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       - name: Upload production-ready build files
         uses: actions/upload-pages-artifact@v4
         with:
-          name: alta-app-deploy
-          path: ./alta-app/dist
+          name: app-deploy
+          path: ./dist
           retention-days: 1
 
   deploy:
-    name: Deploy Alta-App
+    name: Deploy App
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
@@ -58,4 +55,4 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         with:
-          artifact_name: alta-app-deploy
+          artifact_name: app-deploy
