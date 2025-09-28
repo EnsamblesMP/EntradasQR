@@ -1,3 +1,4 @@
+import { useEntradaPorId } from '../queries/useEntradas';
 import { ImagenQr } from '../components/ImagenQr';
 import { CampoCopiable } from '../components/CampoCopiable';
 import {
@@ -7,79 +8,47 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import {
-  useEffect,
-  useState,
-} from 'react';
+import { useEffect } from 'react';
 import { toaster } from '../chakra/toaster';
-import { supabase } from '../supabase/supabaseClient';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useCampos } from '../components/Campos';
 import type { FC } from 'react';
-
-interface EntradaDB {
-  id: string;
-  nombre_comprador: string;
-  email_comprador: string | null;
-  cantidad: number;
-  id_alumno: number;
-  alumno?: { grupo: string } | null; // via FK join
-}
 
 export const TemplateEntrada: FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [cargando, setCargando] = useState(true);
-  const { campos, cambiarCampos } = useCampos();
+  const {
+    data: entrada,
+    isLoading: cargando,
+    error: errorEntrada,
+  } = useEntradaPorId(id);
 
   useEffect(() => {
-    const cargarEntrada = async () => {
-      if (!id) return;
-      setCargando(true);
-      try {
-        const { data, error } = await supabase
-          .from('entradas')
-          .select('id, nombre_comprador, email_comprador, cantidad, id_alumno, alumno:id_alumno(grupo)')
-          .eq('id', id)
-          .maybeSingle();
-
-        if (error) throw error;
-        if (!data) {
-          toaster.create({
-            title: 'Error',
-            description: 'No se encontró la entrada.',
-            type: 'error',
-          });
-          return;
-        }
-
-        const entrada = data as unknown as EntradaDB;
-        cambiarCampos({
-          nombreComprador: entrada.nombre_comprador || '',
-          emailComprador: entrada.email_comprador || '',
-          cantidad: entrada.cantidad || 1,
-          idAlumno: entrada.id_alumno || null,
-          idGrupo: entrada.alumno?.grupo || null
-        });
-      } catch (e) {
-        console.error(e);
-        const msg = e instanceof Error ? e.message : 'Error desconocido';
-        toaster.create({
-          title: 'Error',
-          description: `Error al cargar: ${msg}`,
-          type: 'error',
-        });
-      } finally {
-        setCargando(false);
-      }
-    };
-    cargarEntrada();
-  }, [id, cambiarCampos]);
-
+    if (errorEntrada) {
+      toaster.create({
+        title: 'Error',
+        description: 'No se encontró la entrada.',
+        type: 'error',
+      });
+    }
+  }, [errorEntrada]);
+  
   if (cargando || !id) {
     return (
       <Flex justify="center" align="center" minH="60vh">
         <Spinner size="xl" color="blue.500" />
+      </Flex>
+    );
+  }
+
+  if (!entrada) {
+    return (
+      <Flex justify="center" align="center" minH="60vh">
+        <Text fontSize="lg" fontWeight="medium" textAlign="center">
+          No se encontró la entrada.
+        </Text>
+        <Text fontSize="md" textAlign="center">
+          {errorEntrada?.message}
+        </Text>
       </Flex>
     );
   }
@@ -98,7 +67,7 @@ export const TemplateEntrada: FC = () => {
           Email:
         </Text>
         <CampoCopiable w="full">
-          {campos.emailComprador}
+          {entrada.email_comprador}
         </CampoCopiable>
       </Flex>
 
@@ -116,14 +85,14 @@ export const TemplateEntrada: FC = () => {
           Contenido del email:
         </Text>
         <CampoCopiable w="full">
-          Hola {campos.nombreComprador}<br/>
+          Hola {entrada.nombre_comprador}<br/>
           <br />
           Para ingresar al recital de MP Ensambles deberás presentar
           el código <b>QR</b> que se ve abajo
           {
-            campos.cantidad < 2
+            entrada.compradas < 2
               ? <></>
-              : (<> <b>(vale por {campos.cantidad} entradas)</b></>)
+              : (<> <b>(vale por {entrada.compradas} entradas)</b></>)
           }
           .<br /><br />
           Nombre de la Sala: Galpón B<br />

@@ -1,10 +1,16 @@
 import { createContext, useContext } from 'react';
 
+export const getCurrentYear = () => {
+  return new Date().getFullYear();
+};
+
 export interface AnioContextType {
-  anio?: number;
+  anio: number;
 }
 
-export const AnioContext = createContext<AnioContextType>({});
+export const AnioContext = createContext<AnioContextType>({
+  anio: getCurrentYear(),
+});
 
 export function useAnio() {
   return useContext(AnioContext);

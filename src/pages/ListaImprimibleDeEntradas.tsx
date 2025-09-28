@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEntradasPorFuncion, VistaEntrada } from '../queries/useEntradas';
+import { useState } from 'react';
 import {
   Box,
   Flex,
@@ -8,25 +9,12 @@ import {
   Table,
   Text,
 } from '@chakra-ui/react';
-import { supabase } from '../supabase/supabaseClient';
 import type { FC } from 'react';
 import { SelectorDeAnio } from '../components/SelectorDeAnio';
 import FuncionSelect from '../components/FuncionSelect';
 
-interface Entrada {
-  id: string;
-  nombre_comprador: string;
-  email_comprador: string;
-  cantidad: number;
-  cantidad_usada: number;
-  created_at: string;
-  alumno_nombre: string;
-  grupo: string;
-  anio_grupo: number;
-}
-
 interface EntradasTableProps {
-  entradas: Entrada[];
+  entradas: VistaEntrada[];
 }
 
 const TablaEntradas: FC<EntradasTableProps> = ({ entradas }) => {
@@ -59,12 +47,12 @@ const TablaEntradas: FC<EntradasTableProps> = ({ entradas }) => {
             </Table.Cell>
             <Table.Cell bg="white" >
               <Text whiteSpace="pre-wrap">
-                {entrada.cantidad}
+                {entrada.compradas}
               </Text>
             </Table.Cell>
             <Table.Cell bg="white" >
               <Text whiteSpace="pre-wrap">
-                {entrada.alumno_nombre}
+                {entrada.nombre_alumno}
               </Text>
             </Table.Cell>
           </Table.Row>
@@ -80,55 +68,21 @@ const getCurrentYear = () => {
 
 const ListaImprimibleDeEntradas: FC = () => {
   const [anio, setAnio] = useState(getCurrentYear());
-  const [entradas, setEntradas] = useState<Entrada[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [funcion, setFuncion] = useState<string | null>(null);
+  const {
+    data: entradas,
+    isLoading: cargandoEntradas,
+    error: errorEntradas
+  } = useEntradasPorFuncion(anio, funcion || undefined);
 
-  const fetchEntradas = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    const query = supabase
-      .from('entradas')
-      .select(`
-        id,
-        nombre_comprador,
-        cantidad,
-        ...alumnos!inner(
-          alumno_nombre:nombre,
-          ...grupos!inner(
-            grupo:nombre_corto,
-            anio_grupo:year,
-            nombre_funcion
-          )
-        )
-      `)
-      .eq('alumnos.grupos.year', anio);
-    if (funcion) {
-      query.eq('alumnos.grupos.nombre_funcion', funcion);
-    }
-    const { data, error } = await query
-      .order('nombre_comprador', { ascending: true });
-    if (error) {
-      setError(`Error al cargar las entradas del año ${anio}.`);
-      setEntradas([]);
-    } else {
-      setEntradas(data as unknown as Entrada[] || []);
-    }
-    setIsLoading(false);
-  }, [anio, funcion]);
-
-  useEffect(() => {
-    fetchEntradas();
-  }, [fetchEntradas]);
-
-  const localidades = entradas.reduce((total, entrada) => total + entrada.cantidad, 0);
+  const cantidadDeEntradas = entradas?.length || 0;
+  const localidades = entradas?.reduce((total, entrada) => total + entrada.compradas, 0) || 0;
   return (
     <Flex direction="column" gap={4} bg="white" color="black" className="light">
       <Box display="flex">
         <Heading as="h1" size="lg">
           Lista Imprimible de Entradas 
-          ({entradas.length} items, {localidades} localidades)
+          ({cantidadDeEntradas} items, {localidades} localidades)
         </Heading>
         <Spacer />
         <Box display="flex" gap={2}>
@@ -136,13 +90,13 @@ const ListaImprimibleDeEntradas: FC = () => {
           <SelectorDeAnio anio={anio} setAnio={setAnio} />
         </Box>
       </Box>
-      {isLoading ? (
+      {cargandoEntradas ? (
           <Spinner size="xl" color="blue.500" />
-        ) : error ? (
+        ) : errorEntradas ? (
           <Box bg="red.100" color="red.800" p={4} borderRadius="md">
-            {error}
+            Error al cargar las entradas: {errorEntradas.message}
           </Box>
-        ) : entradas.length === 0 ? (
+        ) : !entradas || entradas.length === 0 ? (
           <Box p={6}><Text>No hay entradas registradas para el año {anio}.</Text></Box>
         ) : (
           <Box pl={5}>

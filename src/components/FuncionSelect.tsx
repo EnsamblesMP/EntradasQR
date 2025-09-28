@@ -1,20 +1,19 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useFuncionesDelAnio } from '../queries/useFunciones';
+import { useEffect, useMemo } from 'react';
 import {
-  Button,
   Field,
-  HStack,
   Select,
   Skeleton,
   SelectValueChangeDetails,
   createListCollection,
 } from '@chakra-ui/react';
-import { supabase } from '../supabase/supabaseClient';
+import type { ComponentProps } from 'react';
 
 interface Funcion {
   nombre_funcion: string;
 }
 
-interface FuncionSelectProps extends Omit<React.ComponentProps<typeof Select.Root>, 'children' | 'collection' | 'onChange' | 'value'> {
+type FuncionSelectProps = Omit<ComponentProps<typeof Select.Root>, 'children' | 'collection' | 'onChange' | 'value'> & {
   anio: number;
   value: string | null;
   onChange: (value: string | null) => void;
@@ -28,51 +27,23 @@ const FuncionSelect = ({
   required = false,
   ...props
 }: FuncionSelectProps) => {
-  const [funciones, setFunciones] = useState<Funcion[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: funciones,
+    isLoading: cargandoFunciones,
+    error: funcionesError,
+  } = useFuncionesDelAnio(anio);
   
-  const obtenFunciones = useCallback(async () => {
-      try {
-        setLoading(true);
-        
-        const { data, error } = await supabase
-          .from('funciones')
-          .select('nombre_funcion')
-          .eq('year', anio)
-          
-          .order('orden', { ascending: true });
-
-        if (error) throw error;
-
-        if (!data || data.length === 0) {
-          onChange(null);
-        }
-
-        setFunciones(data as Funcion[]);
-
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error cargando funciones');
-        console.error('Error cargando funciones:', err);
-      } finally {
-        setLoading(false);
+    useEffect(() => {
+      if (!cargandoFunciones && (!funciones || funciones.length === 0)) {
+        onChange(null);
       }
-    }, [anio, onChange]);
-
-  useEffect(() => {
-    obtenFunciones();
-  }, [obtenFunciones, anio]);
-
+    }, [anio, onChange, funciones, cargandoFunciones]);
+  
   const collection = useMemo(() => createListCollection({
-    items: funciones,
+    items: funciones || [],
     itemToString: (item) => item.nombre_funcion,
     itemToValue: (item) => item.nombre_funcion,
   }), [funciones]);
-
-  const handleRetry = () => {
-    setError(null);
-    obtenFunciones();
-  };
 
   const handleValueChange = (details: SelectValueChangeDetails<Funcion>) => {
     onChange(details.value.length > 0 ? details.value[0] : null);
@@ -81,8 +52,9 @@ const FuncionSelect = ({
   const values = value !== null ? [value] : [];
 
   return (
-    <Field.Root required={required} invalid={!!error}>
-      <Skeleton loading={loading || error !== null}>
+    <Field.Root required={required} invalid={!!funcionesError}>
+      {!funcionesError && (
+      <Skeleton loading={cargandoFunciones}>
         <Select.Root
           collection={collection}
           onValueChange={handleValueChange}
@@ -116,13 +88,11 @@ const FuncionSelect = ({
           </Select.Positioner>
         </Select.Root>
       </Skeleton>
-      {error && (
-        <HStack>
-          <Field.ErrorText>{error}</Field.ErrorText>
-          <Button size="sm" onClick={handleRetry} variant="ghost">
-            Reintentar
-          </Button>
-        </HStack>
+      )}
+      {funcionesError && (
+        <Field.ErrorText>
+          Error cargando funciones: {funcionesError.message ?? funcionesError.toString?.()}
+        </Field.ErrorText>
       )}
     </Field.Root>
   );

@@ -1,17 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { Alumno, useAlumnosPorGrupo } from '../queries/useAlumnos';
+import { useEffect, useCallback } from 'react';
 import {
   Select,
   Skeleton,
   Field,
-  ListCollection,
   createListCollection,
 } from '@chakra-ui/react';
-import { supabase } from '../supabase/supabaseClient';
-
-interface Alumno {
-  id: number;
-  nombre: string;
-}
 
 interface AlumnoSelectProps {
   idGrupo: string | null;
@@ -20,44 +14,23 @@ interface AlumnoSelectProps {
   required?: boolean;
 }
 
-const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSelectProps) => {
-  const [alumnos, setAlumnos] = useState<ListCollection<Alumno>>(createListCollection({
-    items: [],
-    itemToString: (item: Alumno) => item.nombre,
-    itemToValue: (item: Alumno) => String(item.id),
-  }));
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const AlumnoSelect = ({
+  idGrupo: idGrupo,
+  value,
+  onChange,
+  required = false
+}: AlumnoSelectProps) => {
+  const {
+    data: alumnos,
+    isLoading: loading,
+    error: errorCarga,
+  } = useAlumnosPorGrupo(idGrupo ?? undefined);
   
-  const obtenAlumnos = useCallback(async () => {
-    if (!idGrupo) return;
-    
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const { data, error } = await supabase
-        .from('alumnos')
-        .select('id, nombre')
-        .eq('grupo', idGrupo)
-        .order('nombre', { ascending: true });
-      
-      if (error) throw error;
-      
-      const alumnosCollection = createListCollection({
-        items: data,
-        itemToString: (item) => item.nombre,
-        itemToValue: (item) => String(item.id),
-      });
-      
-      setAlumnos(alumnosCollection);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error cargando alumnos');
-      console.error('Error cargando alumnos:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [idGrupo]);
+  const alumnosCollection = createListCollection({
+    items: alumnos || [],
+    itemToString: (item: Alumno) => item.nombre_alumno,
+    itemToValue: (item: Alumno) => String(item.id_alumno),
+  });
 
   const safeOnChange = useCallback((value: number | null) => {
     onChange(value);
@@ -70,44 +43,48 @@ const AlumnoSelect = ({ idGrupo, value, onChange, required = false }: AlumnoSele
       }
       return;
     }
-    obtenAlumnos();
-  }, [idGrupo, obtenAlumnos, value, safeOnChange]);
+  }, [idGrupo, value, safeOnChange]);
 
   return (
-    <Field.Root required={required} invalid={!!error}>
+    <Field.Root required={required} invalid={!!errorCarga}>
       <Field.Label>Alumno <Field.RequiredIndicator /></Field.Label>
-      <Skeleton loading={loading || idGrupo === null || error !== null} w="full">
-        <Select.Root
-          collection={alumnos}
-          value={value !== null ? [String(value)] : []}
-          onValueChange={o => onChange(o.value.length > 0 ? Number(o.value[0]) : null)}
-          size="lg"
-          positioning={{ strategy: 'fixed', sameWidth: true, placement: "bottom" }}
-        >
-          <Select.Control>
-            <Select.Trigger>
-              <Select.ValueText placeholder={
-                alumnos.size === 0
-                  ? "No hay alumnos para este grupo."
-                  : "Seleccionar Alumno"
-              } />
-            </Select.Trigger>
-            <Select.IndicatorGroup>
-              <Select.Indicator />
-            </Select.IndicatorGroup>
-          </Select.Control>
-          <Select.Positioner>
-            <Select.Content width="full">
-              {alumnos.items.map((alumno) => (
-                <Select.Item key={alumno.id} item={alumno}>
-                  {alumno.nombre}
-                </Select.Item>
-              ))}
-            </Select.Content>
-          </Select.Positioner>
-        </Select.Root>
-      </Skeleton>
-      {error && <Field.ErrorText>{error}</Field.ErrorText>}
+      {idGrupo === null && (
+        <Skeleton loading={idGrupo === null} w="full" variant="none" h="3rem"
+          bg={{ base: "blackAlpha.100", _dark: "blackAlpha.400" }}/>)}
+      {!errorCarga && !!idGrupo &&
+        <Skeleton loading={loading} w="full">
+          <Select.Root
+            collection={alumnosCollection}
+            value={value !== null ? [String(value)] : []}
+            onValueChange={o => onChange(o.value.length > 0 ? Number(o.value[0]) : null)}
+            size="lg"
+            positioning={{ strategy: 'fixed', sameWidth: true, placement: "bottom" }}
+          >
+            <Select.Control>
+              <Select.Trigger>
+                <Select.ValueText placeholder={
+                  alumnosCollection.size === 0
+                    ? "No hay alumnos para este grupo."
+                    : "Seleccionar Alumno"
+                } />
+              </Select.Trigger>
+              <Select.IndicatorGroup>
+                <Select.Indicator />
+              </Select.IndicatorGroup>
+            </Select.Control>
+            <Select.Positioner>
+              <Select.Content width="full">
+                {alumnosCollection.items.map((alumno) => (
+                  <Select.Item key={alumno.id_alumno} item={alumno}>
+                    {alumno.nombre_alumno}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select.Positioner>
+          </Select.Root>
+        </Skeleton>
+      }
+      {errorCarga && <Field.ErrorText>{errorCarga?.message || 'Error cargando alumnos'}</Field.ErrorText>}
     </Field.Root>
   );
 };

@@ -7,16 +7,12 @@ import {
 } from '@chakra-ui/react';
 import { ColorModeButton } from '../chakra/color-mode';
 import { useColorModeValue } from '../chakra/use-color-mode';
-import { AnioContext } from '../supabase/anioUtils'
+import { getCurrentYear, AnioContext } from '../supabase/anioUtils'
 import { SelectorDeAnio } from './SelectorDeAnio';
 
 interface LayoutProps {
   children: ReactNode
 }
-
-const getCurrentYear = () => {
-  return new Date().getFullYear();
-};
 
 export default function Layout({ children }: LayoutProps) {
   const [anio, setAnio] = useState(getCurrentYear());
@@ -36,11 +32,11 @@ export default function Layout({ children }: LayoutProps) {
       </Stack>
       <Stack as="main">
         <AnioContext.Provider value={{ anio: anio }}>
-        <Box bg={bgOuterColor} p="3" rounded="lg" shadow="2xl" w="sm">
-          <Box bg={bgInnerColor} p="3" rounded="lg">
-            {children}
+          <Box bg={bgOuterColor} p="3" rounded="lg" shadow="2xl" w="sm">
+            <Box bg={bgInnerColor} p="3" rounded="lg">
+              {children}
+            </Box>
           </Box>
-        </Box>
         </AnioContext.Provider>
       </Stack>
     </Stack>

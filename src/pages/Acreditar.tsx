@@ -30,9 +30,9 @@ import {
   FiCalendar,
   FiUsers,
 } from 'react-icons/fi';
-import { supabase } from '../supabase/supabaseClient';
 import { toaster } from '../chakra/toaster';
-import { useCallback, useEffect, useState } from 'react';
+import { useEntradaPorId, useUsarEntrada } from '../queries/useEntradas';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 
 interface NumberInputValue {
@@ -40,85 +40,39 @@ interface NumberInputValue {
     valueAsNumber: number;
 }
 
-interface Entrada {
-  id: string;
-  nombre_comprador: string;
-  email_comprador: string;
-  cantidad: number;
-  cantidad_usada: number;
-  created_at: string;
-  alumno_nombre: string;
-  grupo: string;
-  anio_grupo: number;
-}
-
 const Acreditar = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [entrada, setEntrada] = useState<Entrada | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: entrada, isLoading: cargando, error: errorCargarEntrada } = useEntradaPorId(id);
   const [cantidadAUsar, setCantidadAUsar] = useState<NumberInputValue | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutateAsync: usarEntrada, isPending: guardando, error: errorUsarEntrada } = useUsarEntrada();
 
-  const fetchEntrada = useCallback(async () => {
-    try {
-      if (!id || !esGuidValido(id)) {
-        return;
-      }
-
-      setIsLoading(true);
-
-      const { data, error: queryError } = await supabase
-        .from('entradas')
-        .select(`
-          id,
-          nombre_comprador,
-          email_comprador,
-          cantidad,
-          cantidad_usada,
-          created_at,
-          ...alumnos!inner(
-            alumno_nombre:nombre,
-            ...grupos!inner(
-              grupo:nombre_corto,
-              anio_grupo:year
-            )
-          )
-        `)
-        .eq('id', id)
-        .single();
-
-      if (queryError) throw queryError;
-
-      setEntrada(data);
-
-      const cantidadRestantes = calcularRestantes(data.cantidad, data.cantidad_usada);
+  useEffect(() => {
+    if (entrada) {
+      const cantidadRestantes = calcularRestantes(entrada.compradas, entrada.usadas);
       const disponibles = Math.max(cantidadRestantes, 0);
 
       setCantidadAUsar({
         value: disponibles.toString(),
         valueAsNumber: disponibles
       });
+    }
+  }, [entrada]);
 
-    } catch (err) {
-      console.error('Error al cargar la entrada:', err);
+  useEffect(() => {
+    if (errorCargarEntrada || errorUsarEntrada) {
+      console.error(errorUsarEntrada || errorCargarEntrada);
       toaster.create({
         type: 'error',
         title: 'Error',
-        description: 'No se pudo cargar la entrada. Por favor, intente nuevamente.',
-        duration: 5000,
-        closable: true,
+        description: errorUsarEntrada
+          ? 'Error al acreditar la entrada. Por favor, intente nuevamente.'
+          : 'Error al cargar la entrada. Por favor, intente nuevamente.'
       });
-    } finally {
-      setIsLoading(false);
     }
-  }, [id]);
+  }, [errorCargarEntrada, errorUsarEntrada]);
 
-  useEffect(() => {
-    fetchEntrada();
-  }, [fetchEntrada]);
-
-  if (isLoading) {
+  if (cargando) {
     return (
       <Flex justify="center" align="center" minH="60vh">
         <Spinner size="xl" color="blue.500" />
@@ -137,56 +91,38 @@ const Acreditar = () => {
     );
   }
 
-  const cantidadRestantes = calcularRestantes(entrada.cantidad, entrada.cantidad_usada);
-
   const handleSubmit = async (e: FormEvent<HTMLDivElement>) => {
     e.preventDefault();
 
     if (!cantidadAUsar || cantidadAUsar.value === '') {
       toaster.create({
-        title: 'Error',
-        description: 'Por favor ingrese una cantidad válida',
         type: 'error',
-        duration: 5000,
-        closable: true,
+        title: 'Error',
+        description: 'Por favor ingrese una cantidad válida'
       });
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      const { error } = await supabase.rpc('usar_entradas_rpc', {
-        p_cantidad_a_usar: cantidadAUsar.valueAsNumber,
-        p_entrada_id: entrada.id,
-      });
+    if (!entrada) return;
 
-      if (error) throw error;
+    await usarEntrada({
+      entradaId: entrada.id,
+      cantidad: cantidadAUsar.valueAsNumber,
+    });
 
-      toaster.create({
-        title: 'Éxito',
-        description: `Se acreditaron ${cantidadAUsar.valueAsNumber} entrada(s) correctamente`,
-        type: 'success',
-        duration: 5000,
-        closable: true,
-      });
-      
-      navigate('/preacreditacion/')
-
-    } catch (err) {
-      console.error('Error al acreditar entradas:', err);
-      toaster.create({
-        title: 'Error',
-        description: 'No se pudieron acreditar las entradas. Por favor, intente nuevamente.',
-        type: 'error',
-        duration: 5000,
-        closable: true,
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    toaster.create({
+      type: 'success',
+      title: 'Éxito',
+      description: `Se acreditaron ${cantidadAUsar.valueAsNumber} entrada(s) correctamente`
+    });
+    
+    navigate('/preacreditacion/');
   };
 
-  const badgeColor = darColorEstado(entrada.cantidad, entrada.cantidad_usada);
+  if (!entrada) return null;
+  
+  const badgeColor = darColorEstado(entrada.compradas, entrada.usadas);
+  const cantidadRestantes = calcularRestantes(entrada.compradas, entrada.usadas);
 
   return (
     <Card.Root>
@@ -200,7 +136,7 @@ const Acreditar = () => {
             borderRadius="full"
             fontSize="xs"
           >
-            {darEstado(entrada.cantidad, entrada.cantidad_usada)}
+            {darEstado(entrada.compradas, entrada.usadas)}
           </Badge>
         </Flex>
       </Card.Header>
@@ -219,7 +155,7 @@ const Acreditar = () => {
             <Text fontSize="xs" color="gray.500" mb={1}>Alumno</Text>
             <HStack>
               <Icon as={FiUser} color="brand.500" />
-              <Text>{entrada.alumno_nombre}</Text>
+              <Text>{entrada.nombre_alumno || 'No especificado'}</Text>
             </HStack>
           </Box>
         </VStack>
@@ -228,7 +164,7 @@ const Acreditar = () => {
             <Text fontSize="xs" color="gray.500" mb={1}>Grupo</Text>
             <HStack>
               <Icon as={FiUsers} color="brand.500" />
-              <Text>{entrada.grupo} (Año {entrada.anio_grupo})</Text>
+              <Text>{entrada.nombre_grupo || 'No especificado'}</Text>
             </HStack>
           </GridItem>
 
@@ -236,7 +172,7 @@ const Acreditar = () => {
             <Text fontSize="xs" color="gray.500" mb={1}>Fecha de compra</Text>
             <HStack>
               <Icon as={FiCalendar} color="brand.500" />
-              <Text>{new Date(entrada.created_at).toLocaleDateString('es-AR')}</Text>
+              <Text>{new Date(entrada.creada).toLocaleDateString()}</Text>
             </HStack>
           </GridItem>
           
@@ -253,14 +189,14 @@ const Acreditar = () => {
               <Box>
                 <Text fontSize="2xs" color="gray.500">Compradas</Text>
                 <Text fontSize="2xl" fontWeight="bold" color="brand.700">
-                  {entrada.cantidad}
+                  {entrada.compradas}
                 </Text>
               </Box>
               <Spacer />
               <Box>
                 <Text fontSize="2xs" color="gray.500">Usadas</Text>
-                <Text fontSize="2xl" fontWeight="bold" color={entrada.cantidad_usada > 0 ? 'orange.500' : 'gray.500'}>
-                  {entrada.cantidad_usada}
+                <Text fontSize="2xl" fontWeight="bold" color={entrada.usadas > 0 ? 'orange.500' : 'gray.500'}>
+                  {entrada.usadas}
                 </Text>
               </Box>
             </Flex>
@@ -315,7 +251,7 @@ const Acreditar = () => {
               colorPalette="green"
               size="md"
               flex="1"
-              loading={isSubmitting}
+              loading={guardando}
               loadingText="Acreditando..."
             >
               Acreditar
@@ -326,7 +262,7 @@ const Acreditar = () => {
               flex="1"
               variant="subtle"
               size="md"
-              loading={isSubmitting}
+              loading={guardando}
             >
               Cancelar
             </ButtonLink>

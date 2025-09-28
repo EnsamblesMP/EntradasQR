@@ -10,12 +10,14 @@ Aplicación web para la gestión de entradas con códigos QR para eventos de Ens
 - Autenticación con Supabase (OAuth via GitHub)
 - Interfaz con diseño para móvil (y responsiva en pantalla de impresión)
 - Diseño moderno con Chakra UI
+- Auto-refresco y cache de datos con React Query
 
 ## 🛠️ Tecnologías
 
 - 🔳 [React-Qr-Scanner](https://github.com/yudiel/react-qr-scanner)
 - 🔐 [Supabase](https://supabase.com/)
 - 🎨 [Chakra UI v3](https://chakra-ui.com/)
+- 🌴 [React Query](https://tanstack.com/query/v5)
 - ⚛️ [React 19](https://reactjs.org/)
 - ⸆⸉ [TypeScript](https://www.typescriptlang.org/)
 - ⚡ [Vite](https://vitejs.dev/)
@@ -59,6 +61,7 @@ Aplicación web para la gestión de entradas con códigos QR para eventos de Ens
 ```
 src/
 ├── pages/         # Páginas que tienen su propia ruta
+├── queries/       # Para lo relacionado a React Query
 ├── router/        # Para lo relacionado a React Router
 ├── supabase/      # Para lo relacionado a Supabase
 ├── chakra/        # Para lo relacionado a Chakra UI

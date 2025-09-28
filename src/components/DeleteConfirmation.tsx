@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Button, ButtonProps, Box, Icon, IconButton, Text, Flex, Stack } from '@chakra-ui/react';
 import { FiTrash2, FiAlertTriangle } from 'react-icons/fi';
+import { useColorModeValue } from '../chakra/use-color-mode';
 
 interface DeleteConfirmationProps {
   onConfirm: () => Promise<void> | void;
@@ -25,6 +26,8 @@ export function DeleteConfirmation({
   const cancelRef = useRef<HTMLButtonElement>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   
+  const iconColor = useColorModeValue('red.500', 'red.300');
+  
   const onOpen = () => setIsOpen(true);
   const onClose = () => !isDeleting && setIsOpen(false);
 
@@ -41,12 +44,16 @@ export function DeleteConfirmation({
   return (
     <>
       <IconButton 
-        colorPalette="red" 
+        colorPalette="red"
+        color={iconColor}
         onClick={onOpen}
         loading={isDeleting}
         disabled={disabled}
         aria-label="Eliminar"
         variant="subtle"
+        _hover={{
+          bg: useColorModeValue('red.50', 'whiteAlpha.200')
+        }}
         {...buttonProps}
       >
         <Icon as={FiTrash2} />
@@ -58,7 +65,7 @@ export function DeleteConfirmation({
         left="0"
         right="0"
         bottom="0"
-        bg="blackAlpha.600"
+        bg={useColorModeValue('blackAlpha.600', 'blackAlpha.800')}
         display={isOpen ? 'flex' : 'none'}
         alignItems="center"
         justifyContent="center"
@@ -66,17 +73,18 @@ export function DeleteConfirmation({
         onClick={onClose}
       >
         <Box
-          bg="white"
+          bg={useColorModeValue('white', 'gray.800')}
           p={6}
           rounded="md"
           width="90%"
           maxW="md"
           onClick={e => e.stopPropagation()}
           boxShadow="lg"
+          color={useColorModeValue('gray.800', 'whiteAlpha.900')}
         >
           <Stack direction="column" gap={4}>
-            <Flex align="center" gap={3} color="orange.500">
-              <FiAlertTriangle size={24} />
+            <Flex align="center" gap={3} color={iconColor}>
+              <Icon as={FiAlertTriangle} boxSize={6} />
               <Text fontSize="xl" fontWeight="bold">
                 {title}
               </Text>
@@ -90,6 +98,9 @@ export function DeleteConfirmation({
                 onClick={onClose}
                 disabled={isDeleting}
                 variant="outline"
+                _hover={{
+                  bg: useColorModeValue('gray.100', 'whiteAlpha.200')
+                }}
               >
                 {cancelText}
               </Button>
@@ -98,6 +109,9 @@ export function DeleteConfirmation({
                 onClick={handleConfirm}
                 loading={isDeleting}
                 loadingText="Eliminando..."
+                _hover={{
+                  bg: 'red.500',
+                }}
               >
                 {confirmText}
               </Button>

@@ -1,3 +1,4 @@
+import { useEntradasPorFuncion, VistaEntrada } from '../queries/useEntradas';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { FiCamera, FiSliders } from 'react-icons/fi';
 import AlumnoSelect from '../components/AlumnoSelect';
@@ -15,113 +16,53 @@ import {
   Badge,
   useDisclosure,
 } from '@chakra-ui/react';
-import { supabase } from '../supabase/supabaseClient';
-import { useAnio } from '../supabase/anioUtils';
 import { toaster } from '../chakra/toaster';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAnio } from '../supabase/anioUtils';
 import {
   esGuidValido,
   darColorEstado,
   darEstado
 } from '../components/EntradaFunc';
 
-interface Entrada {
-  id: string;
-  nombre_comprador: string;
-  email_comprador: string;
-  cantidad: number;
-  cantidad_usada: number;
-  created_at: string;
-  alumno_id: number;
-  alumno_nombre: string;
-  grupo_id: string;
-  grupo: string;
-  anio_grupo: number;
-}
-
 export default function Preacreditacion() {
   const navigate = useNavigate();
+  const { anio } = useAnio();
   const { funcion } = useParams<{ funcion: string }>();
   const [usarFiltros, setUsarFiltros] = useState(false);
   const [filtroTexto, setFiltroTexto] = useState('');
   const [grupoElegido, setGrupoElegido] = useState<string | null>(null);
   const [alumnoElegido, setAlumnoElegido] = useState<number | null>(null);
-  const [entradas, setEntradas] = useState<Entrada[]>([]);
-  const [entradasFiltradas, setEntradasFiltradas] = useState<Entrada[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { anio } = useAnio();
+  const [entradasFiltradas, setEntradasFiltradas] = useState<VistaEntrada[]>([]);
+  const {
+    data: entradas,
+    isLoading: cargandoEntradas,
+    error: errorCargaEntradas
+  } = useEntradasPorFuncion(anio, funcion);
 
-  const fetchEntradas = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      
-      const query = supabase
-        .from('entradas')
-        .select(`
-          id,
-          nombre_comprador,
-          email_comprador,
-          cantidad,
-          cantidad_usada,
-          created_at,
-          ...alumnos!inner(
-            alumno_id:id,
-            alumno_nombre:nombre,
-            ...grupos!inner(
-              grupo_id:id,
-              grupo:nombre_corto,
-              anio_grupo:year
-            )
-          )
-        `)
-        .eq('alumnos.grupos.year', anio);
-
-      if (funcion) {
-        query.eq('alumnos.grupos.nombre_funcion', funcion);
-      }
-
-      const { data, error: queryError } = await query;
-
-      if (queryError) throw queryError;
-      
-      setEntradas(data || []);
-    } catch (err) {
-      console.error('Error al cargar las entradas:', err);
-      toaster.create({
-        title: 'Error',
-        description: 'No se pudieron cargar las entradas. Por favor, intente nuevamente.',
-        type: 'error',
-        duration: 5000,
-        closable: true,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [anio]);
-  
   // Filter and sort entries based on search term
   useEffect(() => {
-    let filtradas = [...entradas];
+    let filtradas = [...entradas || []];
     
     if (filtroTexto) {
       filtradas = filtradas.filter((entrada) =>
         entrada.nombre_comprador?.toLowerCase().includes(filtroTexto.toLowerCase()) ||
-        entrada.alumno_nombre?.toLowerCase().includes(filtroTexto.toLowerCase())
+        entrada.nombre_alumno?.toLowerCase().includes(filtroTexto.toLowerCase())
       );
     }
     
     if (usarFiltros && grupoElegido) {
-      filtradas = filtradas.filter((entrada) => entrada.grupo_id === grupoElegido);
+      filtradas = filtradas.filter((entrada) => entrada.id_grupo === grupoElegido);
     }
 
     if (usarFiltros && alumnoElegido) {
-      filtradas = filtradas.filter((entrada) => entrada.alumno_id === alumnoElegido);
+      filtradas = filtradas.filter((entrada) => entrada.id_alumno === alumnoElegido);
     }
 
     // ordenar por tickets restantes (desc) y luego por nombre del comprador (asc)
     filtradas.sort((a, b) => {
-      const estadoA = darEstado(a.cantidad, a.cantidad_usada);
-      const estadoB = darEstado(b.cantidad, b.cantidad_usada);
+      const estadoA = darEstado(a.compradas, a.usadas);
+      const estadoB = darEstado(b.compradas, b.usadas);
       
       if (estadoA !== estadoB) {
         return estadoA.localeCompare(estadoB);
@@ -134,8 +75,17 @@ export default function Preacreditacion() {
   }, [filtroTexto, entradas, usarFiltros, grupoElegido, alumnoElegido]);
 
   useEffect(() => {
-    fetchEntradas();
-  }, [fetchEntradas]);
+    if (errorCargaEntradas) {
+      console.error('Error al cargar las entradas:', errorCargaEntradas);
+      toaster.create({
+        title: 'Error',
+        description: 'No se pudieron cargar las entradas. Por favor, intente nuevamente.',
+        type: 'error',
+        duration: 5000,
+        closable: true,
+      });
+    }
+  }, [errorCargaEntradas]);
 
   const { open: qrAbierto, onOpen: alAbrirQr, onClose: alCerrarQr } = useDisclosure();
   const cuentaScanRef = useRef(0);
@@ -145,7 +95,7 @@ export default function Preacreditacion() {
     alAbrirQr();
   };
 
-  const alSeleccionarEntrada = useCallback((entrada: Entrada) => {
+  const alSeleccionarEntrada = useCallback((entrada: VistaEntrada) => {
     navigate(`/acreditar/${entrada.id}`);
   }, [navigate]);
 
@@ -167,7 +117,7 @@ export default function Preacreditacion() {
       }
       alCerrarQr();
       // Buscar la entrada en la lista
-      const entrada = entradas.find(e => e.id === idEntrada);
+      const entrada = entradas?.find(e => e.id === idEntrada);
       if (entrada) {
         toaster.create({
           type: 'success',
@@ -210,7 +160,7 @@ export default function Preacreditacion() {
         Escanear QR
       </Button>
       <QrScanner
-        estaAbierto={qrAbierto}
+        estaAbierto={qrAbierto && entradas !== undefined}
         alCerrar={alCerrarQr}
         alScanear={alScanearQr}
       />
@@ -233,6 +183,7 @@ export default function Preacreditacion() {
             <GrupoSelect
               value={grupoElegido || null}
               onChange={(value) => {setGrupoElegido(value); setAlumnoElegido(null)}}
+              funcion={funcion}
             />
             <AlumnoSelect
               idGrupo={grupoElegido}
@@ -246,7 +197,7 @@ export default function Preacreditacion() {
       <Flex direction="column" flex="1" overflow="hidden">
         <Heading size="md" mb={3}>{entradasFiltradas.length} Resultados</Heading>
         
-        {isLoading ? (
+        {cargandoEntradas ? (
           <Flex flex="1" align="center" justify="center">
             <Spinner size="xl" color="blue.500" />
           </Flex>
@@ -269,22 +220,22 @@ export default function Preacreditacion() {
                     <Text fontSize="xs">Comprador:</Text>
                     <Text fontWeight="bold">{entrada.nombre_comprador}</Text>
                     <Spacer />
-                    <Badge colorPalette={darColorEstado(entrada.cantidad, entrada.cantidad_usada)}>
-                      {darEstado(entrada.cantidad, entrada.cantidad_usada)}
+                    <Badge colorPalette={darColorEstado(entrada.compradas, entrada.usadas)}>
+                      {darEstado(entrada.compradas, entrada.usadas)}
                     </Badge>
                     <Text fontSize="xs" color={{ base: "gray.500", _dark: "gray.400" }}>
-                      {entrada.cantidad_usada < 1 ? <></>
-                      : <>{entrada.cantidad_usada} usada{entrada.cantidad_usada !== 1 ? 's' : ''} de </>
+                      {entrada.usadas < 1 ? <></>
+                      : <>{entrada.usadas} usada{entrada.usadas !== 1 ? 's' : ''} de </>
                       }
-                      {entrada.cantidad} comprada{entrada.cantidad !== 1 ? 's' : ''}
+                      {entrada.compradas} comprada{entrada.compradas !== 1 ? 's' : ''}
                     </Text>
                 </Flex>
                 <Flex direction="row" wrap="wrap" justify="space-between" gap={1} flexBasis="1">
                   <Text fontSize="xs">Alumno:</Text>
-                  <Text fontSize="sm">{entrada.alumno_nombre}</Text>
+                  <Text fontSize="sm">{entrada.nombre_alumno}</Text>
                   <Spacer />
                   <Text fontSize="xs">Grupo:</Text>
-                  <Text fontSize="xs" fontWeight="bold">{entrada.grupo}</Text>
+                  <Text fontSize="xs" fontWeight="bold">{entrada.nombre_grupo}</Text>
                 </Flex>
               </Flex>
             </Button>

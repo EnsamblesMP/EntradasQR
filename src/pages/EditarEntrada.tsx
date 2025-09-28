@@ -1,37 +1,30 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import CampoCopiable from '../components/CampoCopiable';
+import React, { useCallback, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { 
+  Alert,
+  Box, 
+  Button, 
+  Flex, 
+  Heading, 
+  VStack, 
+  Spinner, 
+  Text,
+  Stack,
+} from '@chakra-ui/react';
+import { toaster } from '../chakra/toaster';
+import { useCampos } from '../components/Campos';
+import { useEntradaPorId, useUpdateEntrada, useDeleteEntrada } from '../queries/useEntradas';
 import CamposEntrada from '../components/CamposEntrada';
 import { ImagenQr } from '../components/ImagenQr';
-import {
-  Alert,
-  Box,
-  Button,
-  Flex,
-  Heading,
-  VStack,
-} from '@chakra-ui/react';
+import CampoCopiable from '../components/CampoCopiable';
 import { DeleteConfirmation } from '../components/DeleteConfirmation';
-import { useNavigate, useParams } from 'react-router-dom';
-import { toaster } from '../chakra/toaster';
-import { supabase } from '../supabase/supabaseClient';
-import { useCampos } from '../components/Campos';
-
-interface EntradaDB {
-  id: string;
-  nombre_comprador: string;
-  email_comprador: string | null;
-  cantidad: number;
-  id_alumno: number;
-  alumno?: { grupo: string } | null; // via FK join
-}
 
 const EditarEntrada: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-
-  const [cargando, setCargando] = useState(true);
-  const [guardando, setGuardando] = useState(false);
-  const [mensaje, setMensaje] = useState('');
+  const { data: entrada, isLoading: cargando, error: errorCarga } = useEntradaPorId(id);
+  const { mutateAsync: updateEntrada, isPending: guardando } = useUpdateEntrada();
+  const { mutateAsync: deleteEntrada } = useDeleteEntrada();
 
   const {
     campos,
@@ -39,93 +32,143 @@ const EditarEntrada: React.FC = () => {
     camposValidos,
   } = useCampos();
 
+  // Actualizar los campos cuando se cargue la entrada
   useEffect(() => {
-    const cargarEntrada = async () => {
-      if (!id) return;
-      setCargando(true);
-      setMensaje('Cargando entrada...');
-      try {
-        const { data, error } = await supabase
-          .from('entradas')
-          .select('id, nombre_comprador, email_comprador, cantidad, id_alumno, alumno:id_alumno(grupo)')
-          .eq('id', id)
-          .maybeSingle();
-
-        if (error) throw error;
-        if (!data) {
-          setMensaje('❌ No se encontró la entrada.');
-          return;
-        }
-
-        const entrada = data as unknown as EntradaDB;
-        cambiarCampos({
-          nombreComprador: entrada.nombre_comprador || '',
-          emailComprador: entrada.email_comprador || '',
-          cantidad: entrada.cantidad || 1,
-          idAlumno: entrada.id_alumno || null,
-          idGrupo: entrada.alumno?.grupo || null
-        });
-        setMensaje('');
-      } catch (e) {
-        console.error(e);
-        const msg = e instanceof Error ? e.message : 'Error desconocido';
-        setMensaje(`❌ Error al cargar: ${msg}`);
-      } finally {
-        setCargando(false);
-      }
-    };
-    cargarEntrada();
-  }, [id, cambiarCampos]);
-
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase.from('entradas').delete().eq('id', id);
-    if (error) {
-      toaster.create({ type: 'error', title: 'Error al borrar entrada', description: error.message });
-      throw error;
-    } else {
-      toaster.create({ type: 'success', title: 'Entrada borrada', description: 'La entrada se ha borrado correctamente.' });
-      navigate('/lista-de-entradas');
+    if (entrada) {
+      cambiarCampos({
+        nombreComprador: entrada.nombre_comprador || '',
+        emailComprador: entrada.email_comprador || '',
+        cantidad: entrada.compradas || 1,
+        idAlumno: entrada.id_alumno || null,
+        idGrupo: entrada.id_grupo || null,
+      });
     }
-  };
+  }, [entrada, cambiarCampos]);
+
+  const handleDelete = useCallback(async (entradaId: string) => {
+    try {
+      await deleteEntrada(entradaId);
+      
+      toaster.create({
+        title: 'Entrada borrada correctamente',
+        type: 'success',
+        closable: true,
+      });
+      
+      navigate('/lista-de-entradas');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      
+      toaster.create({
+        title: 'Error al borrar entrada',
+        description: errorMessage,
+        type: 'error',
+        duration: 10000,
+        closable: true,
+      });
+    }
+  }, [deleteEntrada, navigate]);
+
 
   const handleGuardar = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id) return;
+    
+    if (!entrada?.id) {
+      toaster.create({
+        title: 'Error al guardar',
+        description: 'No se pudo identificar la entrada a actualizar.',
+        type: 'error',
+        duration: 8000,
+        closable: true,
+      });
+      return;
+    }
+    
     if (!camposValidos) {
-      setMensaje('❌ Por favor, completa todos los campos obligatorios.');
+      toaster.create({
+        title: 'Error al guardar',
+        description: 'Por favor, completa todos los campos obligatorios.',
+        type: 'error',
+        duration: 8000,
+        closable: true,
+      });
       return;
     }
 
-    setGuardando(true);
-    setMensaje('Guardando cambios...');
     try {
-      const { error } = await supabase
-        .from('entradas')
-        .update({
-          nombre_comprador: campos.nombreComprador.trim(),
-          email_comprador: campos.emailComprador.trim().toLowerCase(),
-          cantidad: campos.cantidad,
-          id_alumno: campos.idAlumno,
-        })
-        .eq('id', id);
-
-      if (error) throw error;
-
+      const entradaActualizada = {
+        id: entrada.id,
+        nombre_comprador: campos.nombreComprador.trim(),
+        email_comprador: campos.emailComprador?.trim() || undefined,
+        compradas: campos.cantidad,
+        id_alumno: campos.idAlumno!,
+      };
+      
+      await updateEntrada(entradaActualizada);
+      
       toaster.create({
-        title: 'Cambios guardados',
-        description: 'La entrada se actualizó correctamente.',
+        title: 'Cambios guardados correctamente',
         type: 'success',
+        closable: true,
       });
-      setMensaje('✅ Cambios guardados.');
-    } catch (e) {
-      console.error(e);
-      const msg = e instanceof Error ? e.message : 'Error desconocido';
-      setMensaje(`❌ Error al guardar: ${msg}`);
-      toaster.create({ type: 'error', title: 'Error', description: msg });
-    } finally {
-      setGuardando(false);
+      
+      // Navegar a la lista
+      navigate('/lista-de-entradas');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      
+      toaster.create({
+        title: 'Error al guardar entrada',
+        description: errorMessage,
+        type: 'error',
+        duration: 10000,
+        closable: true,
+      });
+      
+      console.error('Error al guardar la entrada:', error);
     }
-  }, [campos, id, camposValidos]);
+  }, [entrada, campos, camposValidos, updateEntrada, navigate]);
+
+  if (cargando) {
+    return (
+      <Box p={4}>
+        <Flex align="center" justify="center" direction="column" gap={4}>
+          <Spinner size="xl" />
+          <Text>Cargando entrada...</Text>
+        </Flex>
+      </Box>
+    );
+  }
+  
+  if (errorCarga || !entrada) {
+    return (
+      <Box p={4}>
+        <Stack p={4} align="stretch">
+          <Box 
+            p={4} 
+            borderWidth="1px" 
+            borderRadius="md" 
+            borderColor="red.200" 
+            bg="red.50"
+          >
+            <Text fontWeight="bold" color="red.600">
+              Error al cargar la entrada
+            </Text>
+            <Text color="red.600">
+              {errorCarga instanceof Error ? errorCarga.message : 'No se pudo cargar la entrada solicitada.'}
+            </Text>
+          </Box>
+          <Button 
+            mt={4} 
+            colorScheme="red"
+            onClick={() => navigate('/lista-de-entradas')}
+          >
+            Volver a la lista
+          </Button>
+        </Stack>
+      </Box>
+    );
+  }
 
   if (!id) {
     return (
@@ -135,56 +178,62 @@ const EditarEntrada: React.FC = () => {
           <Alert.Title>Error</Alert.Title>
           <Alert.Description>Falta el parámetro ID en la URL.</Alert.Description>
         </Alert.Root>
+        <Button 
+          colorPalette="red"
+          onClick={() => navigate('/lista-de-entradas')}
+        >
+          Volver a la lista
+        </Button>
       </VStack>
     );
   }
 
   return (
-    <Box as="form" onSubmit={handleGuardar}>
-      <Flex w="full">
-        <Heading as="h1" mb={6} textAlign="center" flex="1" ml="2em">
-          Editar entrada
-        </Heading>
-        <DeleteConfirmation
-          onConfirm={() => handleDelete(id)}
-          title="Eliminar entrada"
-          message="¿Seguro que deseas borrar esta entrada? Esta acción no se puede deshacer."
-          confirmText="Eliminar entrada"
-          cancelText="Cancelar"
-          disabled={cargando || guardando}
-        />
-      </Flex>
-
-      <VStack gap="6" w="full">
-
-        <CamposEntrada
-          campos={campos}
-          alCambiarCampos={cambiarCampos}
-          disabled={cargando}
-        />
-
-        <Flex direction="row" gap={3} mt={4} w="full">
-          <Button
-            type="submit"
-            variant="solid"
-            size="lg"
-            flex={1}
-            loading={guardando}
-            loadingText="Guardando..."
-            disabled={!camposValidos || guardando || cargando}
-          >
-            Guardar cambios
-          </Button>
-          <Button
-            variant="subtle"
-            colorPalette="green"
-            size="lg"
-            flex={1}
-            onClick={() => navigate('/lista-de-entradas')}
-          >
-            Volver
-          </Button>
+    <Box p={4}>
+      <VStack as="form" onSubmit={handleGuardar} gap={6} align="stretch">
+        <Flex w="full" justifyContent="space-between" alignItems="center">
+          <Heading as="h1" size="lg">Editar entrada</Heading>
+          <DeleteConfirmation
+            onConfirm={() => handleDelete(id!)}
+            title="Eliminar entrada"
+            message="¿Seguro que deseas borrar esta entrada? Esta acción no se puede deshacer."
+            confirmText="Eliminar entrada"
+            cancelText="Cancelar"
+            disabled={cargando || guardando}
+          />
         </Flex>
+
+        <Stack gap={6} w="full">
+          <CamposEntrada
+            campos={campos}
+            alCambiarCampos={cambiarCampos}
+            disabled={cargando}
+          />
+
+          <Flex direction="row" gap={3} mt={4} w="full">
+            <Button
+              type="submit"
+              variant="solid"
+              size="lg"
+              flex={1}
+              loading={guardando}
+              loadingText="Guardando..."
+              disabled={!camposValidos || guardando || cargando}
+            >
+              Guardar cambios
+            </Button>
+            <Button
+              variant="subtle"
+              colorPalette="green"
+              size="lg"
+              flex={1}
+              onClick={() => navigate('/lista-de-entradas')}
+              disabled={cargando || guardando}
+            >
+              Cancelar
+            </Button>
+          </Flex>
+        </Stack>
 
         <Button
           variant="surface"
@@ -193,14 +242,6 @@ const EditarEntrada: React.FC = () => {
         >
           Ver Email
         </Button>
-
-        {mensaje && (
-          <Alert.Root rounded="md" w="full">
-            <Alert.Indicator />
-            <Alert.Title>{mensaje.includes('❌') ? 'Error' : ''}</Alert.Title>
-            <Alert.Description>{mensaje}</Alert.Description>
-          </Alert.Root>
-        )}
 
         <CampoCopiable>
           <ImagenQr idEntrada={id}/>

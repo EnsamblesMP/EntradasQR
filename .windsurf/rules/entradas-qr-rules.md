@@ -21,6 +21,7 @@ Key files and where to look
 - `src/supabase/supabaseClient.ts` — Supabase client uses Vite env vars `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 - `src/supabase/AuthProvider.tsx` and `authUtils.ts` — authentication flow, timeout handling, OAuth redirect behavior and messages shown on auth errors.
 - `src/components/Layout.tsx` — top-level navigation and per-year selector (`AnioContext`) used across pages.
+- `src\chakra\toaster.tsx` — Used for all user notifications. It already does the `createToaster` from @chakra-ui/react. So just import `src\chakra\toaster.tsx` and call `toaster.create({type,title,description})`
 
 Mobile-first layout note
 - All pages use `Layout.tsx`, which wraps content in a `<Box w="sm">` for optimal smartphone display. When adding new pages or components, ensure they fit well within this width constraint. Responsive design may be added in the future, but for now, prioritize mobile usability.
@@ -43,7 +44,6 @@ Developer workflows (explicit)
   - typecheck: `npm run type-check` and lint: `npm run lint`.
 
 Environment and deploy notes
-- Supabase credentials come from Vite env vars: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. See `.env.example`.
 - The app is intended to be hosted under `/EntradasQR` (for example GitHub Pages). `main.tsx` contains logic to preserve bookmark/refresh behavior on GitHub Pages — avoid removing that unless replacing the hosting strategy.
 
 Deploy / CI note
@@ -56,13 +56,10 @@ Project-specific conventions
 
 Safety and testing hints for AI agents
 - Don't change app base path or routing strategy without checking `main.tsx` redirect code and `404.html` in `public/` (used for GitHub Pages). If you add routes, update `404.html`/deployment config.
-- When modifying Supabase calls, preserve the error wrapping and user-friendly Spanish messages found in `AuthProvider.tsx`.
-- Keep UI strings in Spanish where existing messages are Spanish (e.g. `Cargando autenticación...`, `Cerrar Sesión`).
+- Use ONLY Chakra v3 code. Avoid generating Chakra v2 code like colorScheme (use colorPalette), spacing (use gap), isDisabled (use disabled), etc.
+- And avoid in general to change code that was not asked to change.
 
 Examples to copy-paste
-- Create Supabase client usage:
-  - import { supabase } from '../supabase/supabaseClient';
-  - Use `await supabase.from('entries').select('*')` and preserve error handling.
 - Wrap new top-level pages with the existing `Layout` and `AuthProvider` by adding route entries in `src/router/AppRoutes.tsx`.
 
 When unsure, read these files first

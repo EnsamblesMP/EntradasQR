@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import { useCreateEntrada } from '../queries/useEntradas';
+import { useCallback } from 'react';
 import { useCampos } from '../components/Campos';
 import { useNavigate } from 'react-router-dom';
 import CamposEntrada from '../components/CamposEntrada';
@@ -10,72 +11,69 @@ import {
   Heading,
 } from '@chakra-ui/react';
 import { toaster } from '../chakra/toaster';
-import { supabase } from '../supabase/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
+import type { FC, FormEvent } from 'react';
 
-const AltaDeEntrada: React.FC = () => {
+const AltaDeEntrada: FC = () => {
   const navigate = useNavigate();
-
-  const [mensaje, setMensaje] = useState('');
-  const [cargando, setCargando] = useState(false);
-
+  const {
+    mutateAsync: createEntrada,
+    isPending: guardandoEntrada,
+    error: errorEntrada,
+  } = useCreateEntrada();
   const {
     campos,
     cambiarCampos,
     camposValidos,
   } = useCampos();
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
     if (!camposValidos) {
-      setMensaje('❌ Por favor, completa todos los campos obligatorios.');
+      
+      toaster.create({
+        title: 'Falta información',
+        description: 'Por favor, completa todos los campos obligatorios.',
+        type: 'error',
+        duration: 10000,
+        closable: true,
+      });
       return;
     }
-
-    setCargando(true);
-    setMensaje('Guardando entrada...');
 
     try {
       // Generar un nuevo UUID para la entrada
       const id = uuidv4();
 
       // Insertar en la tabla 'entradas' de Supabase
-      const { data: _data, error } = await supabase
-        .from('entradas')
-        .insert([{
-          id,
-          nombre_comprador: campos.nombreComprador.trim(),
-          email_comprador: campos.emailComprador.trim().toLowerCase(),
-          cantidad: campos.cantidad,
-          id_alumno: campos.idAlumno,
-        }])
-        .select();
-
-      if (error) throw error;
-
-      setMensaje(`✅ Entrada registrada exitosamente con ID: ${id}`);
+      const entrada = {
+        id,
+        nombre_comprador: campos.nombreComprador.trim(),
+        email_comprador: campos.emailComprador?.trim().toLowerCase() || undefined,
+        compradas: campos.cantidad,
+        id_alumno: campos.idAlumno!,
+      };
+      await createEntrada(entrada);
 
       toaster.create({
-        title: 'Entrada generada',
-        description: 'La entrada se ha generado correctamente.',
+        title: 'Entrada generada correctamente',
         type: 'success',
+        closable: true,
       });
 
       navigate(`/template-entrada/${id}`);
 
     } catch (error) {
-      console.error('Error al guardar la entrada:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
-      setMensaje(`❌ Error al guardar: ${errorMessage}`);
+      console.error('Error al generar la entrada:', error);
       toaster.create({
-        title: 'Error',
-        description: 'Ocurrió un error al generar la entrada.',
+        title: 'Error al generar la entrada',
+        description: error instanceof Error ? error.message : 'Error desconocido',
         type: 'error',
+        duration: 10000,
+        closable: true,
       });
-    } finally {
-      setCargando(false);
     }
-  }, [campos, camposValidos]);
+  }, [campos, camposValidos, createEntrada, navigate]);
 
   return (
     <Box as="form" onSubmit={handleSubmit}>
@@ -87,7 +85,7 @@ const AltaDeEntrada: React.FC = () => {
         <CamposEntrada
           campos={campos}
           alCambiarCampos={cambiarCampos}
-          disabled={cargando}/>
+          disabled={guardandoEntrada}/>
 
         <Flex direction="row" gap={3} mt={4} w="full">
           <Button
@@ -96,8 +94,8 @@ const AltaDeEntrada: React.FC = () => {
             variant="solid"
             size="lg"
             flex={1}
-            loading={cargando}
-            disabled={!camposValidos || cargando}
+            loading={guardandoEntrada}
+            disabled={!camposValidos || guardandoEntrada}
             loadingText="Generando..."
           >
             Generar entrada
@@ -107,17 +105,17 @@ const AltaDeEntrada: React.FC = () => {
             size="lg"
             flex={1}
             onClick={() => navigate('/')}
-            disabled={cargando}
+            disabled={guardandoEntrada}
           >
             Cancelar
           </Button>
         </Flex>
 
-        {mensaje && (
+        {errorEntrada && (
           <Alert.Root rounded="md" w="full">
             <Alert.Indicator />
-            <Alert.Title>{mensaje.includes('❌') ? 'Error' : ''}</Alert.Title>
-            <Alert.Description>{mensaje}</Alert.Description>
+            <Alert.Title>Error al generar la entrada</Alert.Title>
+            <Alert.Description>{errorEntrada instanceof Error ? errorEntrada.message : 'Error desconocido'}</Alert.Description>
           </Alert.Root>
         )}
       </Box>
