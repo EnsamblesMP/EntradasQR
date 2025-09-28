@@ -61,7 +61,9 @@ const AltaDeEntrada: FC = () => {
         closable: true,
       });
 
-      navigate(`/template-entrada/${id}`);
+      navigate(`/template-entrada/${id}`, {
+        state: { from: '/alta-de-entrada' } 
+      });
 
     } catch (error) {
       console.error('Error al generar la entrada:', error);

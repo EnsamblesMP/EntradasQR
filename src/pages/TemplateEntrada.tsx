@@ -10,17 +10,19 @@ import {
 } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { toaster } from '../chakra/toaster';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import type { FC } from 'react';
 
 export const TemplateEntrada: FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation()
   const {
     data: entrada,
     isLoading: cargando,
     error: errorEntrada,
   } = useEntradaPorId(id);
+  const vieneDeAltaDeEntrada = location.state?.from === '/alta-de-entrada';
 
   useEffect(() => {
     if (errorEntrada) {
@@ -103,25 +105,36 @@ export const TemplateEntrada: FC = () => {
           <ImagenQr idEntrada={id} />
         </CampoCopiable>
       </Flex>
-
-      <Flex direction="row" gap={3} mt={4} w="full">
-        <Button
-          variant="solid"
-          size="lg"
-          flex={1}
-          onClick={() => navigate('/alta-de-entrada')}
-        >
-          Generar otra entrada
-        </Button>
+      {vieneDeAltaDeEntrada ?
+      (
+        <Flex direction="row" gap={3} mt={4} w="full">
+          <Button
+            variant="solid"
+            size="lg"
+            flex={1}
+            onClick={() => navigate('/alta-de-entrada')}
+          >
+            Generar otra entrada
+          </Button>
+          <Button
+            variant="subtle"
+            size="lg"
+            flex={1}
+            onClick={() => navigate('/lista-de-entradas')}
+          >
+            Volver a lista
+          </Button>
+        </Flex>
+      ) : (
         <Button
           variant="subtle"
           size="lg"
-          flex={1}
-          onClick={() => navigate('/')}
+          w="full"
+          onClick={() => navigate(-1)}
         >
           Cerrar
         </Button>
-      </Flex>
+      )}
     </VStack>
   );
 };
