@@ -1,5 +1,4 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ButtonLink } from '../router/ButtonLink';
 import {
   esGuidValido,
   calcularRestantes,
@@ -116,7 +115,7 @@ const Acreditar = () => {
       description: `Se acreditaron ${cantidadAUsar.valueAsNumber} entrada(s) correctamente`
     });
     
-    navigate('/preacreditacion/');
+    navigate(-1);
   };
 
   if (!entrada) return null;
@@ -256,16 +255,15 @@ const Acreditar = () => {
             >
               Acreditar
             </Button>
-            
-            <ButtonLink
-              to="/preacreditacion"
+            <Button
+              onClick={() => navigate(-1)}
               flex="1"
               variant="subtle"
               size="md"
               loading={guardando}
             >
               Cancelar
-            </ButtonLink>
+            </Button>
           </Flex>
         </VStack>
       </Card.Body>
