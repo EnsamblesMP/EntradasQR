@@ -7,7 +7,7 @@ import ListaDeEntradas from '../pages/ListaDeEntradas'
 import ListaImprimibleDeEntradas from '../pages/ListaImprimibleDeEntradas'
 import ProtectedRoute from './ProtectedRoute'
 import EditarEntrada from '../pages/EditarEntrada'
-import TemplateEntrada from '../pages/TemplateEntrada'
+import EmailEntradaGenerada from '../pages/EmailEntradaGenerada'
 import Preacreditacion from '../pages/Preacreditacion'
 import Acreditar from '../pages/Acreditar'
 import Acreditaciones from '../pages/Acreditaciones'
@@ -25,7 +25,7 @@ function AppRoutes() {
         <Route path="/lista-de-entradas" element={<Layout><ListaDeEntradas /></Layout>} />
         <Route path="/lista-imprimible-de-entradas" element={<ListaImprimibleDeEntradas />} />
         <Route path="/editar-entrada/:id" element={<Layout><EditarEntrada /></Layout>} />
-        <Route path="/template-entrada/:id" element={<Layout><TemplateEntrada /></Layout>} />
+        <Route path="/email-entrada-generada/:id" element={<Layout><EmailEntradaGenerada /></Layout>} />
         <Route path="/preacreditacion/:funcion?" element={<Layout><Preacreditacion /></Layout>} />
         <Route path="/acreditar/:id" element={<Layout><Acreditar /></Layout>} />
       </Route>

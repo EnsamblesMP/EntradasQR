@@ -61,7 +61,7 @@ const AltaDeEntrada: FC = () => {
         closable: true,
       });
 
-      navigate(`/template-entrada/${id}`, {
+      navigate(`/email-entrada-generada/${id}`, {
         state: { from: '/alta-de-entrada' } 
       });
 

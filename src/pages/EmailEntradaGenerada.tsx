@@ -13,7 +13,7 @@ import { toaster } from '../chakra/toaster';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import type { FC } from 'react';
 
-export const TemplateEntrada: FC = () => {
+export const EmailEntradaGenerada: FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation()
@@ -139,4 +139,4 @@ export const TemplateEntrada: FC = () => {
   );
 };
 
-export default TemplateEntrada;
+export default EmailEntradaGenerada;

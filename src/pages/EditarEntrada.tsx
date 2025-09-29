@@ -238,7 +238,7 @@ const EditarEntrada: React.FC = () => {
         <Button
           variant="surface"
           size="lg"
-          onClick={() => navigate(`/template-entrada/${id}`)}
+          onClick={() => navigate(`/email-entrada-generada/${id}`)}
         >
           Ver Email
         </Button>
