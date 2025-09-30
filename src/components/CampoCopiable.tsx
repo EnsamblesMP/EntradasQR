@@ -40,7 +40,6 @@ export const CampoCopiable: FC<CampoCopiableProps> = ({ children, ...props }) =>
           transition="border-color 0.2s"
           cursor="text"
           onClick={handleBoxClick}
-          whiteSpace="pre-line"
           fontSize="sm"
           userSelect="text"
           color="black"

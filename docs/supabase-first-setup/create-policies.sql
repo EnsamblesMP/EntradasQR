@@ -22,3 +22,9 @@ create policy "Allow access to authenticated users"
   for all
   to authenticated
   using (true);
+
+create policy "Allow access to authenticated users"
+  on email_templates
+  for all
+  to authenticated
+  using (true);
