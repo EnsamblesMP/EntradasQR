@@ -75,7 +75,7 @@ export const useEntradasDelAnio = () => {
       
       const { data, error } = await select()
         .eq('anio', anio)
-        .order('orden_funcion, orden_grupo');
+        .order('nombre_comprador');
 
       if (error) {
         throw new Error(`Error al obtener las entradas: ${error.message}`);
@@ -97,7 +97,7 @@ export const useEntradasPorFuncion = (anio: number, funcion: string | undefined)
         q = q.eq('funcion', funcion);
       }
       const { data, error } = await q
-      .order('nombre_comprador');
+        .order('nombre_comprador');
 
       if (error) {
         throw new Error(`Error al obtener las entradas por funcion: ${error.message}`);
