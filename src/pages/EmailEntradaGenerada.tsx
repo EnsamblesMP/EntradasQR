@@ -118,7 +118,7 @@ export const EmailEntradaGenerada: FC = () => {
     .replaceAll('[lugar]', funcion.lugar)
     .replaceAll('[fecha]', funcion.fecha_funcion)
     .replaceAll('[hora]', funcion.hora_funcion)
-    .replaceAll('1 entradas', '1 entrada');
+    .replaceAll(/\b1\b entradas/g, '1 entrada');
   const contenidoSplitByQr = contenido.split('[codigo_qr]', 2);
   const contenidoPreQr = contenidoSplitByQr[0];
   const contenidoPostQr = contenidoSplitByQr[1];
