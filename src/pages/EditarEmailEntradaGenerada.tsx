@@ -80,6 +80,9 @@ export const EditarEmailEntradaGenerada: FC = () => {
     '[nombre_grupo]',
     '[funcion]',
     '[codigo_qr]',
+    '[lugar]',
+    '[fecha]',
+    '[hora]',
   ];
 
   const volverAPaginaAnterior = () => {

@@ -1,5 +1,7 @@
 import { useEntradaPorId } from '../queries/useEntradas';
+import { useFuncionesDelAnio } from '../queries/useFunciones';
 import { useEmailTemplate } from '../queries/useEmailTemplate';
+import { useAnio } from '../supabase/anioUtils';
 import { ImagenQr } from '../components/ImagenQr';
 import { CampoCopiable } from '../components/CampoCopiable';
 import { MarkdownRenderer } from '../components/MarkdownRenderer';
@@ -7,59 +9,76 @@ import { ButtonLink } from '../router/ButtonLink';
 import {
   Button,
   Flex,
+  Icon,
   Spinner,
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { useEffect } from 'react';
-import { toaster } from '../chakra/toaster';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { FiCheck } from 'react-icons/fi';
 import type { FC } from 'react';
 
 export const EmailEntradaGenerada: FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { anio } = useAnio();
   const {
     data: entrada,
     isLoading: cargandoEntrada,
     error: errorEntrada,
   } = useEntradaPorId(id);
   const {
+    data: funciones,
+    isLoading: cargandoFunciones,
+    error: errorFunciones,
+  } = useFuncionesDelAnio(anio);
+  const {
     data: template,
     isLoading: cargandoTemplate,
     error: errorTemplate,
   } = useEmailTemplate();
 
-  const cargando = cargandoEntrada || cargandoTemplate;
+  const cargando = cargandoEntrada || cargandoFunciones || cargandoTemplate;
   const vieneDeAltaDeEntrada = location.state?.from === '/alta-de-entrada';
 
-  useEffect(() => {
-    if (errorEntrada) {
-      toaster.create({
-        title: 'Error',
-        description: 'No se encontró la entrada.',
-        type: 'error',
-      });
-    }
-  }, [errorEntrada]);
-  
-  if (cargando || !id) {
+  if (cargando) {
+    const renderCargando = (is: boolean) => is
+      ? <><Spinner size="xs" color="yellow.500" aria-label="Cargando" /></>
+      : <><Icon as={FiCheck} color="green" aria-label="Listo" /></>;
+    return (
+      <VStack w="full">
+        <Flex justify="center" align="center" minH="60vh" direction="column">
+          <Spinner size="xl" color="blue.500" mb="3em" />
+          <Text fontSize="lg" fontWeight="medium" textAlign="center">Plantilla: {renderCargando(cargandoTemplate)}</Text>
+          <Text fontSize="lg" fontWeight="medium" textAlign="center">Funciones: {renderCargando(cargandoFunciones)}</Text>
+          <Text fontSize="lg" fontWeight="medium" textAlign="center">Entrada: {renderCargando(cargandoEntrada)}</Text>
+        </Flex>
+      </VStack>
+    );
+  }
+
+  if (!entrada || errorEntrada || !id) {
     return (
       <Flex justify="center" align="center" minH="60vh">
-        <Spinner size="xl" color="blue.500" />
+        <Text fontSize="lg" fontWeight="medium" textAlign="center" color="red">
+          ERROR: No se encontró la entrada.
+        </Text>
+        <Text fontSize="md" textAlign="center" color="red">
+          {errorEntrada?.message}
+        </Text>
       </Flex>
     );
   }
 
-  if (!entrada) {
+  if (!funciones || errorFunciones) {
     return (
       <Flex justify="center" align="center" minH="60vh">
-        <Text fontSize="lg" fontWeight="medium" textAlign="center">
-          No se encontró la entrada.
+        <Text fontSize="lg" fontWeight="medium" textAlign="center" color="red">
+          ERROR: No se encontraron las funciones del año.
         </Text>
-        <Text fontSize="md" textAlign="center">
-          {errorEntrada?.message}
+        <Text fontSize="md" textAlign="center" color="red">
+          {errorFunciones?.message}
         </Text>
       </Flex>
     );
@@ -78,12 +97,27 @@ export const EmailEntradaGenerada: FC = () => {
     );
   }
 
+  const funcion = funciones.find((x) => x.nombre_funcion === entrada.funcion);
+
+  if (!funcion) {
+    return (
+      <Flex justify="center" align="center" minH="60vh">
+        <Text fontSize="lg" fontWeight="medium" textAlign="center" color="red">
+          ERROR: No se encontró la funcion que corresponde a la entrada.
+        </Text>
+      </Flex>
+    );
+  }
+
   const contenido = template.contenido
     .replaceAll('[nombre_comprador]', entrada.nombre_comprador)
     .replaceAll('[cantidad_comprada]', entrada.compradas.toString())
     .replaceAll('[nombre_alumno]', entrada.nombre_alumno)
     .replaceAll('[nombre_grupo]', entrada.nombre_grupo)
     .replaceAll('[funcion]', entrada.funcion)
+    .replaceAll('[lugar]', funcion.lugar)
+    .replaceAll('[fecha]', funcion.fecha_funcion)
+    .replaceAll('[hora]', funcion.hora_funcion)
     .replaceAll('1 entradas', '1 entrada');
   const contenidoSplitByQr = contenido.split('[codigo_qr]', 2);
   const contenidoPreQr = contenidoSplitByQr[0];
