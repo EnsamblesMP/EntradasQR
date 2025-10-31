@@ -9,3 +9,13 @@ as $$
   where id = p_entrada_id
   returning id, cantidad_usada;
 $$;
+
+create or replace function public.sync_alumno_year()
+returns trigger as $$
+begin
+  select year into new.year
+  from grupos
+  where id = new.grupo;
+  return new;
+end;
+$$ language plpgsql;

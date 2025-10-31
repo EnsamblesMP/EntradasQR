@@ -41,6 +41,9 @@ export default function Home() {
             <ButtonLink to="/lista-de-entradas" variant="surface" size="md" w="full">
               Administrar Entradas
             </ButtonLink>
+            <ButtonLink to="/lista-alumnos" variant="surface" size="md" w="full">
+              Administrar Alumnos
+            </ButtonLink>
             <ButtonLink to="/lista-imprimible-de-entradas" variant="surface" size="md" w="full">
               Lista Imprimible de Entradas
             </ButtonLink>

@@ -78,11 +78,12 @@ const AltaDeEntrada: FC = () => {
   }, [campos, camposValidos, createEntrada, navigate]);
 
   return (
-    <Box as="form" onSubmit={handleSubmit}>
-      <Heading as="h1" mb={6} textAlign="center" minW="sm">
-        Alta de entrada
+    <Box>
+      <Heading as="h1" mb={6} textAlign="center">
+        Cargar entrada
       </Heading>
-      <Box gap="6" w="full">
+
+      <Box as="form" onSubmit={handleSubmit} gap="6" w="full">
 
         <CamposEntrada
           campos={campos}
