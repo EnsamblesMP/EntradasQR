@@ -14,15 +14,15 @@ export interface RegistroCambio {
   created_at: string;
 }
 
-export const useHistorialCambios = () => {
+export const useHistorialCambios = (limit: number) => {
   return useQuery<RegistroCambio[], Error>({
-    queryKey: ['historial_cambios'],
+    queryKey: ['historial_cambios', limit],
     queryFn: async (): Promise<RegistroCambio[]> => {
       const { data, error } = await supabase
         .from('historial_cambios')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(300);
+        .limit(limit);
 
       if (error) {
         throw new Error(error.message);

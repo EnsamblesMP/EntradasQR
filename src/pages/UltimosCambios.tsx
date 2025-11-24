@@ -12,7 +12,7 @@ import {
   Menu,
   Separator,
 } from '@chakra-ui/react';
-import { FiColumns, FiSettings } from 'react-icons/fi';
+import { FiColumns, FiFilter, FiSettings } from 'react-icons/fi';
 import { useColorModeValue } from '../chakra/use-color-mode';
 
 const formatearFechaYHora = (fecha: string): string => {
@@ -163,15 +163,42 @@ type SettingsMenuContentProps = {
   columnas: ColumnaElegible[];
   columnasVisibles: NombreColumnaElegible[];
   toggleColumn: (column: NombreColumnaElegible) => void;
+  limit: number;
+  setLimit: (limit: number) => void;
 };
 
 const SettingsMenuContent: FC<SettingsMenuContentProps> = ({
   columnas,
   columnasVisibles,
   toggleColumn,
+  limit,
+  setLimit,
 }) => {
+  const validLimits = [50, 100, 200, 300];
   return (
     <Menu.Content>
+      <Menu.ItemGroup>
+        <Menu.ItemGroupLabel>
+          <Flex direction="row" gap={2} align="center">
+            <FiFilter />
+            Maximo de registros
+          </Flex>
+        </Menu.ItemGroupLabel>
+        <Flex direction="row" flexWrap="wrap" gap={2}>
+          {validLimits.map((validLimit) => (
+            <Menu.CheckboxItem
+              key={`limit${validLimit}`}
+              value={`limit${validLimit}`}
+              checked={validLimit === limit}
+              onCheckedChange={() => setLimit(validLimit)}
+              style={{ flexBasis: '1rem', border: `1px solid var(--chakra-colors-${useColorModeValue('gray-200', 'gray-800')})`, borderRadius: '0.5rem' }}
+            >
+              {validLimit}
+            <Menu.ItemIndicator />
+          </Menu.CheckboxItem>
+          ))}
+        </Flex>
+      </Menu.ItemGroup>
       <Menu.ItemGroup>
         <Menu.ItemGroupLabel>
           <Flex direction="row" gap={2} align="center">
@@ -186,7 +213,7 @@ const SettingsMenuContent: FC<SettingsMenuContentProps> = ({
               value={columna.nombre}
               checked={columnasVisibles.includes(columna.nombre)}
               onCheckedChange={() => toggleColumn(columna.nombre)}
-              style={{ flexBasis: '1rem', border: `1px solid var(--chakra-colors-${useColorModeValue('gray-100', 'gray-800')})`, borderRadius: '0.5rem' }}
+              style={{ flexBasis: '1rem', border: `1px solid var(--chakra-colors-${useColorModeValue('gray-200', 'gray-800')})`, borderRadius: '0.5rem' }}
             >
               {columna.nombre}
               <Menu.ItemIndicator />
@@ -199,11 +226,14 @@ const SettingsMenuContent: FC<SettingsMenuContentProps> = ({
 };
 
 const UltimosCambios: FC = () => {
+
+  const [limit, setLimit] = useState(50);
+
   const {
     data: cambios,
     isLoading: cargandoCambios,
     error: errorCambios,
-  } = useHistorialCambios();
+  } = useHistorialCambios(limit);
 
   const [columnasVisibles, setColumnasVisibles] = useState<NombreColumnaElegible[]>([
     'Fecha relativa',
@@ -288,7 +318,7 @@ const UltimosCambios: FC = () => {
         <Flex justify="space-between" direction="row" w="full">
           <Separator />
           <Heading as="h1" size="lg" flexBasis="auto">
-            Últimos cambios
+            Últimos cambios ({cambios?.length ?? 0})
           </Heading>
           <Menu.Trigger asChild>
             <IconButton size="xs" variant="outline">
@@ -296,7 +326,13 @@ const UltimosCambios: FC = () => {
             </IconButton>
           </Menu.Trigger>
         </Flex>
-        <SettingsMenuContent columnas={columnas} columnasVisibles={columnasVisibles} toggleColumn={toggleColumn} />
+        <SettingsMenuContent
+          columnas={columnas}
+          columnasVisibles={columnasVisibles}
+          toggleColumn={toggleColumn}
+          limit={limit}
+          setLimit={setLimit}
+        />
       </Menu.Root>
       {cargandoCambios ? (
         <Spinner size="xl" color="blue.500" />
