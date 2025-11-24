@@ -30,11 +30,6 @@ create table public.alumnos (
   constraint alumnos_grupo_fkey foreign KEY (grupo) references grupos (id) on update CASCADE on delete RESTRICT
 ) TABLESPACE pg_default;
 
-create trigger trigger_sync_alumno_year BEFORE INSERT
-or
-update OF grupo on alumnos for EACH row
-execute FUNCTION sync_alumno_year ();
-
 create table public.entradas (
   id uuid not null default gen_random_uuid (),
   nombre_comprador text null,

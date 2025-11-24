@@ -1,8 +1,19 @@
+CREATE OR REPLACE FUNCTION public.update_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+set search_path = public
+AS $$
+BEGIN
+    NEW.updated_at = current_timestamp;
+    RETURN NEW;
+END;
+$$;
+
 -- Create RPC to atomically increment cantidad_usada on entradas
 create or replace function public.usar_entradas_rpc(p_entrada_id uuid, p_cantidad_a_usar integer)
 returns table(id uuid, cantidad_usada integer)
 language sql
-set search_path = ''
+set search_path = public
 as $$
   update public.entradas
   set cantidad_usada = coalesce(cantidad_usada, 0) + p_cantidad_a_usar
@@ -11,16 +22,19 @@ as $$
 $$;
 
 create or replace function public.sync_alumno_year()
-returns trigger as $$
+returns trigger
+set search_path = public
+language plpgsql
+as $$
 begin
   select year into new.year
   from grupos
   where id = new.grupo;
   return new;
 end;
-$$ language plpgsql;
+$$;
 
-create or replace function registrar_historial_cambio()
+create or replace function public.registrar_historial_cambio()
 returns trigger
 set search_path = public
 language plpgsql
