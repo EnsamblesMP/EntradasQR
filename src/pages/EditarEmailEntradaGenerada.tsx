@@ -44,6 +44,7 @@ export const EditarEmailEntradaGenerada: FC = () => {
 
   useEffect(() => {
     if (template) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAsunto(template.asunto);
       setContenido(template.contenido);
     } else {

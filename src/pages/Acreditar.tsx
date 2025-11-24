@@ -51,6 +51,7 @@ const Acreditar = () => {
       const cantidadRestantes = calcularRestantes(entrada.compradas, entrada.usadas);
       const disponibles = Math.max(cantidadRestantes, 0);
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCantidadAUsar({
         value: disponibles.toString(),
         valueAsNumber: disponibles
