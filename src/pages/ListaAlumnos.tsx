@@ -41,7 +41,7 @@ const SettingsMenuContent: FC<SettingsMenuContentProps> = ({ grupo: value, alCam
   );
 };
 
-const ListaAlumnos: React.FC = () => {
+const ListaAlumnos: FC = () => {
   const { anio } = useAnio();
   const navigate = useNavigate();
   const [grupo, setGrupo] = useState<string | null>(null);

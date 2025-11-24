@@ -35,7 +35,7 @@ function select() {
 
 function manejarErroresUpsert(error: Error | null, esEdicion: boolean) {
   if (!error) return;
-  if (error.message === 'duplicate key value violates unique constraint \"alumnos_nombre_year_unique\"') {
+  if (error.message === 'duplicate key value violates unique constraint "alumnos_nombre_year_unique"') {
     throw new Error('Ya existe un alumno con ese mismo nombre en este año.'
       + ' Revise la informacion del alumno anterior para asegurarse'
       + ' de que no es este mismo alumno. De ser otro alumno distinto,'
@@ -47,7 +47,7 @@ function manejarErroresUpsert(error: Error | null, esEdicion: boolean) {
 export const useAlumnosDelAnio = () => {
   const { anio } = useAnio();
   return useQuery({
-    queryKey: ['alumnos', 'anio', String(anio)],
+    queryKey: ['alumnos', { anio }],
     queryFn: async () => {
       const { data, error } = await select()
         .eq('anio', anio);
@@ -64,7 +64,7 @@ export const useAlumnosPorGrupo = (idGrupo: string | null) => {
   const queryClient = useQueryClient();
   const { anio } = useAnio();
   return useQuery({
-    queryKey: idGrupo ? ['alumnos', 'anio', String(anio), 'grupo', idGrupo] : ['alumnos', 'anio', String(anio)],
+    queryKey: ['alumnos', { anio, ...(idGrupo && { idGrupo }) }],
     queryFn: async () => {
       let q = select().eq('anio', anio);
       if (idGrupo) {
@@ -79,7 +79,7 @@ export const useAlumnosPorGrupo = (idGrupo: string | null) => {
     },
     enabled: !!anio,
     initialData: () => {
-      const alumnos = queryClient.getQueryData<Alumno[]>(['alumnos', 'anio', String(anio)])
+      const alumnos = queryClient.getQueryData<Alumno[]>(['alumnos', { anio }])
       return alumnos?.filter((x) => x.id_grupo === idGrupo)
         .sort((a, b) => a.nombre_alumno.localeCompare(b.nombre_alumno));
     },
@@ -91,7 +91,7 @@ export const useAlumnoPorId = (id: number | undefined) => {
   const queryClient = useQueryClient();
   const { anio } = useAnio();
   return useQuery({
-    queryKey: ['alumnos', 'anio', String(anio), 'id', String(id)],
+    queryKey: ['alumnos', { anio, id }],
     queryFn: async () => {
       if (!id) throw new Error('ID de alumno no proporcionado');
       const { data, error } = await select()
@@ -106,7 +106,7 @@ export const useAlumnoPorId = (id: number | undefined) => {
     },
     enabled: !!id, // Solo ejecutar si hay un ID
     initialData: () => {
-      const alumnos = queryClient.getQueryData<Alumno[]>(['alumnos', 'anio', String(anio)])
+      const alumnos = queryClient.getQueryData<Alumno[]>(['alumnos', { anio }])
       return alumnos?.find((x) => x.id_alumno === id)
     },
     staleTime: 1000 * 30, // 30 segundos
@@ -131,9 +131,9 @@ export const useCreateAlumno = () => {
       return data;
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['alumnos', 'anio', String(anio), 'id', String(data?.id_alumno)] });
-      queryClient.invalidateQueries({ queryKey: ['alumnos', 'anio', String(anio), 'grupo', String(variables.id_grupo)] });
-      queryClient.invalidateQueries({ queryKey: ['alumnos', 'anio', String(anio)] });
+      queryClient.invalidateQueries({ queryKey: ['alumnos', { anio, id: data?.id_alumno }] });
+      queryClient.invalidateQueries({ queryKey: ['alumnos', { anio, idGrupo: variables.id_grupo }] });
+      queryClient.invalidateQueries({ queryKey: ['alumnos', { anio }] });
     }
   });
 };
@@ -159,9 +159,9 @@ export const useUpdateAlumno = () => {
       manejarErroresUpsert(error, true);
     },
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['alumnos', 'anio', String(anio), 'id', String(variables.id_alumno)] });
-      queryClient.invalidateQueries({ queryKey: ['alumnos', 'anio', String(anio), 'grupo', String(variables.id_grupo)] });
-      queryClient.invalidateQueries({ queryKey: ['alumnos', 'anio', String(anio)] });
+      queryClient.invalidateQueries({ queryKey: ['alumnos', { anio, id: variables.id_alumno }] });
+      queryClient.invalidateQueries({ queryKey: ['alumnos', { anio, idGrupo: variables.id_grupo }] });
+      queryClient.invalidateQueries({ queryKey: ['alumnos', { anio }] });
     },
   });
 };
@@ -187,12 +187,17 @@ export const useDeleteAlumno = () => {
     },
     onSuccess: (_data, id: number | undefined) => {
       if (!id) return;
-      function filterThisId(old: Alumno[] | undefined) {
-        return old?.filter((it) => it.id_alumno !== id) ?? [];
+      function filterThisId(old: Alumno[] | Alumno | undefined) {
+        if (Array.isArray(old)) {
+          return old?.filter((it) => it.id_alumno !== id);
+        }
+        if ((old as Alumno)?.id_alumno === id) {
+          return undefined; // TODO: doesn't seem to clear this cache actually
+        }
+        return old;
       }
-      queryClient.removeQueries({ queryKey: ['alumnos', 'anio', String(anio), 'id', String(id)] });
-      queryClient.setQueryData(['alumnos', 'anio', String(anio)], filterThisId)
-      queryClient.getQueryCache().findAll({ queryKey: ['alumnos', 'anio', String(anio), 'grupo'] })
+      queryClient.getQueryCache()
+        .findAll({ queryKey: ['alumnos', { anio }]})
         .forEach((query) => queryClient.setQueryData(query.queryKey, filterThisId));
     },
   });

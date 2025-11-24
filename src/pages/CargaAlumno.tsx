@@ -1,7 +1,7 @@
 import { useAlumnoPorId, useCreateAlumno, useDeleteAlumno, useUpdateAlumno } from '../queries/useAlumnos';
 import GrupoSelect from '../components/GrupoSelect';
 import { DeleteConfirmation } from '../components/DeleteConfirmation';
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, useCallback, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toaster } from '../chakra/toaster';
 import {
@@ -16,6 +16,7 @@ import {
   VStack,
   useDisclosure,
 } from '@chakra-ui/react';
+import type { FormEvent } from 'react';
 
 const CargaAlumno = () => {
   const navigate = useNavigate();
@@ -24,7 +25,11 @@ const CargaAlumno = () => {
   const idAlumno = id_alumno ? parseInt(id_alumno, 10) : undefined;
 
   // Cargar datos del alumno si estamos en modo edición
-  const { data: alumnoExistente, isLoading: cargandoDatos } = useAlumnoPorId(idAlumno);
+  const {
+    data: alumnoExistente,
+    isLoading: cargandoAlumnoPorId,
+    error: errorCargaAlumnoPorId,
+  } = useAlumnoPorId(idAlumno);
 
   const {
     mutateAsync: crearAlumno,
@@ -43,7 +48,7 @@ const CargaAlumno = () => {
   const { mutateAsync: deleteAlumno } = useDeleteAlumno();
 
   const guardando = creando || actualizando;
-  const errorEnApi = errorCrear || errorActualizar;
+  const errorEnApi = errorCrear || errorActualizar || errorCargaAlumnoPorId;
 
   const {
     open: operacionExitosa,
@@ -51,20 +56,16 @@ const CargaAlumno = () => {
     onClose: cerrarOperacionExitosa
   } = useDisclosure();
 
-  const [nombreAlumno, setNombreAlumno] = useState<string | null>('');
-  const [idGrupo, setIdGrupo] = useState<string | null>(null);
+  const [nombreAlumno, setNombreAlumno] = useState<string | null>(
+    alumnoExistente?.nombre_alumno || ''
+  );
+  const [idGrupo, setIdGrupo] = useState<string | null>(
+    alumnoExistente?.id_grupo || null
+  );
   const [errorOtro, setErrorOtro] = useState<Error | null>(null);
 
-  // Cargar datos del alumno cuando se monta el componente o cambia el alumno existente
-  useEffect(() => {
-    if (alumnoExistente) {
-      setNombreAlumno(alumnoExistente.nombre_alumno);
-      setIdGrupo(String(alumnoExistente.id_grupo));
-    }
-  }, [alumnoExistente]);
-
   const error = errorEnApi ?? errorOtro;
-  const formularioEsValido = idGrupo && nombreAlumno && nombreAlumno.trim() !== '' && !cargandoDatos;
+  const formularioEsValido = idGrupo && nombreAlumno && nombreAlumno.trim() !== '' && !cargandoAlumnoPorId;
 
   const alCambiarNombreAlumno = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setNombreAlumno(e.target.value);
@@ -112,7 +113,7 @@ const CargaAlumno = () => {
     resetActualizar();
   };
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: FormEvent) => {
     e.preventDefault();
 
     if (!formularioEsValido) {
@@ -139,7 +140,7 @@ const CargaAlumno = () => {
     } catch (err) {
       setErrorOtro(err as Error ?? new Error('Error desconocido'));
     }
-  }, [nombreAlumno, idGrupo, crearAlumno, actualizarAlumno, esEdicion, idAlumno, abrirOperacionExitosa]);
+  }, [formularioEsValido, nombreAlumno, idGrupo, crearAlumno, actualizarAlumno, esEdicion, idAlumno, abrirOperacionExitosa]);
 
   const handleNuevoAlumno = () => {
     cerrarOperacionExitosa();
@@ -153,7 +154,7 @@ const CargaAlumno = () => {
     navigate('/lista-alumnos');
   };
 
-  if (esEdicion && cargandoDatos) {
+  if (esEdicion && cargandoAlumnoPorId) {
     return (
       <Box textAlign="center" py={10}>
         <p>Cargando datos del alumno...</p>
@@ -204,7 +205,7 @@ const CargaAlumno = () => {
               size="lg"
               flex={1}
               loading={guardando}
-              disabled={!formularioEsValido || guardando || cargandoDatos}
+              disabled={!formularioEsValido || guardando || cargandoAlumnoPorId}
               loadingText={esEdicion ? 'Actualizando...' : 'Guardando...'}
             >
               {esEdicion ? 'Actualizar' : 'Guardar'}
