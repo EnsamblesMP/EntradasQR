@@ -28,6 +28,9 @@ export default function Layout({ children }: LayoutProps) {
         <ButtonLink to="/" size="xs" variant="surface">
           Administrar
         </ButtonLink>
+        <ButtonLink to="/ultimos-cambios" size="xs" variant="surface">
+          Últimos Cambios
+        </ButtonLink>
         <ColorModeButton />
       </Stack>
       <Stack as="main">

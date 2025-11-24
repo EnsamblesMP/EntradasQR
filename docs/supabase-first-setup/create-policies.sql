@@ -44,3 +44,12 @@ create policy "Allow access to authenticated users"
   for all
   to authenticated
   using (true);
+
+alter table public.historial_cambios
+enable row level security;
+
+create policy "Allow access to authenticated users"
+  on historial_cambios
+  for all
+  to authenticated
+  using (true);

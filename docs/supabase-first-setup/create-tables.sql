@@ -55,3 +55,18 @@ create table public.email_templates (
   updated_at timestamp with time zone not null default now(),
   constraint email_templates_pkey primary key (key)
 ) TABLESPACE pg_default;
+
+create table public.historial_cambios (
+  id_historial integer generated always as identity primary key,
+  tabla text not null,
+  id_registro text,
+  contexto_registro JSON,
+  operacion VARCHAR(10) CHECK (operacion IN ('INSERT', 'UPDATE', 'DELETE')),
+  campo text,
+  valor_anterior text,
+  valor_nuevo text,
+  email_usuario text,
+  created_at timestamp with time zone not null default now()
+) TABLESPACE pg_default;
+
+create index idx_historial_cambios_created_at on public.historial_cambios (created_at desc);

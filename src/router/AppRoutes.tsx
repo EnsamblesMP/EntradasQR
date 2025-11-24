@@ -14,6 +14,7 @@ import CargaAlumno from '../pages/CargaAlumno'
 import Preacreditacion from '../pages/Preacreditacion'
 import Acreditar from '../pages/Acreditar'
 import Acreditaciones from '../pages/Acreditaciones'
+import UltimosCambios from '../pages/UltimosCambios'
 
 function AppRoutes() {
   return (
@@ -27,6 +28,7 @@ function AppRoutes() {
         <Route path="/alta-de-entrada" element={<Layout><AltaDeEntrada /></Layout>} />
         <Route path="/lista-de-entradas" element={<Layout><ListaDeEntradas /></Layout>} />
         <Route path="/lista-imprimible-de-entradas" element={<ListaImprimibleDeEntradas />} />
+        <Route path="/ultimos-cambios" element={<Layout><UltimosCambios /></Layout>} />
         <Route path="/editar-entrada/:id" element={<Layout><EditarEntrada /></Layout>} />
         <Route path="/email-entrada-generada/:id" element={<Layout><EmailEntradaGenerada /></Layout>} />
         <Route path="/editar-email-entrada-generada" element={<Layout><EditarEmailEntradaGenerada /></Layout>} />
