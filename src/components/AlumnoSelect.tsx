@@ -24,7 +24,7 @@ const AlumnoSelect = ({
     data: alumnos,
     isLoading: loading,
     error: errorCarga,
-  } = useAlumnosPorGrupo(idGrupo ?? undefined);
+  } = useAlumnosPorGrupo(idGrupo);
   
   const alumnosCollection = createListCollection({
     items: alumnos || [],
