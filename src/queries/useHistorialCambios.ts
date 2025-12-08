@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabase/supabaseClient';
 
 export interface RegistroCambio {
@@ -31,5 +31,47 @@ export const useHistorialCambios = (limit: number) => {
       return (data as RegistroCambio[]) ?? [];
     },
     staleTime: 1000 * 3, // 3 segundos
+  });
+};
+
+export const useHistorialCambiosCantidad = (fechaLimite: Date) => {
+  return useQuery<number, Error>({
+    queryKey: ['historial_cambios', 'count', fechaLimite.toISOString()],
+    queryFn: async (): Promise<number> => {
+      const { count, error } = await supabase
+        .from('historial_cambios')
+        .select('*', { count: 'exact', head: true })
+        .lt('created_at', fechaLimite.toISOString());
+
+      if (error) {
+        throw new Error(`Error al contar registros: ${error.message}`);
+      }
+
+      return count || 0;
+    },
+    staleTime: 1000 * 3, // 3 segundos
+  });
+};
+
+export const useEliminarHistorialAntiguo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, { fechaLimite: Date }>({
+    mutationFn: async ({ fechaLimite }) => {
+      const { error } = await supabase
+        .from('historial_cambios')
+        .delete()
+        .lt('created_at', fechaLimite.toISOString());
+
+      if (error) {
+        throw new Error(`Error al eliminar registros antiguos: ${error.message}`);
+      }
+
+      return;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['historial_cambios'] });
+      queryClient.invalidateQueries({  queryKey: ['historial_cambios', 'count'] });
+    },
   });
 };

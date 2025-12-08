@@ -11,9 +11,11 @@ import {
   IconButton,
   Menu,
   Separator,
+  Button,
 } from '@chakra-ui/react';
-import { FiColumns, FiFilter, FiSettings } from 'react-icons/fi';
+import { FiColumns, FiFilter, FiSettings, FiTrash2 } from 'react-icons/fi';
 import { useColorModeValue } from '../chakra/use-color-mode';
+import { LimpiarHistorialDialog } from '../components/LimpiarHistorialDialog';
 
 const formatearFechaYHora = (fecha: string): string => {
   const fechaObj: Date = new Date(fecha);
@@ -175,6 +177,8 @@ const SettingsMenuContent: FC<SettingsMenuContentProps> = ({
   setLimit,
 }) => {
   const validLimits = [50, 100, 200, 300];
+  const borderColor = useColorModeValue('gray-200', 'gray-800');
+  
   return (
     <Menu.Content>
       <Menu.ItemGroup>
@@ -191,7 +195,7 @@ const SettingsMenuContent: FC<SettingsMenuContentProps> = ({
               value={`limit${validLimit}`}
               checked={validLimit === limit}
               onCheckedChange={() => setLimit(validLimit)}
-              style={{ flexBasis: '1rem', border: `1px solid var(--chakra-colors-${useColorModeValue('gray-200', 'gray-800')})`, borderRadius: '0.5rem' }}
+              style={{ flexBasis: '1rem', border: `1px solid var(--chakra-colors-${borderColor})`, borderRadius: '0.5rem' }}
             >
               {validLimit}
             <Menu.ItemIndicator />
@@ -213,7 +217,7 @@ const SettingsMenuContent: FC<SettingsMenuContentProps> = ({
               value={columna.nombre}
               checked={columnasVisibles.includes(columna.nombre)}
               onCheckedChange={() => toggleColumn(columna.nombre)}
-              style={{ flexBasis: '1rem', border: `1px solid var(--chakra-colors-${useColorModeValue('gray-200', 'gray-800')})`, borderRadius: '0.5rem' }}
+              style={{ flexBasis: '1rem', border: `1px solid var(--chakra-colors-${borderColor})`, borderRadius: '0.5rem' }}
             >
               {columna.nombre}
               <Menu.ItemIndicator />
@@ -228,6 +232,7 @@ const SettingsMenuContent: FC<SettingsMenuContentProps> = ({
 const UltimosCambios: FC = () => {
 
   const [limit, setLimit] = useState(50);
+  const [dialogoLimpiarAbierto, setDialogoLimpiarAbierto] = useState(false);
 
   const {
     data: cambios,
@@ -320,11 +325,21 @@ const UltimosCambios: FC = () => {
           <Heading as="h1" size="lg" flexBasis="auto">
             Últimos cambios ({cambios?.length ?? 0})
           </Heading>
-          <Menu.Trigger asChild>
-            <IconButton size="xs" variant="outline">
-              <FiSettings />
-            </IconButton>
-          </Menu.Trigger>
+          <Flex gap={2}>
+            <Button
+              size="xs"
+              variant="outline"
+              colorPalette="red"
+              onClick={() => setDialogoLimpiarAbierto(true)}
+            >
+              <FiTrash2 /> Limpiar...
+            </Button>
+            <Menu.Trigger asChild>
+              <IconButton size="xs" variant="outline">
+                <FiSettings />
+              </IconButton>
+            </Menu.Trigger>
+          </Flex>
         </Flex>
         <SettingsMenuContent
           columnas={columnas}
@@ -347,6 +362,10 @@ const UltimosCambios: FC = () => {
       ) : (
         <ListaCambios cambios={cambios} columnas={columnas} columnasVisibles={columnasVisibles} />
       )}
+      <LimpiarHistorialDialog
+        estaAbierto={dialogoLimpiarAbierto}
+        alCerrar={() => setDialogoLimpiarAbierto(false)}
+      />
     </Flex>
   );
 };
