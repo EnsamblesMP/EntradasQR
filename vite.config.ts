@@ -7,6 +7,6 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   base: '/EntradasQR/',
   server: {
-    host: '0.0.0.0',
+    //host: '0.0.0.0', // habilitar solo en caso de intentar acceder desde LAN (pero via IP igualmente falla en el redirect del login)
   },
 })

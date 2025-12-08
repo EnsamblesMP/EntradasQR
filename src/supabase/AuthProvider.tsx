@@ -1,13 +1,18 @@
 import { useEffect, useState, ReactNode } from 'react';
 import {
   Box,
+  Button,
   Spinner,
   Alert,
+  HStack,
   VStack,
-  Text
+  Text,
+  List,
 } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 import { AuthContext } from './authUtils';
+import { getRouterBaseUrl } from '../router/AppBaseUrl'
 import type { AuthContextType } from './authUtils';
 import type { User } from '@supabase/supabase-js';
 
@@ -32,6 +37,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [currentUser, setCurrentUser] = useState<User | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(true);
   const [authError, setAuthError] = useState<string | undefined>(undefined);
+  const navigate = useNavigate();
 
   // Cargar la sesión del usuario al iniciar
   useEffect(() => {
@@ -76,6 +82,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }, []);
 
+  const alCerrarSesionLocal = async (): Promise<void> => {
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Si falla, igualmente intentamos recargar para forzar un nuevo estado
+    } finally {
+      navigate('/login');
+      setTimeout(() => window.location.reload(), 500);
+    }
+  };
+
+  const alLimpiarDatosDelSitio = async (): Promise<void> => {
+    const ignoraErrores = (fn: Function) => { try { fn(); } catch { } }
+    ignoraErrores(window.localStorage.clear);
+    ignoraErrores(window.sessionStorage.clear);
+    window.location.href = getRouterBaseUrl();
+  };
+
   const value: AuthContextType = {
     currentUser,
     signInWithOAuth: async (provider) => {
@@ -84,7 +108,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           supabase.auth.signInWithOAuth({
             provider,
             options: {
-              redirectTo: `${window.location.origin}/EntradasQR/`
+              redirectTo: getRouterBaseUrl()
             }
           }),
           getTimeoutPromise(),
@@ -128,10 +152,41 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 Error de autenticación
               </Alert.Title>
               <Alert.Description>
-                {authError}
+                <VStack align="start" gap={3}>
+                  <Text>{authError}</Text>
+                </VStack>
               </Alert.Description>
             </Alert.Content>
           </Alert.Root>
+          <VStack align="start" gap={3} mt={4}>
+            <Text>
+              Podés probar alguna de estas opciones para intentar
+              recuperar el sitio:
+            </Text>
+            <HStack gap={2} wrap="wrap">
+              <Button
+                size="sm"
+                variant="solid"
+                onClick={alCerrarSesionLocal}
+              >
+                Cerrar sesión
+              </Button>
+              <Button
+                size="sm"
+                variant="solid"
+                onClick={alLimpiarDatosDelSitio}
+              >
+                Borrar datos del sitio
+              </Button>
+            </HStack>
+            <Text>
+              Si nada funciona, podés intentar:
+              <List.Root>
+                <List.Item>recargar la página via CTRL + F5</List.Item>
+                <List.Item>borrar los datos del sitio via el navegador</List.Item>
+              </List.Root>
+            </Text>
+          </VStack>
         </Box>
       ) : (
         children

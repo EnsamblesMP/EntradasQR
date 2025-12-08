@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { Provider } from "./chakra/provider"
 import { AuthProvider } from './supabase/AuthProvider'
 import { QueryProvider } from './queries/QueryProvider'
+import { routerAppBaseName } from './router/AppBaseUrl'
 import ErrorBoundary from './components/ErrorBoundary'
 import AppRoutes from './router/AppRoutes'
 
@@ -13,11 +14,9 @@ if (!rootElem) {
   throw new Error("Failed to find the root element");
 }
 
-const appBase = '/EntradasQR';
-
 createRoot(rootElem).render(
   <React.StrictMode>
-    <BrowserRouter basename={appBase}>
+    <BrowserRouter basename={routerAppBaseName}>
       <Provider>
         <ErrorBoundary>
           <AuthProvider>
@@ -35,6 +34,6 @@ createRoot(rootElem).render(
 const redirect = sessionStorage.getItem('redirect');
 if (redirect) {
   sessionStorage.removeItem('redirect');
-  const fullPath = appBase + (redirect.startsWith('/') ? redirect : '/' + redirect);
+  const fullPath = routerAppBaseName + (redirect.startsWith('/') ? redirect : '/' + redirect);
   history.replaceState(null, '', fullPath);
 }
