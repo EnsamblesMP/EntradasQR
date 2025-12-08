@@ -11,19 +11,6 @@ import { AuthContext } from './authUtils';
 import type { AuthContextType } from './authUtils';
 import type { User } from '@supabase/supabase-js';
 
-// Determinar la URL de redirección según el entorno
-const getRedirectUrl = () => {
-  if (typeof window !== 'undefined') {
-    // En producción (GitHub Pages)
-    if (window.location.hostname === 'ensamblesmp.github.io') {
-      return 'https://ensamblesmp.github.io/EntradasQR/';
-    }
-    // En desarrollo
-    return window.location.href;
-  }
-  return 'http://localhost:5173/EntradasQR/';
-};
-
 const getTimeoutPromise = () => {
   return new Promise((_, reject) =>
     setTimeout(() => reject(
@@ -96,7 +83,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const result = await Promise.race([
           supabase.auth.signInWithOAuth({
             provider,
-            options: { redirectTo: getRedirectUrl() }
+            options: {
+              redirectTo: `${window.location.origin}/EntradasQR/`
+            }
           }),
           getTimeoutPromise(),
         ]) as SessionDataResponse;
