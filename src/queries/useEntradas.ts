@@ -94,7 +94,7 @@ export const useEntradasPorFuncion = (anio: number, funcion: string | undefined)
     queryFn: async () => {
       let q = select().eq('anio', anio);
       if (funcion) {
-        q = q.eq('funcion', funcion);
+        q = q.or(`funcion.eq.${funcion},funcion.is.null`);
       }
       const { data, error } = await q
         .order('nombre_comprador');
@@ -108,7 +108,10 @@ export const useEntradasPorFuncion = (anio: number, funcion: string | undefined)
     enabled: !!anio, // Solo ejecutar si hay un año seleccionado
     initialData: () => {
       const entradas = queryClient.getQueryData<VistaEntrada[]>(entradasKeys.porAnio(anio))
-      return entradas?.filter((x) => x.funcion === funcion)
+      if (!funcion) {
+        return entradas;
+      }
+      return entradas?.filter((x) => x.funcion === funcion || x.funcion === null)
     },
     staleTime: 1000 * 30, // 30 segundos
   });
