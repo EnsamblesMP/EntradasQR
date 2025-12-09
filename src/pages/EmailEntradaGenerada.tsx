@@ -17,6 +17,7 @@ import {
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { FiCheck } from 'react-icons/fi';
 import type { FC } from 'react';
+import type { Funcion } from '../queries/useFunciones';
 
 export const EmailEntradaGenerada: FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -97,16 +98,15 @@ export const EmailEntradaGenerada: FC = () => {
     );
   }
 
-  const funcion = funciones.find((x) => x.nombre_funcion === entrada.funcion);
+  let funcion: Funcion | undefined = funciones.find((x) => x.nombre_funcion === entrada.funcion);
 
   if (!funcion) {
-    return (
-      <Flex justify="center" align="center" minH="60vh">
-        <Text fontSize="lg" fontWeight="medium" textAlign="center" color="red">
-          ERROR: No se encontró la funcion que corresponde a la entrada.
-        </Text>
-      </Flex>
-    );
+    funcion = {
+      nombre_funcion: '[sin función]',
+      lugar: '?',
+      fecha_funcion: '?',
+      hora_funcion: '?',
+    } as Funcion;
   }
 
   const contenido = template.contenido
