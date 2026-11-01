@@ -41,13 +41,23 @@ Aplicación web para la gestión de entradas con códigos QR para eventos de Ens
    npm install
    ```
 
-3. Actualiza tu instancia de Supabase para que tenga toda la estructura necesaria. Ver carpeta `docs/supabase-first-setup`.
+3. Actualiza tu instancia de Supabase (https://supabase.com/) para que tenga toda la estructura necesaria usando los archivos SQL de la carpeta `docs/supabase-first-setup`.
 
-4. Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
+4. Configurar autenticacion entre Supabase y GitHub.
+
+   1. En GitHub > Developer Settings (https://github.com/settings/developers) crear una nueva "OAuth Apps" y generale un "Client secret".
+
+   2. Copia el Client ID y Client secret de la pantalla anterior (desde GitHub) a Supabase > Authentication > Sign In / Providers > GitHub.
+
+   3. Copia el "Callback URL (for OAuth)" de la pantalla anterior (desde Supabase) y agregalo como un nuevo "Redirect URI" en tu OAuth App en GitHub.
+   Puede que tambien necesites agregar: http://localhost:5173/auth/v1/callback
+
+   4. Crea un archivo `.env` en esta misma carpeta con las siguientes variables:
    ```
-   VITE_SUPABASE_URL=tu_url_de_supabase
-   VITE_SUPABASE_ANON_KEY=tu_clave_anonima_de_supabase
+   VITE_SUPABASE_URL=tu_project_url_de_supabase
+   VITE_SUPABASE_ANON_KEY=tu_anon_public_key_de_supabase
    ```
+   La url del projecto puede copiarse desde el Project Overview de Supabase (e.g. https://abcdefghijklmnopqrst.supabase.co). Y la `anon public` key esta en Project Settings > API Keys dentro el tab "Legacy anon, service_role API keys".
 
 5. Inicia el servidor de desarrollo:
    ```bash
