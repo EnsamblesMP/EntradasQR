@@ -52,8 +52,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         if (!isMounted) return;
         if (!sessionData) throw new Error('Error al cargar sesión');
-        if (sessionData.error) throw sessionData.error;
-        if (!sessionData.data?.session?.user) throw new Error('Error al cargar user de sesión');
+        if (sessionData.error) {
+          console.warn('[Auth] getSession sin sesión. error:', sessionData.error);
+          throw sessionData.error;
+        }
+
+        if (!sessionData.data?.session?.user) {
+          // Antes con supabase-js@^2.76.1 tiraba Error acá.
+          // Con supabase-js@^2.118.0 tengo que tratarlo como "sin sesión".
+          // ProtectedRoute se encarga de redirigir a /login.
+          setCurrentUser(undefined);
+          setAuthError(undefined);
+          return;
+        }
 
         setCurrentUser(sessionData.data?.session?.user);
         setAuthError(undefined);
