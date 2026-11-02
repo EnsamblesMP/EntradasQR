@@ -87,12 +87,12 @@ Deno.serve(async (req: Request) => {
   try {
     pngBuffer = await QRCode.toBuffer(id, {
       type: "png",
-      width: 320,
+      width: 280,
       margin: 1,
       errorCorrectionLevel: "H",
       color: {
-        dark: "#487575ff",
-        light: "#ffffffff",
+        dark: "#1f1f1f",
+        light: "#ffffff",
       },
     });
   } catch (err) {
