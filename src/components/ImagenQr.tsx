@@ -1,3 +1,4 @@
+import { getQrImageUrl } from '../supabase/qrUtils';
 import { Image } from '@chakra-ui/react';
 import type { FC } from 'react';
 
@@ -6,7 +7,7 @@ interface ImagenQrProps {
 }
 
 export const ImagenQr: FC<ImagenQrProps> = ({ idEntrada }) => {
-  const qr = `https://freeqr.com/api/v1/?data=${idEntrada}&size=300x300&color=000&bgcolor=fff`;
+  const qr = getQrImageUrl(idEntrada);
   return (
     <Image
       src={qr}

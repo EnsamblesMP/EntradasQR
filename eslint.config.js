@@ -7,7 +7,7 @@ import tseslint from 'typescript-eslint'
 
 export default [
   {
-    ignores: ['dist'],
+    ignores: ['dist', 'docs/supabase-first-setup/**'],
   },
   {
     files: ['**/*.{js,jsx}'],
