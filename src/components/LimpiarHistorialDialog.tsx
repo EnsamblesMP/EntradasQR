@@ -31,6 +31,7 @@ export const LimpiarHistorialDialog = ({ estaAbierto, alCerrar }: LimpiarHistori
   useEffect(() => {
     if (estaAbierto) {
       const now = new Date();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAhora(now);
       setFechaPersonalizada(now.toISOString().split('T')[0]);
       setHoraPersonalizada('00:00');

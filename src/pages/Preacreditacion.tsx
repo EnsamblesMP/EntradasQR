@@ -71,6 +71,7 @@ export default function Preacreditacion() {
       return a.nombre_comprador.localeCompare(b.nombre_comprador);
     });
     
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setEntradasFiltradas(filtradas);
   }, [filtroTexto, entradas, usarFiltros, grupoElegido, alumnoElegido]);
 
