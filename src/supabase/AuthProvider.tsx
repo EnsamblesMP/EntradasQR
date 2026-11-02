@@ -94,7 +94,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const alLimpiarDatosDelSitio = async (): Promise<void> => {
-    const ignoraErrores = (fn: Function) => { try { fn(); } catch { } }
+    const ignoraErrores = (fn: () => void) => { try { fn(); } catch { /* ignore */ } }
     ignoraErrores(window.localStorage.clear);
     ignoraErrores(window.sessionStorage.clear);
     window.location.href = getRouterBaseUrl();

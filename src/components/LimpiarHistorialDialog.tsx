@@ -30,8 +30,9 @@ export const LimpiarHistorialDialog = ({ estaAbierto, alCerrar }: LimpiarHistori
   // Inicializar fecha personalizada
   useEffect(() => {
     if (estaAbierto) {
-      setAhora(new Date());
-      setFechaPersonalizada(ahora.toISOString().split('T')[0]);
+      const now = new Date();
+      setAhora(now);
+      setFechaPersonalizada(now.toISOString().split('T')[0]);
       setHoraPersonalizada('00:00');
       setRangoSeleccionado('7d');
       setEstaEliminando(false);
