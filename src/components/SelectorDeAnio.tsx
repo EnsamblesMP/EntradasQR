@@ -13,11 +13,12 @@ export const SelectorDeAnio = ({ anio, setAnio }: SelectorDeAnioProps) => {
         defaultValue={anio.toString()}
         onValueChange={(e) => setAnio(parseInt(e.value))}
         variant="flushed"
-        size="xs"
-        w="80px"
+        size="md"
+        marginY={-2}
+        w="100px"
       >
         <InputGroup
-          startElement={<Icon as={FiCalendar} size="lg" ml={-3} />}
+          startElement={<Icon as={FiCalendar} size="lg" ml={-2} />}
         >
           <NumberInput.Input min={2020} max={2080} />
         </InputGroup>
