@@ -1,55 +1,56 @@
-// https://vite.dev/config/
-import { defineConfig, Plugin } from 'vite'
+import { defineConfig, PluginOption, ServerOptions, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import fs from 'node:fs'
 
-// hostOnLan: elegir dependiendo desde donde probar (pero necesita configuraciones diferentes detalladas abajo de cada opcion)
-// - true: para probar en dev desde el celular via LAN (ej. escaneo con camara)
-//   * Supabase: Authentication: URL Configuration: Site URL: https://192.168.0.42:5173 Redirect URLs: https://192.168.0.42:5173/**
-//   * GitHub: Developer Settings: OAuth Apps: Homepage URL: https://192.168.0.42:5173/EntradasQR/
-//   * Usa HTTPS con certificados locales (creados via mkcert y copiados a android)
-// - false: para probar desde esta misma PC
-//   * Supabase: Authentication: URL Configuration: Site URL: https://localhost:5173 Redirect URLs: https://localhost:5173/**
-//   * GitHub: Developer Settings: OAuth Apps: Homepage URL: https://localhost:5173/EntradasQR/
-//   * Usa HTTP (sin certificados)
-const hostOnLan = true
+// https://vite.dev/config/
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd());
 
-const keyPath = './secrets/key.pem'
-const certPath = './secrets/cert.pem'
-const hasCerts = fs.existsSync(keyPath) && fs.existsSync(certPath)
-const useCertAndHost = hasCerts && hostOnLan
+  let https: ServerOptions["https"] = undefined;
+  if (env.VITE_USE_HTTPS === 'true') {
+    if (!env.VITE_KEY_PATH || !env.VITE_CERT_PATH) {
+      throw new Error('VITE_KEY_PATH y VITE_CERT_PATH son requeridos en .env cuando VITE_USE_HTTPS es true');
+    }
+    if (!fs.existsSync(env.VITE_KEY_PATH)) {
+      throw new Error(`certificado VITE_KEY_PATH no encontrado en: ${env.VITE_KEY_PATH}`);
+    }
+    if (!fs.existsSync(env.VITE_CERT_PATH)) {
+      throw new Error(`certificado VITE_CERT_PATH no encontrado en: ${env.VITE_CERT_PATH}`);
+    }
+    https = {
+      key: fs.readFileSync(env.VITE_KEY_PATH),
+      cert: fs.readFileSync(env.VITE_CERT_PATH),
+    }
+  }
 
-const server = useCertAndHost ? {
-  https: {
-    key: fs.readFileSync(keyPath),
-    cert: fs.readFileSync(certPath),
-  },
-  host: '192.168.0.42',
-  port: 5173
-} : undefined
-
-function printUrls(): Plugin[] {
-  if (!useCertAndHost)
-    return [];
-  return [{
-    name: 'hide-localhost-url',
-    configureServer(server) {
-      server.printUrls = () => {
-        const urls = server.resolvedUrls
-        const logger = server.config.logger
-        if (urls?.network?.length) {
-          for (const url of urls.network) {
-            logger.info(`  ➜  Network: ${url}`)
+  function printUrls(): PluginOption {
+    if (!https || !env.VITE_HOST)
+      return undefined;
+    return {
+      name: 'hide-localhost-url',
+      configureServer(server) {
+        server.printUrls = () => {
+          const urls = server.resolvedUrls
+          const logger = server.config.logger
+          if (urls?.network?.length) {
+            for (const url of urls.network) {
+              logger.info(`  ➜  Network: ${url}`)
+            }
           }
         }
-      }
-    },
-  }];
-}
+      },
+    };
+  }
 
-export default defineConfig({
-  plugins: [react(), tailwindcss(), printUrls()],
-  base: '/EntradasQR/',
-  server: server,
+  return {
+    plugins: [react(), tailwindcss(), printUrls()],
+    base: '/EntradasQR/',
+    server: {
+      https: https,
+      host: env.VITE_HOST || undefined,
+      port: env.VITE_PORT ? Number.parseInt(env.VITE_PORT) : undefined,
+      strictPort: env.VITE_PORT ? true : false,
+    },
+  }
 })

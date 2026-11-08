@@ -52,19 +52,23 @@ Aplicación web para la gestión de entradas con códigos QR para eventos de Ens
    3. Copia el "Callback URL (for OAuth)" de la pantalla anterior (desde Supabase) y agregalo como un nuevo "Redirect URI" en tu OAuth App en GitHub.
    Puede que tambien necesites agregar: http://localhost:5173/auth/v1/callback
 
-   4. Crea un archivo `.env` en esta misma carpeta con las siguientes variables:
-   ```
-   VITE_SUPABASE_URL=tu_project_url_de_supabase
-   VITE_SUPABASE_ANON_KEY=tu_anon_public_key_de_supabase
-   ```
-   La url del projecto puede copiarse desde el Project Overview de Supabase (e.g. https://abcdefghijklmnopqrst.supabase.co). Y la `anon public` key esta en Project Settings > API Keys dentro el tab "Legacy anon, service_role API keys".
+   4. Copia el archivo `.env.example` en `.env` y configura las variables:
+      - VITE_SUPABASE_URL: Puede copiarse desde el Project Overview de Supabase (e.g. https://abcdefghijklmnopqrst.supabase.co).
+      - VITE_SUPABASE_ANON_KEY: Es la `anon public` key que esta en Project Settings > API Keys dentro el tab "Legacy anon, service_role API keys".
+      - VITE_USE_HTTPS, VITE_KEY_PATH, VITE_CERT_PATH, VITE_HOST y VITE_PORT: Variables opcionales para poder probar en el servidor de desarrollo desde el celular via red LAN. Para que el escaneo con camara funcione, se necesita conexión segura (HTTPS en vez de HTTP). Pero para eso hay que primero crear certificados locales (ej: via mkcert) y copiarlos a android e instalar el Certificado de CA en android. Luego configurar GitHub y Supabase segun los valores elegidos:
+         * ej: `VITE_USE_HTTPS=true`, `VITE_KEY_PATH=./secrets/key.pem`, `VITE_CERT_PATH=./secrets/cert.pem`, `VITE_HOST=192.168.0.2` & `VITE_PORT=5173`
+            - Supabase: Authentication: URL Configuration: Site URL: https://192.168.0.2:5173 Redirect URLs: https://192.168.0.2:5173/**
+            - GitHub: Developer Settings: OAuth Apps: Homepage URL: https://192.168.0.2:5173/EntradasQR/
+         * ej: `VITE_USE_HTTPS=false` (sin certificados ni direccion de red, sirve desde esta misma PC)
+            - Supabase: Authentication: URL Configuration: Site URL: http://localhost:5173 Redirect URLs: http://localhost:5173/**
+            - GitHub: Developer Settings: OAuth Apps: Homepage URL: http://localhost:5173/EntradasQR/
 
 5. Inicia el servidor de desarrollo:
    ```bash
    npm run dev
    ```
 
-6. Abre tu navegador en [http://localhost:5173/EntradasQR](http://localhost:5173/EntradasQR)
+6. Abre tu navegador en la URL que muestra el comando anterior (ya sea Local o Network)
 
 ## 🏗️ Estructura del proyecto
 
