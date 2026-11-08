@@ -32,8 +32,7 @@ const AltaDeEntrada: FC = () => {
     if (!camposValidos) {
       
       toaster.create({
-        title: 'Falta información',
-        description: 'Por favor, completa todos los campos obligatorios.',
+        description: 'Complete todos los campos obligatorios.',
         type: 'error',
         duration: 10000,
         closable: true,

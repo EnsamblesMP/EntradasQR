@@ -122,18 +122,17 @@ export default function Preacreditacion() {
       if (entrada) {
         toaster.create({
           type: 'success',
-          title: 'Entrada válida',
-          description: `Entrada de ${entrada.nombre_comprador} escaneada correctamente`,
-          duration: 5000,
+          description: `Entrada válida de ${entrada.nombre_comprador}`,
+          duration: 2000,
           closable: true,
         });
         alSeleccionarEntrada(entrada);
       } else {
         toaster.create({
           type: 'warning',
-          title: 'Entrada no encontrada',
-          description: 'La entrada escaneada no está en la base de datos',
-          duration: 5000,
+          description: 'QR escaneado, pero no coincide con ninguna entrada de ' +
+            (funcion ? `esta función (${funcion} ${anio})` : `este año (${anio})`),
+          duration: 10000,
           closable: true,
         });
       }

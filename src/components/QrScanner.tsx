@@ -20,8 +20,7 @@ export const QrScanner = ({
       if (detectedCodes[0].format !== 'qr_code') {
         toaster.create({
           type: 'error',
-          title: 'Error',
-          description: 'Código QR no válido',
+          description: 'ERROR: Código QR no válido',
           duration: 5000,
           closable: true,
         });
@@ -36,9 +35,8 @@ export const QrScanner = ({
     console.error(err);
     toaster.create({
       type: 'error',
-      title: 'Error',
       description: 'Error al acceder a la cámara. Asegúrate de haber otorgado los permisos necesarios.',
-      duration: 5000,
+      duration: 7000,
       closable: true,
     });
   };

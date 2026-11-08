@@ -64,10 +64,9 @@ const Acreditar = () => {
       console.error(errorUsarEntrada || errorCargarEntrada);
       toaster.create({
         type: 'error',
-        title: 'Error',
         description: errorUsarEntrada
-          ? 'Error al acreditar la entrada. Por favor, intente nuevamente.'
-          : 'Error al cargar la entrada. Por favor, intente nuevamente.'
+          ? 'Error al acreditar la entrada. Reintente.'
+          : 'Error al cargar la entrada. Reintente.'
       });
     }
   }, [errorCargarEntrada, errorUsarEntrada]);
@@ -97,7 +96,6 @@ const Acreditar = () => {
     if (!cantidadAUsar || cantidadAUsar.value === '') {
       toaster.create({
         type: 'error',
-        title: 'Error',
         description: 'Por favor ingrese una cantidad válida'
       });
       return;
@@ -112,7 +110,6 @@ const Acreditar = () => {
 
     toaster.create({
       type: 'success',
-      title: 'Éxito',
       description: `Se acreditaron ${cantidadAUsar.valueAsNumber} entrada(s) correctamente`
     });
     
